@@ -10,7 +10,11 @@ const relationFields:Record<string,{table:string;label:(row:Record<string,any>)=
  academic_period_id:{table:'college_academic_periods',label:r=>[r.academic_year,r.term_name].filter(Boolean).join(' · ')},
  partner_id:{table:'college_practice_partners',label:r=>r.institution_name||'Unnamed partner'},
  supervisor_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
- lecturer_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},\n fee_head_id:{table:'college_fee_heads',label:r=>[r.code,r.name].filter(Boolean).join(' — ')},\n coordinator_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},\n placement_id:{table:'college_practice_placements',label:r=>r.id},\n observer_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')}
+ lecturer_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
+ fee_head_id:{table:'college_fee_heads',label:r=>[r.code,r.name].filter(Boolean).join(' — ')},
+ coordinator_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
+ placement_id:{table:'college_practice_placements',label:r=>r.id},
+ observer_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')}
 };
 const selectOptions:Record<string,string[]> = {
  'college_students.status':['applicant','active','deferred','completed','withdrawn','suspended'],
@@ -26,7 +30,21 @@ const selectOptions:Record<string,string[]> = {
  'college_students.signed_declaration_received':['true','false'],
  'college_students.admission_letter_received':['true','false'],
  'college_students.intake':['January','February','March','April','May','June','July','August','September','October','November','December'],
- 'college_academic_periods.status':['planned','active','closed'],\n 'college_academic_periods.period_type':['academic_year','term','semester','block','teaching_practice','examination'],\n 'college_programmes.award_level':['certificate','diploma','higher_diploma','degree','other'],\n 'college_programmes.active':['true','false'],\n 'college_units.active':['true','false'],\n 'college_practice_partners.school_type':['primary','junior_secondary','secondary','special_needs','other'],\n 'college_practice_partners.active':['true','false'],\n 'college_practice_partners.approved':['true','false'],\n 'college_practice_placements.approval_status':['pending','approved','rejected'],\n 'college_fee_charges.charge_status':['draft','posted','waived','cancelled'],\n 'college_practice_visits.visit_type':['observation','follow_up','final','remote'],\n 'college_practice_visits.follow_up_required':['true','false'],\n 'college_fee_heads.active':['true','false'],\n 'college_fee_structures.study_mode':['full_time','school_based','part_time'],\n 'college_fee_structures.active':['true','false'],
+ 'college_academic_periods.status':['planned','active','closed'],
+ 'college_academic_periods.period_type':['academic_year','term','semester','block','teaching_practice','examination'],
+ 'college_programmes.award_level':['certificate','diploma','higher_diploma','degree','other'],
+ 'college_programmes.active':['true','false'],
+ 'college_units.active':['true','false'],
+ 'college_practice_partners.school_type':['primary','junior_secondary','secondary','special_needs','other'],
+ 'college_practice_partners.active':['true','false'],
+ 'college_practice_partners.approved':['true','false'],
+ 'college_practice_placements.approval_status':['pending','approved','rejected'],
+ 'college_fee_charges.charge_status':['draft','posted','waived','cancelled'],
+ 'college_practice_visits.visit_type':['observation','follow_up','final','remote'],
+ 'college_practice_visits.follow_up_required':['true','false'],
+ 'college_fee_heads.active':['true','false'],
+ 'college_fee_structures.study_mode':['full_time','school_based','part_time'],
+ 'college_fee_structures.active':['true','false'],
  'college_staff.employment_status':['active','leave','terminated'],
  'college_profiles.role':['super_admin','principal','registrar','hod','lecturer','finance','librarian','hostel_manager','student','practice_supervisor'],
  'college_hostel_rooms.gender_section':['women','men','mixed'],
@@ -57,14 +75,18 @@ const defs:Def[]=[
 ['Hostel rooms','college_hostel_rooms',[['building','Building',1],['room_number','Room number',1],['capacity','Capacity',1],['gender_section','Section']]],
 ['Library items','college_library_items',[['title','Title',1],['author','Author'],['isbn','ISBN'],['category','Category']]],
 ['Procurement requests','college_procurement_requests',[['request_number','Request number',1],['department','Department'],['description','Description',1],['quantity','Quantity',1],['estimated_cost_kes','Estimated cost (KES)'],['status','Status']]],
-['Fee charges','college_fee_charges',[['student_id','Student',1],['academic_period_id','Academic period'],['fee_head_id','Fee head'],['description','Charge description',1],['amount_kes','Amount (KES)',1],['discount_kes','Approved discount (KES)'],['due_date','Due date'],['charge_status','Charge status'],['notes','Notes']]],\n ['Fee heads','college_fee_heads',[['code','Fee code',1],['name','Fee name',1],['description','Description'],['active','Active?']]],\n ['Fee structures','college_fee_structures',[['programme_id','Programme',1],['academic_period_id','Academic period',1],['fee_head_id','Fee head',1],['study_mode','Study mode'],['intake_month','Intake month'],['intake_year','Intake year'],['amount_kes','Amount (KES)',1],['due_date','Due date'],['active','Active?']]],
+['Fee charges','college_fee_charges',[['student_id','Student',1],['academic_period_id','Academic period'],['fee_head_id','Fee head'],['description','Charge description',1],['amount_kes','Amount (KES)',1],['discount_kes','Approved discount (KES)'],['due_date','Due date'],['charge_status','Charge status'],['notes','Notes']]],
+ ['Fee heads','college_fee_heads',[['code','Fee code',1],['name','Fee name',1],['description','Description'],['active','Active?']]],
+ ['Fee structures','college_fee_structures',[['programme_id','Programme',1],['academic_period_id','Academic period',1],['fee_head_id','Fee head',1],['study_mode','Study mode'],['intake_month','Intake month'],['intake_year','Intake year'],['amount_kes','Amount (KES)',1],['due_date','Due date'],['active','Active?']]],
 ['Attendance','college_attendance',[['student_id','Student',1],['session_date','Session date',1],['status','Status',1],['notes','Notes']]],
 ['Assessments','college_assessments',[['unit_id','Unit',1],['academic_period_id','Academic period',1],['title','Title',1],['assessment_type','Type',1],['max_score','Maximum score',1]]],
-['Teaching practice placements','college_practice_placements',[['student_id','Trainee',1],['academic_period_id','Academic period'],['partner_id','Placement school'],['supervisor_id','College supervisor'],['mentor_name','Mentor teacher'],['mentor_phone','Mentor phone'],['placement_address','Placement address'],['starts_on','Start date'],['ends_on','End date'],['days_required','Required practice days'],['days_completed','Completed practice days'],['approval_status','Approval status'],['placement_letter_number','Placement letter number'],['status','Placement status'],['final_score','Final score'],['completion_recommendation','Completion recommendation'],['feedback','Feedback'],['student_reflection','Student reflection']]],\n ['Teaching practice visits','college_practice_visits',[['placement_id','Placement',1],['visit_date','Visit date',1],['visit_type','Visit type'],['observer_id','Observer'],['lesson_subject','Lesson subject'],['lesson_topic','Lesson topic'],['score','Score'],['maximum_score','Maximum score'],['feedback','Feedback'],['action_points','Action points'],['follow_up_required','Follow-up required?']]],
+['Teaching practice placements','college_practice_placements',[['student_id','Trainee',1],['academic_period_id','Academic period'],['partner_id','Placement school'],['supervisor_id','College supervisor'],['mentor_name','Mentor teacher'],['mentor_phone','Mentor phone'],['placement_address','Placement address'],['starts_on','Start date'],['ends_on','End date'],['days_required','Required practice days'],['days_completed','Completed practice days'],['approval_status','Approval status'],['placement_letter_number','Placement letter number'],['status','Placement status'],['final_score','Final score'],['completion_recommendation','Completion recommendation'],['feedback','Feedback'],['student_reflection','Student reflection']]],
+ ['Teaching practice visits','college_practice_visits',[['placement_id','Placement',1],['visit_date','Visit date',1],['visit_type','Visit type'],['observer_id','Observer'],['lesson_subject','Lesson subject'],['lesson_topic','Lesson topic'],['score','Score'],['maximum_score','Maximum score'],['feedback','Feedback'],['action_points','Action points'],['follow_up_required','Follow-up required?']]],
 ['Timetable sessions','college_timetable_sessions',[['unit_id','Unit'],['lecturer_id','Lecturer'],['weekday','Weekday number'],['starts_at','Start time',1],['ends_at','End time',1],['venue','Venue']]],
 ['Messages','college_messages',[['audience','Audience',1],['subject','Subject',1],['message_body','Message body',1],['channel','Channel'],['status','Status']]],
 ['User profiles','college_profiles',[['id','Auth user UUID',1],['full_name','Full name',1],['role','Role',1],['department','Department']]],
-['Student Passports','college_student_passports',[]],\n ['Audit log','college_audit_log',[]]
+['Student Passports','college_student_passports',[]],
+ ['Audit log','college_audit_log',[]]
 ];
 const studentFieldGroups={
  identity:{title:'Student identity and contact',fields:['admission_number','first_name','middle_name','last_name','date_of_birth','gender','nationality','phone','email','home_county','home_address']},
