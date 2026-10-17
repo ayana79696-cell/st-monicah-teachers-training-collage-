@@ -42,7 +42,7 @@ const defs:Def[]=[
 ['Programmes','college_programmes',[['code','Code',1],['title','Programme title',1],['award_level','Award level'],['duration_terms','Duration terms']]],
 ['Academic periods','college_academic_periods',[['academic_year','Academic year',1],['term_name','Term name',1],['starts_on','Start date'],['ends_on','End date'],['status','Status']]],
 ['Units','college_units',[['programme_id','Programme',1],['unit_code','Unit code',1],['unit_title','Unit title',1],['term_number','Term number']]],
-['Staff','college_staff',[['staff_number','Staff number',1],['full_name','Full name',1],['email','Email'],['phone','Phone'],['department','Department'],['position','Position']]],
+['Staff','college_staff',[['staff_number','Staff number',1],['full_name','Full name',1],['email','Email'],['phone','Phone'],['department','Department'],['position','Position'],['employment_status','Employment status']]],
 ['Teaching practice partners','college_practice_partners',[['institution_name','Institution name',1],['county','County'],['contact_person','Contact person'],['phone','Phone'],['email','Email']]],
 ['Hostel rooms','college_hostel_rooms',[['building','Building',1],['room_number','Room number',1],['capacity','Capacity',1],['gender_section','Section']]],
 ['Library items','college_library_items',[['title','Title',1],['author','Author'],['isbn','ISBN'],['category','Category']]],
@@ -52,7 +52,7 @@ const defs:Def[]=[
 ['Assessments','college_assessments',[['unit_id','Unit',1],['academic_period_id','Academic period',1],['title','Title',1],['assessment_type','Type',1],['max_score','Maximum score',1]]],
 ['Teaching practice placements','college_practice_placements',[['student_id','Student UUID',1],['partner_id','Placement school'],['supervisor_id','Supervisor'],['starts_on','Start date'],['ends_on','End date'],['status','Status']]],
 ['Timetable sessions','college_timetable_sessions',[['unit_id','Unit'],['lecturer_id','Lecturer'],['weekday','Weekday number'],['starts_at','Start time',1],['ends_at','End time',1],['venue','Venue']]],
-['Messages','college_messages',[['title','Title',1],['body','Message body',1]]],
+['Messages','college_messages',[['audience','Audience',1],['subject','Subject',1],['message_body','Message body',1],['channel','Channel'],['status','Status']]],
 ['User profiles','college_profiles',[['id','Auth user UUID',1],['full_name','Full name',1],['role','Role',1],['department','Department']]],
 ['Audit log','college_audit_log',[]]
 ];
