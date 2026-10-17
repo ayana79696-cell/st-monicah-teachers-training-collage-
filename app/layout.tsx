@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Saint Monica's Teachers Training College ERP",
+  title: "St. Monica's Teachers Training College ERP",
   description: 'Academic, student, teaching practice and college administration portal.',
 };
 
