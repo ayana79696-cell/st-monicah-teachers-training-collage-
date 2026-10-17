@@ -195,3 +195,42 @@ footer span{color:#9b8e96}
   .sidebar,.content>header,.section-head,.record-form,.table-wrap,.status,.toolbar,.error-message,.success-message,.sidebar-foot,.nav-label,.nav-items,.content>footer{display:none!important}
   .row-actions{min-width:180px!important}
 }
+
+
+/* St. Monicah: horizontal top navigation, keeping every workspace module visible */
+.workspace-sidebar{
+  position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+  padding:14px clamp(14px,3vw,38px) 0!important;overflow:visible!important;
+  display:grid!important;grid-template-columns:minmax(190px,auto) minmax(0,1fr) auto;
+  grid-template-rows:auto auto;column-gap:24px;align-items:center;
+  border-right:0!important;border-bottom:1px solid var(--line)!important;
+  box-shadow:0 4px 18px rgba(45,20,31,.035);z-index:10;
+}
+.workspace-sidebar .brand{grid-column:1;grid-row:1/3;padding:0!important;border:0!important;min-width:0}
+.workspace-sidebar .brand .crest-logo{width:43px;height:43px;object-fit:contain}
+.workspace-sidebar .nav-label{grid-column:2;grid-row:1;margin:0 0 5px!important;font-size:8px}
+.workspace-sidebar .workspace-nav{grid-column:2;grid-row:2;display:flex;flex-direction:row!important;align-items:center;
+  gap:5px!important;min-width:0;overflow-x:auto!important;overflow-y:hidden!important;padding:0 0 10px!important;
+  scrollbar-width:thin;white-space:nowrap}
+.workspace-sidebar .workspace-nav .nav{flex:0 0 auto;white-space:nowrap;font-size:11px;padding:9px 11px;margin:0;border-radius:8px}
+.workspace-sidebar .workspace-nav .nav.active{box-shadow:inset 0 -3px 0 var(--gold)!important}
+.workspace-sidebar .workspace-user{grid-column:3;grid-row:1/3;align-self:center;margin:0!important;padding:0 0 0 16px!important;
+  border-top:0!important;border-left:1px solid var(--line);min-width:120px;max-width:190px;overflow-wrap:anywhere}
+.workspace-sidebar .workspace-user .quiet-button{margin-top:7px}
+.workspace-sidebar+.content{margin-left:0!important;max-width:none!important;width:100%;padding-top:28px}
+@media(max-width:1050px){
+ .workspace-sidebar{grid-template-columns:minmax(150px,auto) minmax(0,1fr);column-gap:15px;padding-inline:16px!important}
+ .workspace-sidebar .workspace-user{grid-column:1/3;grid-row:3;display:flex;align-items:center;gap:8px;max-width:none;
+   border-left:0;border-top:1px solid var(--line)!important;padding:8px 0!important}
+ .workspace-sidebar .workspace-user span{margin:0}
+ .workspace-sidebar .workspace-user .quiet-button{margin:0 0 0 auto}
+}
+@media(max-width:700px){
+ .workspace-sidebar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;padding:12px 12px 0!important}
+ .workspace-sidebar .brand{align-self:flex-start}
+ .workspace-sidebar .nav-label{display:block!important;margin:4px 0 0!important}
+ .workspace-sidebar .workspace-nav{display:flex!important;width:100%;gap:5px!important;padding-bottom:9px!important}
+ .workspace-sidebar .workspace-nav .nav{display:flex!important;flex:0 0 auto!important;font-size:11px;padding:8px 10px}
+ .workspace-sidebar .workspace-user{display:flex!important;align-self:stretch;min-width:0;flex-wrap:wrap}
+ .workspace-sidebar+.content{padding:20px 14px!important}
+}
