@@ -11,36 +11,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setBusy(true); setError(''); setNotice('');
+    setBusy(true);
+    setError('');
     try {
       const supabase = createClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: SUPER_ADMIN_EMAIL,
         password,
       });
-      if (signInError) throw signInError;        router.replace('/');
-          router.refresh();
-          return;
-        }
-        setNotice('Your account request has been created. Check superadmin@stmonicah.com for the verification email, verify it, then return here and choose “Sign in”.');
-        setMode('signin');
-        setPassword('');
-        setConfirmPassword('');
-      } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: SUPER_ADMIN_EMAIL,
-          password,
-        });
-        if (signInError) throw signInError;
-        router.replace('/');
-        router.refresh();
-      }
+      if (signInError) throw signInError;
+      router.replace('/');
+      router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to continue. Check the details and try again.');
+      setError(e instanceof Error ? e.message : 'Unable to sign in. Check your password and try again.');
     } finally {
       setBusy(false);
     }
@@ -51,15 +37,12 @@ export default function LoginPage() {
     <p className="eyebrow">COLLEGE MANAGEMENT SYSTEM</p>
     <h1>Welcome back</h1>
     <p className="muted">Sign in to your Saint Monica’s Super Administrator account.</p>
-    <div className="login-form">
+    <form onSubmit={submit} className="login-form">
       <label>Super Administrator email<input type="email" value={SUPER_ADMIN_EMAIL} readOnly aria-readonly="true" /></label>
-      <form onSubmit={submit} className="login-form">
-        <label>Password<input autoComplete="current-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} required /></label>
-        {error && <p role="alert" className="error-message">{error}</p>}
-        {notice && <p role="status" className="success-message">{notice}</p>}
-        <button disabled={busy} type="submit">{busy ? 'Please wait…' : 'Sign in securely'}</button>
-      </form>
-    </div>
+      <label>Password<input autoComplete="current-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} required /></label>
+      {error && <p role="alert" className="error-message">{error}</p>}
+      <button disabled={busy} type="submit">{busy ? 'Please wait…' : 'Sign in securely'}</button>
+    </form>
     <p className="login-foot">Your password is handled securely by Supabase Auth.</p>
   </section></main>;
 }
