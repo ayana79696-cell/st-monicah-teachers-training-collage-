@@ -55,7 +55,7 @@ export default function LoginPage() {
   }
 
   return <main className="login-shell"><section className="login-card">
-    <div className="login-brand"><div className="crest">SM</div><div><strong>SAINT MONICA'S</strong><span>TEACHERS TRAINING COLLEGE</span></div></div>
+    <div className="login-brand"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="St. Monicah Teacher’s Training College crest" /><div><strong>SAINT MONICA'S</strong><span>TEACHERS TRAINING COLLEGE</span></div></div>
     <p className="eyebrow">COLLEGE MANAGEMENT SYSTEM</p>
     <h1>{mode === 'signup' ? 'Create your Super Admin login' : 'Welcome back'}</h1>
     <p className="muted">{mode === 'signup' ? 'Create the first administrator login using your own password. This email is reserved for the college Super Administrator.' : 'Sign in to your Saint Monica’s Super Administrator account.'}</p>
