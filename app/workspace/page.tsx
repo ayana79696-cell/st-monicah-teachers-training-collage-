@@ -2,7 +2,8 @@
 import {Suspense,useCallback,useEffect,useState} from 'react';
 import {useRouter,useSearchParams} from 'next/navigation';
 import {createClient} from '@/lib/supabase/client';
-const defs=[
+type Def=[string,string,[string,string,number?][]];
+const defs:Def[]=[
 ['Students','college_students',[['admission_number','Admission number',1],['first_name','First name',1],['middle_name','Middle name'],['last_name','Last name',1],['phone','Phone'],['email','Email'],['study_mode','Study mode'],['intake','Intake'],['status','Status']]],
 ['Programmes','college_programmes',[['code','Code',1],['title','Programme title',1],['award_level','Award level'],['duration_terms','Duration terms']]],
 ['Academic periods','college_academic_periods',[['academic_year','Academic year',1],['term_name','Term name',1],['starts_on','Start date'],['ends_on','End date'],['status','Status']]],
