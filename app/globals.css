@@ -15,7 +15,7 @@
 .student-form-section{padding-top:16px;margin-top:14px;border-top:1px solid var(--line)}.student-form-section:first-of-type{padding-top:0;margin-top:0;border-top:0}.student-form-section h3{font-size:12px;color:var(--maroon);margin:0}.student-form-section .form-grid{margin:13px 0 8px}.form-grid select{min-width:0;width:100%;border:1px solid #ded5db;border-radius:8px;padding:11px;font:12px 'DM Sans',sans-serif;background:#fff;color:var(--ink)}.form-grid input:focus,.form-grid select:focus{outline:none;border-color:var(--maroon);box-shadow:0 0 0 3px #641c3512}
 
 
-/* Saint Monica's signature interface: editorial maroon, warm ivory and brushed gold */
+/* St. Monica's signature interface: editorial maroon, warm ivory and brushed gold */
 :root{--maroon:#651b37;--deep:#2c101e;--gold:#d8b66f;--ink:#241d25;--muted:#766d76;--line:#e8dfe4;--paper:#f7f4f4;--surface:#fff;--shadow:0 20px 55px rgba(51,17,33,.07)}
 html{scroll-behavior:smooth;scroll-padding-top:24px}
 body{background:radial-gradient(ellipse at 82% 0%,rgba(221,190,199,.18),transparent 29%),linear-gradient(180deg,#faf7f7 0%,#f5f2f2 100%);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
@@ -159,3 +159,39 @@ footer span{color:#9b8e96}
 @media(max-width:760px){.sidebar{position:sticky;inset:0 0 auto;width:100%;height:auto;max-height:none;padding:12px 13px 10px;overflow:visible;gap:0}.brand{padding:0 4px 12px;border-bottom:1px solid rgba(255,255,255,.12)}.brand .crest-logo{width:43px;height:43px;border-radius:11px}.brand strong{font-size:10px}.brand span{font-size:7px}.sidebar .nav-label{display:none}.nav-items{display:flex;flex-direction:row;gap:5px;overflow-x:auto;overflow-y:hidden;margin-top:9px;padding:0 0 5px;scrollbar-width:thin;max-width:100%}.nav{flex:0 0 auto;width:max-content;max-width:220px;white-space:nowrap;padding:9px 11px;font-size:10px}.sidebar-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;padding:10px 4px 0;border-top:1px solid rgba(255,255,255,.1);font-size:10px}.sidebar-foot span{margin:0;font-size:9px}.quiet-button{margin-left:auto;padding:5px 7px;font-size:10px}.content{margin:0;padding:23px 15px 20px}.content>header{gap:12px;margin-bottom:21px}.content>header .muted{font-size:11px}.welcome{min-height:unset;padding:27px 23px;border-radius:20px}.welcome h2{font-size:clamp(27px,6vw,38px)}.welcome p:not(.eyebrow){font-size:11px;max-width:460px}.welcome .seal-logo{width:92px;height:92px;padding:7px;margin-left:8px}.hero-action{margin-top:18px}.dashboard-stats{gap:10px;margin:14px 0 29px}.stat-card{min-height:142px;padding:15px;border-radius:14px}.stat-card strong{font-size:26px}.module-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module{padding:15px;min-height:178px;border-radius:14px}.module h3{font-size:12px}.module p{font-size:10px}.section-head{align-items:flex-start;margin:26px 0 13px}.section-head h2{font-size:18px}.section-head p{max-width:430px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-form-section{padding-top:16px}.record-form{border-radius:15px}.login-shell.login-layout{grid-template-columns:minmax(0,1fr);gap:16px;padding:16px;align-items:start}.login-visual{min-height:unset;padding:21px;border-radius:19px}.visual-brand .crest-logo{width:44px;height:44px;border-radius:11px}.visual-brand strong{font-size:10px}.visual-brand span{font-size:7px}.visual-message{margin:28px 0 22px}.visual-message .eyebrow.light{font-size:8px;margin-bottom:10px}.visual-message h2{font-size:clamp(30px,8vw,42px);margin-bottom:12px}.visual-message>p:not(.eyebrow){font-size:11px;line-height:1.7}.visual-pills{margin-top:16px}.visual-pills span{font-size:9px;padding:6px 8px}.visual-seal{display:none}.visual-foot{margin-top:0}.login-layout .login-card{justify-self:stretch;width:100%;max-width:unset;border-radius:19px;padding:24px}.login-kicker{margin-bottom:25px}.login-card>.muted{margin-bottom:22px}footer{margin-top:25px}}
 @media(max-width:460px){.content>header{align-items:flex-start;flex-direction:column}.status{padding:8px 11px}.welcome{display:flex;align-items:flex-start;gap:8px;padding:23px 17px}.welcome .seal-logo{width:68px;height:68px;margin:4px 0 0;padding:5px;border-radius:15px}.welcome-copy{min-width:0}.welcome h2{font-size:27px}.welcome .eyebrow.light{font-size:8px;line-height:1.6}.welcome p:not(.eyebrow){font-size:10px}.hero-action{gap:11px;padding:10px;font-size:10px}.dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat-card{min-height:132px;padding:12px}.stat-mark{width:27px;height:27px;margin-bottom:10px}.stat-label{font-size:9px}.stat-card strong{font-size:24px}.stat-note{font-size:9px}.module-grid{grid-template-columns:1fr}.module{min-height:unset;padding:17px}.module p{min-height:unset}.module-state{margin-top:11px}.section-head{flex-direction:column;gap:10px}.count{align-self:flex-start}.toolbar{width:100%}.search-input{flex:1;min-width:0}.form-grid{grid-template-columns:1fr;gap:13px}.record-form{padding:15px}.student-form-section h3{font-size:11px}.records-table th,.records-table td{padding:11px}.login-visual{padding:19px}.login-form{gap:15px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* Print-ready registration forms, receipts, and finance reports */
+.print-area{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff!important;background-image:none!important;color:#111!important}
+  body *{visibility:hidden!important}
+  .print-area,.print-area *{visibility:visible!important}
+  .print-area{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:#fff!important;color:#111!important;box-shadow:none!important;font:10pt Arial,Helvetica,sans-serif!important}
+  .print-brand{display:flex!important;align-items:center!important;gap:13px!important;border-bottom:2px solid #641c35!important;padding:0 0 12px!important;margin:0 0 15px!important}
+  .print-brand img{width:66px!important;height:66px!important;object-fit:contain!important}
+  .print-brand h1{font:700 17pt Arial,Helvetica,sans-serif!important;line-height:1.2!important;letter-spacing:0!important;color:#641c35!important;margin:0 0 4px!important}
+  .print-brand p{font-size:8pt!important;color:#555!important;margin:0!important}
+  .print-doc-title{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;margin:0 0 12px!important;padding-bottom:8px!important;border-bottom:1px solid #ccc!important}
+  .print-doc-title h2{font:700 14pt Arial,Helvetica,sans-serif!important;color:#222!important;margin:0!important}
+  .print-doc-title p{font-size:8pt!important;color:#555!important;margin:2px 0 0!important;text-align:right!important}
+  .print-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:18px!important;row-gap:0!important}
+  .print-field{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;padding:6px 4px!important;border-bottom:1px solid #e4e4e4!important;break-inside:avoid!important}
+  .print-field span{font-size:8pt!important;color:#555!important;text-transform:capitalize!important}
+  .print-field strong{font-size:9pt!important;font-weight:600!important;overflow-wrap:anywhere!important;color:#111!important}
+  .print-section{margin:15px 0!important;break-inside:avoid-page!important}
+  .print-section h3{font:700 10pt Arial,Helvetica,sans-serif!important;color:#641c35!important;padding:0 0 5px!important;margin:0 0 6px!important;border-bottom:1px solid #d7c1ca!important}
+  .print-area table{width:100%!important;border-collapse:collapse!important;font:8pt Arial,Helvetica,sans-serif!important;table-layout:auto!important}
+  .print-area th,.print-area td{padding:5px 6px!important;border:1px solid #ddd!important;vertical-align:top!important;text-align:left!important;overflow-wrap:anywhere!important}
+  .print-area th{background:#f3edf0!important;color:#321727!important;font-weight:700!important}
+  .print-summary{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;margin:14px 0!important;padding:10px!important;border:1px solid #ddd!important;break-inside:avoid!important}
+  .print-summary>div{display:flex!important;flex-direction:column!important;gap:5px!important}
+  .print-summary span{font-size:8pt!important;color:#555!important}
+  .print-summary strong{font-size:10pt!important;color:#641c35!important}
+  .print-signatures{display:grid!important;grid-template-columns:1fr 1fr!important;gap:18px!important;margin-top:30px!important;font-size:8pt!important;break-inside:avoid!important}
+  .print-footer{display:flex!important;justify-content:space-between!important;gap:10px!important;border-top:1px solid #ccc!important;padding-top:7px!important;margin-top:25px!important;color:#555!important;font-size:7pt!important}
+  .print-area p{font-size:8pt!important}
+  .sidebar,.content>header,.section-head,.record-form,.table-wrap,.status,.toolbar,.error-message,.success-message,.sidebar-foot,.nav-label,.nav-items,.content>footer{display:none!important}
+  .row-actions{min-width:180px!important}
+}
