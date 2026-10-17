@@ -15,7 +15,7 @@ const relationFields:Record<string,{table:string;label:(row:Record<string,any>)=
 const selectOptions:Record<string,string[]> = {
  'college_students.status':['applicant','active','deferred','completed','withdrawn','suspended'],
  'college_students.study_mode':['full_time','school_based','part_time'],
- 'college_students.intake':['January','May','September','Other'],
+ 'college_students.intake':['January','February','March','April','May','June','July','August','September','October','November','December'],
  'college_academic_periods.status':['planned','active','closed'],
  'college_staff.employment_status':['active','leave','terminated'],
  'college_profiles.role':['super_admin','principal','registrar','hod','lecturer','finance','librarian','hostel_manager','student','practice_supervisor'],
