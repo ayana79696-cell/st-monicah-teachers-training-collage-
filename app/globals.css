@@ -316,3 +316,39 @@ footer span{color:#9b8e96}
 
 /* Final removal of legacy sidebars after moving overview and Passport Studio to top navigation */
 .shell>aside.sidebar{display:none!important}
+
+
+/* Receipt format chooser and selectable full-size / thermal receipt layouts */
+.receipt-choice-overlay{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:18px;background:rgba(32,13,22,.58);backdrop-filter:blur(3px)}
+.receipt-choice-card{position:relative;width:min(100%,460px);padding:30px;background:#fff;border:1px solid #eadfe4;border-radius:18px;box-shadow:0 22px 70px rgba(35,10,23,.25);color:var(--ink)}
+.receipt-choice-card h2{margin:0 0 10px;font:800 23px Manrope,sans-serif;color:var(--deep)}
+.receipt-choice-card>p:not(.eyebrow){font-size:12px;line-height:1.7;color:var(--muted);margin:0 0 20px}
+.receipt-choice-close{position:absolute;right:14px;top:12px;border:0;background:transparent;color:#796a72;font-size:26px;cursor:pointer}
+.receipt-choice-actions{display:grid;gap:10px;margin-bottom:12px}
+.receipt-choice-actions button{width:100%;min-height:44px}
+.print-area.thermal-print{page:thermalReceipt;width:72mm!important;max-width:72mm!important;font-size:8pt!important}
+.print-area.standard-print{page:standardReceipt}
+@page thermalReceipt{size:80mm auto;margin:2mm}
+@page standardReceipt{size:A4;margin:12mm}
+@media print{
+  .print-area.thermal-print{width:72mm!important;max-width:72mm!important;margin:0!important;padding:0!important;font:8pt Arial,Helvetica,sans-serif!important}
+  .thermal-print .print-brand{display:block!important;text-align:center!important;border-bottom:1px dashed #333!important;padding:0 0 5px!important;margin:0 0 7px!important}
+  .thermal-print .print-brand img{display:block!important;width:34px!important;height:34px!important;margin:0 auto 3px!important}
+  .thermal-print .print-brand h1{font:700 10pt Arial,Helvetica,sans-serif!important;color:#111!important;margin:0!important}
+  .thermal-print .print-brand p{display:none!important}
+  .thermal-print .print-doc-title{display:block!important;text-align:center!important;margin:0 0 7px!important;padding:0 0 5px!important;border-bottom:1px dashed #555!important}
+  .thermal-print .print-doc-title h2{font:700 9pt Arial,Helvetica,sans-serif!important;color:#111!important;margin:0!important}
+  .thermal-print .print-doc-title p{font:7pt Arial,Helvetica,sans-serif!important;text-align:center!important;color:#333!important}
+  .thermal-print .print-fields{display:block!important}
+  .thermal-print .print-field{display:flex!important;flex-direction:row!important;justify-content:space-between!important;gap:5px!important;padding:3px 0!important;border-bottom:1px dotted #ccc!important}
+  .thermal-print .print-field span{font-size:7pt!important;max-width:43%!important}
+  .thermal-print .print-field strong{font-size:7.5pt!important;text-align:right!important;max-width:57%!important}
+  .thermal-print .print-summary{display:block!important;margin:7px 0!important;padding:5px 0!important;border:0!important;border-top:1px dashed #555!important;border-bottom:1px dashed #555!important}
+  .thermal-print .print-summary>div{display:flex!important;flex-direction:row!important;justify-content:space-between!important;gap:5px!important;margin:3px 0!important}
+  .thermal-print .print-summary span,.thermal-print .print-summary strong{font-size:7.5pt!important;color:#111!important}
+  .thermal-print .print-footer{display:block!important;text-align:center!important;margin-top:7px!important;padding-top:5px!important;border-top:1px dashed #555!important;font-size:6.5pt!important}
+  .thermal-print .print-footer span{display:block!important;margin:2px 0!important}
+  .thermal-print .print-section,.thermal-print table{display:none!important}
+  .print-area:not(.thermal-print) .print-signatures{display:grid!important}
+  .print-area:not(.thermal-print) .print-signatures{margin-top:30px!important}
+}
