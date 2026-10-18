@@ -278,3 +278,6 @@ footer span{color:#9b8e96}
 @media(max-width:1100px){.fees-workarea{grid-template-columns:minmax(200px,.8fr) minmax(280px,1.2fr)}.fees-receipt-preview{grid-column:1/-1}.fees-paper{max-width:420px;margin:auto}}
 @media(max-width:700px){.fees-toolbar,.fees-history-head{align-items:stretch;flex-direction:column}.fees-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fees-metrics>div{padding:12px}.fees-workarea{grid-template-columns:minmax(0,1fr)}.fees-receipt-preview{grid-column:auto}.fees-students,.fees-payment-form,.fees-receipt-preview{padding:14px}.fees-student-list{max-height:250px}}
 @media print{.fees-dashboard{display:none!important}}
+
+/* Unified finance dashboard navigation */
+.fees-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px;padding:7px;background:#f5f0ed;border:1px solid #e6d8d1;border-radius:14px}.fees-tabs button{border:0;background:transparent;color:#6e4b49;font:inherit;font-weight:700;padding:11px 18px;border-radius:10px;cursor:pointer}.fees-tabs button.active{background:#6d1728;color:#fff;box-shadow:0 3px 10px #4c10201c}.fees-tabs button:focus-visible{outline:2px solid #b88b36;outline-offset:2px}@media(max-width:600px){.fees-tabs{display:grid;grid-template-columns:1fr 1fr}.fees-tabs button{padding:10px 8px;font-size:13px}}
