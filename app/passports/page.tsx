@@ -42,6 +42,18 @@ export default function PassportStudio(){
    }catch(e:any){setError(e?.message||'Unable to load passport records.');}finally{setBusy(false);}
  },[router]);
  useEffect(()=>{void load();},[load]);
+ const [signature,setSignature]=useState('');
+ const [signaturePreview,setSignaturePreview]=useState('');
+ useEffect(()=>{try{const saved=window.localStorage.getItem('stmonicah-passport-signature');if(saved){setSignature(saved);setSignaturePreview(saved);}}catch{}},[]);
+ function uploadSignature(file?:File){
+   if(!file)return;
+   if(!['image/png','image/jpeg','image/webp'].includes(file.type)){setError('Choose a PNG, JPG or WebP signature image.');return;}
+   if(file.size>2*1024*1024){setError('Signature image must be smaller than 2 MB.');return;}
+   const reader=new FileReader();
+   reader.onload=()=>{const value=String(reader.result||'');setSignature(value);setSignaturePreview(value);try{window.localStorage.setItem('stmonicah-passport-signature',value);setNotice('Signature saved in this browser and added to the passport preview.');}catch{setError('Could not save signature in this browser. Try a smaller image.');}};
+   reader.readAsDataURL(file);
+ }
+
  useEffect(()=>{
    if(!photo){setPhotoPreview('');return;}
    if(/^https?:\/\//i.test(photo)){setPhotoPreview(photo);return;}
