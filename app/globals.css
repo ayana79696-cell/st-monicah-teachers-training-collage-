@@ -328,7 +328,7 @@ footer span{color:#9b8e96}
 .receipt-choice-actions button{width:100%;min-height:44px}
 .print-area.thermal-print{page:thermalReceipt;width:72mm!important;max-width:72mm!important;font-size:8pt!important}
 .print-area.standard-print{page:standardReceipt}
-@page thermalReceipt{size:80mm auto;margin:2mm}
+@page thermalReceipt{size:80mm 180mm;margin:2mm}
 @page standardReceipt{size:A4;margin:12mm}
 @media print{
   .print-area.thermal-print{width:72mm!important;max-width:72mm!important;margin:0!important;padding:0!important;font:8pt Arial,Helvetica,sans-serif!important}
