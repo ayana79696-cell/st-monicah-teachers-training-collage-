@@ -313,3 +313,6 @@ footer span{color:#9b8e96}
 @media(max-width:1150px){.workspace-topbar{gap:14px;padding-inline:18px}.topbar-brand{min-width:170px}.topbar-user{gap:8px}.topbar-user>span{max-width:110px;overflow:hidden;text-overflow:ellipsis}.topnav-link,.topnav-dropdown>summary{padding-inline:9px;font-size:10px}}
 @media(max-width:900px){.workspace-topbar{min-height:72px;gap:12px}.workspace-topnav{display:none}.workspace-mobile-menu{display:block}.topbar-user{margin-left:0}.topbar-user .quiet-button{display:none}.topbar-brand{min-width:0}.topbar-brand .crest-logo{width:42px;height:42px}.topbar-brand small{font-size:7px}.content{padding:23px 18px}.content>header{margin-bottom:22px}}
 @media(max-width:480px){.workspace-topbar{padding:10px 12px;gap:8px}.topbar-brand{gap:8px}.topbar-brand .crest-logo{width:38px;height:38px}.topbar-brand strong{font-size:9px}.topbar-brand small{font-size:6px;letter-spacing:.08em}.topbar-user{display:none}.workspace-mobile-menu>summary{padding:10px;font-size:11px}.content{padding:19px 12px}.content>header{gap:12px}.content>header .status{padding:8px 10px}}
+
+/* Final removal of legacy sidebars after moving overview and Passport Studio to top navigation */
+.shell>aside.sidebar{display:none!important}
