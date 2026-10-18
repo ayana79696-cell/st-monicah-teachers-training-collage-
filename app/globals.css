@@ -237,3 +237,44 @@ footer span{color:#9b8e96}
  .workspace-sidebar .workspace-user{display:flex!important;align-self:stretch;min-width:0;flex-wrap:wrap}
  .workspace-sidebar+.content{padding:20px 14px!important}
 }
+
+
+/* Single-screen Fees & Payments dashboard */
+.fees-dashboard{max-width:1600px;margin:0 auto}
+.fees-toolbar,.fees-history-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 18px}
+.fees-toolbar h2,.fees-history-head h3{margin:0;color:#321928;font:800 20px Manrope,sans-serif;letter-spacing:-.04em}
+.fees-toolbar p,.fees-history-head p{margin:6px 0 0;font-size:11px}
+.fees-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.fees-metrics>div{background:#fff;border:1px solid #eadfe4;border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(49,17,34,.035)}
+.fees-metrics span{display:block;color:#816d79;font-size:10px;font-weight:700}
+.fees-metrics strong{display:block;margin-top:9px;color:#561a34;font:800 clamp(17px,1.7vw,25px) Manrope,sans-serif;overflow-wrap:anywhere}
+.fees-workarea{display:grid;grid-template-columns:minmax(210px,.85fr) minmax(280px,1.15fr) minmax(220px,.85fr);gap:14px;align-items:stretch;margin:18px 0 28px}
+.fees-students,.fees-payment-form,.fees-receipt-preview{min-width:0;background:#fff;border:1px solid #eadfe4;border-radius:16px;padding:17px;box-shadow:0 7px 24px rgba(49,17,34,.035)}
+.fees-students h3,.fees-panel-title h3{margin:0;color:#3c2030;font:800 14px Manrope,sans-serif}
+.fees-students>p,.fees-panel-title p{margin:6px 0 13px;color:#8a7882;font-size:10px;line-height:1.6}
+.fees-student-list{display:grid;gap:6px;max-height:410px;overflow:auto}
+.fees-student{display:flex;align-items:center;gap:9px;width:100%;padding:9px;border:1px solid #eee5e9;border-radius:10px;background:#fff;text-align:left;cursor:pointer;color:#4a3440}
+.fees-student.selected{border-color:#8e526b;background:#fbf3f6;box-shadow:inset 3px 0 #641c35}
+.fees-avatar{display:grid;place-items:center;flex:0 0 32px;height:32px;border-radius:9px;background:#f2e5eb;color:#641c35;font-weight:800}
+.fees-student>span:nth-child(2){display:grid;gap:4px;min-width:0;flex:1}
+.fees-student strong{font-size:10px;overflow-wrap:anywhere}.fees-student small{font-size:9px;color:#95828c;overflow-wrap:anywhere}.fees-student>b{color:#b39aa6}
+.fees-panel-title{display:flex;align-items:flex-start;gap:10px;margin-bottom:15px}
+.fees-panel-title>span{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:9px;background:#f3e6eb;color:#641c35;font-size:10px;font-weight:800}
+.fees-payment-form .form-grid{grid-template-columns:1fr;gap:12px;margin:10px 0 18px}
+.fees-payment-form .form-grid label{font-size:10px}
+.fees-payment-form .form-grid input,.fees-payment-form .form-grid select{min-height:39px}
+.fees-save{width:100%;justify-content:center;white-space:normal;line-height:1.5}
+.fees-secure-note,.fees-receipt-note{font-size:9px;line-height:1.65;color:#93808b}
+.fees-paper{padding:17px 13px;border:1px dashed #d8c7cf;border-radius:10px;background:#fffdfa;text-align:center}
+.fees-paper img{display:block;width:48px;height:48px;object-fit:contain;margin:0 auto 8px}
+.fees-paper>strong{display:block;color:#641c35;font-size:12px;letter-spacing:.08em}
+.fees-paper>small{display:block;color:#8e7480;font-size:8px;letter-spacing:.06em}
+.fees-paper-line{height:1px;background:#e5d7de;margin:13px 0}
+.fees-paper h4{font-size:10px;color:#4c293a;margin:0 0 15px}
+.fees-paper p{margin:11px 0 4px;color:#927d88;font-size:9px}
+.fees-paper>b{display:block;color:#3b2631;font-size:10px;overflow-wrap:anywhere}
+.fees-paper .fees-paper-amount{font-size:18px;color:#641c35}
+.fees-history-head{margin-top:24px}
+@media(max-width:1100px){.fees-workarea{grid-template-columns:minmax(200px,.8fr) minmax(280px,1.2fr)}.fees-receipt-preview{grid-column:1/-1}.fees-paper{max-width:420px;margin:auto}}
+@media(max-width:700px){.fees-toolbar,.fees-history-head{align-items:stretch;flex-direction:column}.fees-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fees-metrics>div{padding:12px}.fees-workarea{grid-template-columns:minmax(0,1fr)}.fees-receipt-preview{grid-column:auto}.fees-students,.fees-payment-form,.fees-receipt-preview{padding:14px}.fees-student-list{max-height:250px}}
+@media print{.fees-dashboard{display:none!important}}
