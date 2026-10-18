@@ -97,8 +97,8 @@ const studentFieldGroups={
  professional:{title:'Teaching and work experience',fields:['teacher_experience_years','tsc_number','current_school_or_employer','previous_work_experience','subjects_taught']},
  documents:{title:'Admission document checklist',fields:['id_document_received','birth_certificate_received','academic_certificate_received','passport_photo_received','medical_clearance_received','insurance_document_received','signed_declaration_received','admission_letter_received']}
 };
-function Page(){const router=useRouter(),params=useSearchParams(),table=params.get('module')||'college_students';const def=defs.find(d=>d[1]===table)||defs[0];const [rows,setRows]=useState<Record<string,any>[]>([]),[profile,setProfile]=useState<any>(null),[busy,setBusy]=useState(true),[error,setError]=useState(''),[show,setShow]=useState(false),[values,setValues]=useState<Record<string,string>>({}),[search,setSearch]=useState(''),[saving,setSaving]=useState(false),[notice,setNotice]=useState(''),[lookupOptions,setLookupOptions]=useState<Record<string,{value:string;label:string}[]>>({}),[printDoc,setPrintDoc]=useState<any>(null);
-const load=useCallback(async()=>{setBusy(true);setError('');try{const db=createClient(),{data:{session}}=await db.auth.getSession();if(!session){router.replace('/login');return;}const {data:p,error:pe}=await db.from('college_profiles').select('full_name,role,active').eq('id',session.user.id).maybeSingle();if(pe)throw pe;if(!p?.active){router.replace('/');return;}setProfile(p);const {data,error:e}=await db.from(def[1]).select('*').limit(100);if(e)throw e;setRows(data||[]);
+function Page(){const router=useRouter(),params=useSearchParams(),table=params.get('module')||'college_students';const def=defs.find(d=>d[1]===table)||defs[0];const [rows,setRows]=useState<Record<string,any>[]>([]),[profile,setProfile]=useState<any>(null),[busy,setBusy]=useState(true),[error,setError]=useState(''),[show,setShow]=useState(false),[values,setValues]=useState<Record<string,string>>({}),[search,setSearch]=useState(''),[saving,setSaving]=useState(false),[notice,setNotice]=useState(''),[lookupOptions,setLookupOptions]=useState<Record<string,{value:string;label:string}[]>>({}),[printDoc,setPrintDoc]=useState<any>(null);const [financeTab,setFinanceTab]=useState<'payment'|'history'|'structures'|'balances'>('payment');const [financeStructures,setFinanceStructures]=useState<Record<string,any>[]>([]);const [financeCharges,setFinanceCharges]=useState<Record<string,any>[]>([]);const [financeStudents,setFinanceStudents]=useState<Record<string,any>[]>([]);
+const load=useCallback(async()=>{setBusy(true);setError('');try{const db=createClient(),{data:{session}}=await db.auth.getSession();if(!session){router.replace('/login');return;}const {data:p,error:pe}=await db.from('college_profiles').select('full_name,role,active').eq('id',session.user.id).maybeSingle();if(pe)throw pe;if(!p?.active){router.replace('/');return;}setProfile(p);const {data,error:e}=await db.from(def[1]).select('*').limit(100);if(e)throw e;setRows(data||[]);if(def[1]==='college_payments'){const [st,fc,fs]=await Promise.all([db.from('college_students').select('*').limit(500),db.from('college_fee_charges').select('*').limit(1000),db.from('college_fee_structures').select('*').limit(500)]);if(st.error)throw st.error;if(fc.error)throw fc.error;if(fs.error)throw fs.error;setFinanceStudents(st.data||[]);setFinanceCharges(fc.data||[]);setFinanceStructures(fs.data||[]);}
 const needed=Array.from(new Set((def[2] as any[]).map(f=>f[0]).filter((key:string)=>relationFields[key])));
 const optionEntries=await Promise.all(needed.map(async key=>{const rel=relationFields[key];const {data:items}=await db.from(rel.table).select('*').limit(500);return [key,(items||[]).map((row:Record<string,any>)=>({value:String(row.id),label:rel.label(row)})).filter((o:{value:string;label:string})=>o.value&&o.label)] as const;}));
 setLookupOptions(Object.fromEntries(optionEntries));}catch(e){setError(e instanceof Error?e.message:'Unable to load records.');}finally{setBusy(false);}},[def,router]);
@@ -133,66 +133,16 @@ return <main className="shell"><aside className="sidebar workspace-sidebar"><div
     <div><span>Students available</span><strong>{lookupOptions.student_id?.length||0}</strong></div>
     <div><span>Current month</span><strong>{money(rows.filter(r=>r.paid_at&&new Date(r.paid_at).getMonth()===new Date().getMonth()&&new Date(r.paid_at).getFullYear()===new Date().getFullYear()).reduce((n,r)=>n+Number(r.amount_kes||0),0))}</strong></div>
   </div>
-  <div className="fees-workarea">
-    <aside className="fees-students">
-      <h3>Find a student</h3>
-      <p>Choose the student whose payment you are recording.</p>
-      <div className="fees-student-list">
-        {(lookupOptions.student_id||[]).filter(o=>o.label.toLowerCase().includes(search.toLowerCase())).slice(0,100).map(o=>(
-          <button type="button" key={o.value} className={'fees-student '+(values.student_id===o.value?'selected':'')} onClick={()=>setValues(v=>({...v,student_id:o.value}))}>
-            <span className="fees-avatar">{o.label.trim().charAt(0).toUpperCase()}</span>
-            <span><strong>{o.label.split(' · ')[0]}</strong><small>{o.label.split(' · ').slice(1).join(' · ')||'Student record'}</small></span>
-            <b>›</b>
-          </button>
-        ))}
-      </div>
-    </aside>
-    <form className="fees-payment-form" onSubmit={save}>
-      <div className="fees-panel-title"><span>01</span><div><h3>Make a payment</h3><p>Enter payment details once. A receipt is prepared after saving.</p></div></div>
-      <div className="form-grid">{(def[2] as any[]).map(renderField)}</div>
-      <button disabled={saving} className="primary-button fees-save">{saving?'Saving payment…':'Save payment & generate receipt'}</button>
-      <p className="fees-secure-note">Payment is stored in the college payment records. Keep the reference number for reconciliation.</p>
-    </form>
-    <aside className="fees-receipt-preview">
-      <div className="fees-panel-title"><span>02</span><div><h3>Receipt preview</h3><p>Automatically prepared after payment is saved.</p></div></div>
-      <div className="fees-paper">
-        <img src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="College crest" />
-        <strong>ST. MONICA&apos;S</strong><small>TEACHERS TRAINING COLLEGE</small>
-        <div className="fees-paper-line" />
-        <h4>OFFICIAL PAYMENT RECEIPT</h4>
-        <p>Student</p><b>{(lookupOptions.student_id||[]).find(o=>o.value===values.student_id)?.label||'Select a student'}</b>
-        <p>Amount received</p><b className="fees-paper-amount">{values.amount_kes?money(values.amount_kes):'KES 0.00'}</b>
-        <p>Payment method</p><b>{optionLabel(values.payment_method||'—')}</b>
-        <p>Transaction reference</p><b>{values.reference_number||'Generated from saved payment'}</b>
-        <div className="fees-paper-line" />
-        <small>Receipt number and account balance are generated from the saved transaction.</small>
-      </div>
-      <p className="fees-receipt-note">After saving, the receipt opens for printing or saving as PDF.</p>
-    </aside>
-  </div>
-  <div className="fees-history-head">
-    <div><h3>Full payment history</h3><p className="muted">Saved transactions stay here for search, review and receipt reprints.</p></div>
-    <button type="button" className="secondary-button" onClick={printList}>Print payment register</button>
-  </div>
-  <div className="table-wrap">
-    {busy && <p className="empty-state">Loading payment history…</p>}
-    {!busy && visible.length===0 && <p className="empty-state">No matching payments found.</p>}
-    {!busy && visible.length>0 && (
-      <table className="records-table">
-        <thead><tr><th>Date</th><th>Student</th><th>Method</th><th>Reference</th><th>Amount</th><th>Receipt</th></tr></thead>
-        <tbody>
-          {visible.map((r,i)=>(
-            <tr key={r.id||i}>
-              <td>{r.paid_at?new Date(r.paid_at).toLocaleDateString('en-KE'):'—'}</td>
-              <td>{(lookupOptions.student_id||[]).find(o=>o.value===String(r.student_id))?.label||'Student record'}</td>
-              <td>{optionLabel(String(r.payment_method||'—'))}</td><td>{r.reference_number||'—'}</td><td>{money(r.amount_kes)}</td>
-              <td><button type="button" className="secondary-button" disabled={saving} onClick={()=>void printReceipt(r)}>Print receipt</button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </div>
+  <nav className="fees-tabs" aria-label="Fees and payments sections">
+    <button type="button" className={financeTab==='payment'?'active':''} onClick={()=>setFinanceTab('payment')}>Make Payment</button>
+    <button type="button" className={financeTab==='history'?'active':''} onClick={()=>setFinanceTab('history')}>Payment History</button>
+    <button type="button" className={financeTab==='structures'?'active':''} onClick={()=>setFinanceTab('structures')}>Fee Structure</button>
+    <button type="button" className={financeTab==='balances'?'active':''} onClick={()=>setFinanceTab('balances')}>Student Balances</button>
+  </nav>
+  {financeTab==='payment' && <div className="fees-workarea"><aside className="fees-students"><h3>Find a student</h3><p>Choose the student whose payment you are recording.</p><div className="fees-student-list">{(lookupOptions.student_id||[]).filter(o=>o.label.toLowerCase().includes(search.toLowerCase())).slice(0,100).map(o=><button type="button" key={o.value} className={'fees-student '+(values.student_id===o.value?'selected':'')} onClick={()=>setValues(v=>({...v,student_id:o.value}))}><span className="fees-avatar">{o.label.trim().charAt(0).toUpperCase()}</span><span><strong>{o.label.split(' · ')[0]}</strong><small>{o.label.split(' · ').slice(1).join(' · ')||'Student record'}</small></span><b>›</b></button>)}</div></aside><form className="fees-payment-form" onSubmit={save}><div className="fees-panel-title"><span>01</span><div><h3>Make a payment</h3><p>Enter payment details once. A receipt is prepared after saving.</p></div></div><div className="form-grid">{(def[2] as any[]).map(renderField)}</div><button disabled={saving} className="primary-button fees-save">{saving?'Saving payment…':'Save payment & generate receipt'}</button><p className="fees-secure-note">Payment is stored in the college payment records. Keep the reference number for reconciliation.</p></form><aside className="fees-receipt-preview"><div className="fees-panel-title"><span>02</span><div><h3>Receipt preview</h3><p>Automatically prepared after payment is saved.</p></div></div><div className="fees-paper"><img src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="College crest"/><strong>ST. MONICA&apos;S</strong><small>TEACHERS TRAINING COLLEGE</small><div className="fees-paper-line"/><h4>OFFICIAL PAYMENT RECEIPT</h4><p>Student</p><b>{(lookupOptions.student_id||[]).find(o=>o.value===values.student_id)?.label||'Select a student'}</b><p>Amount received</p><b className="fees-paper-amount">{values.amount_kes?money(values.amount_kes):'KES 0.00'}</b><p>Payment method</p><b>{optionLabel(values.payment_method||'—')}</b><p>Transaction reference</p><b>{values.reference_number||'Generated from saved payment'}</b><div className="fees-paper-line"/><small>Receipt number and account balance are generated from the saved transaction.</small></div><p className="fees-receipt-note">After saving, the receipt opens for printing or saving as PDF.</p></aside></div>}
+  {financeTab==='history' && <><div className="fees-history-head"><div><h3>Full payment history</h3><p className="muted">Search, review and reprint saved transactions.</p></div><button type="button" className="secondary-button" onClick={printList}>Print payment register</button></div><div className="table-wrap">{busy?<p className="empty-state">Loading payment history…</p>:visible.length===0?<p className="empty-state">No matching payments found.</p>:<table className="records-table"><thead><tr><th>Date</th><th>Student</th><th>Method</th><th>Reference</th><th>Amount</th><th>Receipt</th></tr></thead><tbody>{visible.map((r,i)=><tr key={r.id||i}><td>{r.paid_at?new Date(r.paid_at).toLocaleDateString('en-KE'):'—'}</td><td>{(lookupOptions.student_id||[]).find(o=>o.value===String(r.student_id))?.label||'Student record'}</td><td>{optionLabel(String(r.payment_method||'—'))}</td><td>{r.reference_number||'—'}</td><td>{money(r.amount_kes)}</td><td><button type="button" className="secondary-button" disabled={saving} onClick={()=>void printReceipt(r)}>Print receipt</button></td></tr>)}</tbody></table>}</div></>}
+  {financeTab==='structures' && <><div className="fees-history-head"><div><h3>Fee structures</h3><p className="muted">Configured fees and charge generation.</p></div><button type="button" className="secondary-button" onClick={()=>router.push('/workspace?module=college_fee_structures')}>Manage fee structures</button></div><div className="table-wrap"><table className="records-table"><thead><tr><th>Fee head</th><th>Programme</th><th>Study mode</th><th>Intake</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>{financeStructures.map((r,i)=><tr key={r.id||i}><td>{(lookupOptions.fee_head_id||[]).find(o=>o.value===String(r.fee_head_id))?.label||'Fee head'}</td><td>{(lookupOptions.programme_id||[]).find(o=>o.value===String(r.programme_id))?.label||'Programme'}</td><td>{optionLabel(String(r.study_mode||'—'))}</td><td>{[r.intake_month,r.intake_year].filter(Boolean).join(' ')||'—'}</td><td>{money(r.amount_kes)}</td><td>{r.active===false?'Inactive':'Active'}</td><td><button type="button" className="secondary-button" disabled={saving||r.active===false||!['super_admin','finance'].includes(profile?.role)} onClick={()=>void generateCharges(r.id)}>Generate charges</button></td></tr>)}</tbody></table></div></>}
+  {financeTab==='balances' && <><div className="fees-history-head"><div><h3>Student balances</h3><p className="muted">Net charges minus payments recorded for each student.</p></div><button type="button" className="secondary-button" onClick={()=>router.push('/workspace?module=college_fee_charges')}>Manage charges</button></div><div className="table-wrap"><table className="records-table"><thead><tr><th>Student</th><th>Admission no.</th><th>Net charges</th><th>Paid</th><th>Balance</th><th>Statement</th></tr></thead><tbody>{financeStudents.filter(st=>[st.first_name,st.middle_name,st.last_name,st.admission_number].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase())).map((st,i)=>{const charges=financeCharges.filter(c=>String(c.student_id)===String(st.id));const paid=rows.filter(p=>String(p.student_id)===String(st.id)).reduce((n,p)=>n+Number(p.amount_kes||0),0);const due=charges.reduce((n,c)=>n+Math.max(0,Number(c.amount_kes||0)-Number(c.discount_kes||0)),0);return <tr key={st.id||i}><td>{[st.first_name,st.middle_name,st.last_name].filter(Boolean).join(' ')||'Student'}</td><td>{st.admission_number||'—'}</td><td>{money(due)}</td><td>{money(paid)}</td><td><strong>{money(due-paid)}</strong></td><td><button type="button" className="secondary-button" disabled={saving} onClick={()=>void printStatement(st.id)}>Print statement</button></td></tr>})}</tbody></table></div></>}
 </section>
 )}
 {def[1] !== 'college_payments' && (
