@@ -89,7 +89,20 @@ export default function PassportStudio(){
  const programme=programmes.find(p=>p.id===student?.programme_id);
  const matchingApplication=student?admissionApps.find(a=>(a.email&&student.email&&a.email.toLowerCase()===student.email.toLowerCase())||(a.first_name?.toLowerCase()===student.first_name?.toLowerCase()&&a.last_name?.toLowerCase()===student.last_name?.toLowerCase())):undefined;
  useEffect(()=>{let active=true;setApplicantSignature('');const doc=matchingApplication?.documents?.find((d:any)=>String(d?.name||'').toLowerCase().includes('applicant-signature')&&d?.path);if(doc?.path){void createClient().storage.from('admissions-documents').createSignedUrl(doc.path,3600).then(({data,error})=>{if(active&&!error)setApplicantSignature(data?.signedUrl||'')});}return()=>{active=false}},[matchingApplication?.id]);
- useEffect(()=>{if(!passport?.id||!signaturePreview||passport.authorized_signature_data_url===signaturePreview)return;let active=true;void createClient().from('college_student_passports').update({authorized_signature_data_url:signaturePreview}).eq('id',passport.id).then(({error})=>{if(!active)return;if(error){setError('Could not sync the authorized signature to the official passport. '+error.message);return;}setPassports(list=>list.map(row=>row.id===passport.id?{...row,authorized_signature_data_url:signaturePreview}:row));});return()=>{active=false}},[passport?.id,passport?.authorized_signature_data_url,signaturePreview]);
+ useEffect(()=>{
+   if(!signaturePreview||!passports.length)return;
+   const pending=passports.filter(row=>row.authorized_signature_data_url!==signaturePreview);
+   if(!pending.length)return;
+   let active=true;
+   void createClient().from('college_student_passports').update({authorized_signature_data_url:signaturePreview}).in('id',pending.map(row=>row.id)).then(({error})=>{
+     if(!active)return;
+     if(error){setError('Could not sync the authorized signature to issued passports. '+error.message);return;}
+     const pendingIds=new Set(pending.map(row=>row.id));
+     setPassports(list=>list.map(row=>pendingIds.has(row.id)?{...row,authorized_signature_data_url:signaturePreview}:row));
+     setNotice('The authorized officer signature is saved with all issued student passports.');
+   });
+   return()=>{active=false};
+ },[signaturePreview,passports]);
  const fullName=student?[student.first_name,student.middle_name,student.last_name].filter(Boolean).join(' '):'';
  const verifyUrl=passport&&typeof window!=='undefined'?window.location.origin+'/verify-passport?token='+encodeURIComponent(passport.verification_token):'';
  const qrUrl=verifyUrl?'https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data='+encodeURIComponent(verifyUrl):'';
