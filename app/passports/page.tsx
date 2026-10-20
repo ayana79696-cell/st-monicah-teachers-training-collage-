@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import {createClient} from '@/lib/supabase/client';
 import OfficialStudentPassport from '@/components/OfficialStudentPassport';
 
-type Student={id:string;admission_number:string;first_name:string;middle_name?:string|null;last_name:string;programme_id?:string|null;intake?:string|null;intake_year?:number|null;status:string;email?:string|null;phone?:string|null;date_of_birth?:string|null;gender?:string|null;home_address?:string|null;national_id_number?:string|null};
+type Student={id:string;admission_number:string;first_name:string;middle_name?:string|null;last_name:string;programme_id?:string|null;intake?:string|null;intake_year?:number|null;status:string;email?:string|null;phone?:string|null;date_of_birth?:string|null;gender?:string|null;home_address?:string|null;national_id_number?:string|null;passport_photo_url?:string|null};
 type Programme={id:string;title:string;code:string};
 type Passport={id:string;student_id:string;passport_number:string;verification_token:string;status:string;issued_at:string;expires_at?:string|null;photo_url?:string|null;authorized_signature_data_url?:string|null};
 type AdmissionApp={id:string;email:string|null;first_name:string;last_name:string;status:string;documents:any[]|null};
