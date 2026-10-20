@@ -48,12 +48,21 @@ export default function Home() {
         if(pError) throw pError;
         if(p?.active){setProfile(p as Profile);}
         else setSetup(true);
+        // Do not block the first workspace render on many exact-count database queries.
+        // Load only the four headline counts in the background after authentication succeeds.
         if(p?.active) {
-          const entries = await Promise.all(modules.slice(0,13).map(async m => {
-            const {count}=await supabase.from(m.table).select('*',{count:'exact',head:true});
-            return [m.table,count ?? 0] as const;
-          }));
-          if(alive)setCounts(Object.fromEntries(entries));
+          void Promise.all(
+            ['college_students','college_programmes','college_staff','college_practice_placements'].map(async table => {
+              try {
+                const { count } = await supabase.from(table).select('*', { count: 'estimated', head: true });
+                return [table, count ?? 0] as const;
+              } catch {
+                return [table, 0] as const;
+              }
+            })
+          ).then(entries => {
+            if (alive) setCounts(Object.fromEntries(entries));
+          });
         }
       } catch(e) { if(alive)setError(e instanceof Error?e.message:'Unable to connect to the college database.'); }
       finally {if(alive)setLoading(false);}
