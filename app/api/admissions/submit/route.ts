@@ -28,9 +28,9 @@ export async function POST(request: Request) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, '');
-    const supabaseKey =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    const legacyAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    const supabaseKey = legacyAnonKey ?? publishableKey;
 
     if (!supabaseUrl || !supabaseKey) {
       console.error('Admissions submission endpoint is missing Supabase public configuration.');
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         method: 'POST',
         headers: {
           apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
+          ...(legacyAnonKey ? { Authorization: `Bearer ${legacyAnonKey}` } : {}),
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
