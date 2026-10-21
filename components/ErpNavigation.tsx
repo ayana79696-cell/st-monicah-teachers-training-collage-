@@ -12,7 +12,7 @@ const more = [
   ['Fee heads','college_fee_heads'],['Fee structures','college_fee_structures'],['Fee charges','college_fee_charges'],
   ['Library','college_library_items'],['Accommodation','college_hostel_rooms'],
   ['Procurement','college_procurement_requests'],['Teaching practice partners','college_practice_partners'],
-  ['Reports & audit','college_audit_log'],['Inventory & stock','college_inventory_items'],['Staff leave','college_staff_leave_requests'],['Payroll periods','college_payroll_periods'],['Payroll entries','college_payroll_entries'],['Settings & access','college_profiles'],
+  ['Reports & audit','college_audit_log'],['Staff leave','college_staff_leave_requests'],['Payroll periods','college_payroll_periods'],['Payroll entries','college_payroll_entries'],['Settings & access','college_profiles'],
 ] as const;
 
 export default function ErpNavigation({ active='overview' }: Props) {
