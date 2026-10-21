@@ -97,7 +97,7 @@ export default function AttendancePage(){
  },[students,programmes,search,attendanceByStudent]);
  const markedCount=students.filter(student=>attendanceByStudent.get(student.id)?.status==='present').length;
  const lateCount=students.filter(student=>attendanceByStudent.get(student.id)?.status==='late').length;
- const notScannedCount=Math.max(0,students.length-markedCount-lateCount);
+ const notScannedCount=students.filter(student=>!attendanceByStudent.has(student.id)).length;
  const isToday=registerDate===nairobiDate();
 
  const recordQrAttendance=useCallback(async(raw:string)=>{
