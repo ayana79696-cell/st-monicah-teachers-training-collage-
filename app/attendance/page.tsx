@@ -53,6 +53,7 @@ export default function AttendancePage(){
  const scannerRef=useRef<any>(null);
  const processingRef=useRef(false);
  const lastScannedRef=useRef({token:'',at:0});
+ const lastDecodeNoticeRef=useRef(0);
 
  const loadRegister=useCallback(async(date=registerDate,initial=false)=>{
   if(initial)setLoading(true);else setRefreshing(true);
@@ -104,13 +105,13 @@ export default function AttendancePage(){
   const token=parseQrToken(raw);
   if(!token){setLastScan({error:'This QR code does not contain a valid college passport token. Scan the QR printed on the student passport.'});setError('Unrecognized QR code. Scan the QR printed on a St. Monicah student passport.');return;}
   const now=Date.now();if(lastScannedRef.current.token===token&&now-lastScannedRef.current.at<2200)return;if(processingRef.current)return;
-  processingRef.current=true;lastScannedRef.current={token,at:now};setScanBusy(true);setError('');setNotice('');
+  processingRef.current=true;lastScannedRef.current={token,at:now};setScanBusy(true);setError('');setNotice('');setCameraMessage('QR code detected. Validating the student passport and saving attendance…');
   try{
    const {data,error:e}=await createClient().rpc('record_college_qr_attendance',{p_token:token});if(e)throw e;
    const result=(Array.isArray(data)?data[0]:data) as ScanReceipt|null;if(!result)throw new Error('The attendance service returned no result. Please scan again.');
-   setLastScan(result);setNotice(result.already_marked?'This trainee is already marked present today. The original arrival time has been kept.':(result.student_name||'Student')+' marked present successfully.');
+   setLastScan(result);setCameraMessage(result.already_marked?'Passport QR read successfully. This trainee was already marked present today.':'Passport QR read successfully. Attendance has been saved.');setNotice(result.already_marked?'This trainee is already marked present today. The original arrival time has been kept.':(result.student_name||'Student')+' marked present successfully.');
    await loadRegister(registerDate,false);
-  }catch(e:any){const message=e?.message||'The QR scan could not be recorded. Please try again.';setLastScan({error:message});setError(message);}
+  }catch(e:any){const message=e?.message||'The QR scan could not be recorded. Please try again.';setCameraMessage('The QR was read by the camera, but attendance could not be saved. Check the error message and try again.');setLastScan({error:message});setError(message);}
   finally{setScanBusy(false);window.setTimeout(()=>{processingRef.current=false;},700);}
  },[loadRegister,registerDate]);
 
@@ -120,11 +121,34 @@ export default function AttendancePage(){
    const Html5Qrcode=(window as any).Html5Qrcode;
    if(!Html5Qrcode){setCameraMessage('QR scanner library is not available. Use the manual fallback below.');setCameraActive(false);return;}
    try{
-    scanner=new Html5Qrcode('attendance-qr-reader',false);scannerRef.current=scanner;
+    const supportedQr=(window as any).Html5QrcodeSupportedFormats?.QR_CODE;
+    scanner=new Html5Qrcode('attendance-qr-reader',{
+      verbose:false,
+      useBarCodeDetectorIfSupported:true,
+      ...(supportedQr!==undefined?{formatsToSupport:[supportedQr]}:{})
+    });scannerRef.current=scanner;
     setCameraMessage('Requesting the rear camera. Allow camera access if your phone asks.');
-    await scanner.start({facingMode:'environment'},{fps:10,qrbox:(w:number,h:number)=>{const size=Math.max(150,Math.min(260,w-24,h-24));return {width:size,height:size};},aspectRatio:1.0,disableFlip:false},(decodedText:string)=>{void recordQrAttendance(decodedText);},()=>{});
+    await scanner.start(
+      {facingMode:{ideal:'environment'}},
+      {
+        fps:15,
+        qrbox:(w:number,h:number)=>{const size=Math.max(140,Math.min(320,Math.floor(Math.min(w,h)*0.88)));return {width:size,height:size};},
+        aspectRatio:1.0,
+        disableFlip:false,
+        videoConstraints:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+      },
+      (decodedText:string)=>{void recordQrAttendance(decodedText);},
+      (_decodeError:string)=>{
+        const now=Date.now();
+        if(now-lastDecodeNoticeRef.current>4500){
+          lastDecodeNoticeRef.current=now;
+          setCameraMessage('Camera is running but has not read a QR yet. Center the full square code, move the phone closer, avoid glare, and hold still for a moment.');
+        }
+      }
+    );
     if(cancelled){try{await scanner.stop();}catch{}try{scanner.clear();}catch{}return;}
-    setCameraMessage('Camera is on. Hold the student passport QR inside the scan frame.');
+    lastDecodeNoticeRef.current=Date.now();
+    setCameraMessage('Camera is on and searching. Hold the full student passport QR close, flat, and centered in the viewfinder.');
    }catch(e:any){
     setCameraMessage(e?.message||'Camera could not start. Allow camera permission and open this page over HTTPS.');setCameraActive(false);
     if(scanner){try{if(scanner.isScanning)await scanner.stop();}catch{}try{scanner.clear();}catch{}}
