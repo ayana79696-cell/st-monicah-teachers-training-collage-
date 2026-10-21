@@ -666,3 +666,77 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:760px){.futuristic-login{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:28px;padding:30px 18px 58px;min-height:100svh}.login-visual{min-height:unset;gap:24px;padding:0}.visual-brand .crest-logo{width:49px;height:49px}.visual-brand strong{font-size:13px}.visual-brand span{font-size:8px}.visual-message{max-width:100%}.visual-message .eyebrow{font-size:8px;letter-spacing:.12em}.visual-message h2{font-size:clamp(34px,9vw,52px);margin:12px 0}.visual-message>p:not(.eyebrow){font-size:12px;line-height:1.7;max-width:470px}.visual-pills{margin-top:16px;gap:6px}.visual-pills span{font-size:9px;padding:7px 10px}.visual-feature{width:100px;right:4%;top:13%;opacity:.45}.feature-caption{display:none}.visual-foot{display:none}.futuristic-card{max-width:520px;align-self:center;padding:25px 22px;border-radius:18px}.login-kicker{margin-bottom:23px;font-size:8px}.futuristic-card h1{font-size:29px}.futuristic-card>.muted{margin-bottom:22px}.login-copyright{position:relative;right:auto;bottom:auto;text-align:center;font-size:8px}.orbit-one{width:100vw;height:100vw;left:-40%;top:0}.orbit-two{width:70vw;height:70vw;left:-20%;top:10%}.orb-gold{right:2%;top:3%;width:70px;height:70px}.orb-wine{left:auto;right:-5%;bottom:12%;width:95px;height:95px}}
 @media(max-width:380px){.futuristic-login{padding-inline:13px}.futuristic-card{padding:22px 17px}.visual-message h2{font-size:32px}.visual-brand{gap:9px}.visual-brand strong{font-size:11px}.visual-brand span{font-size:7px;letter-spacing:.1em}.secure-status{display:none}.login-kicker{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.futuristic-login *, .futuristic-login *:before,.futuristic-login *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* 2026 operational modules: messaging, reports, stock ledger and student self-service */
+.communications-grid{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(360px,1.1fr);gap:18px;margin-top:22px;align-items:start}
+.communications-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;min-width:0}
+.communications-panel h2{font-size:17px;margin:0 0 7px}
+.communications-panel label{display:block;font-size:12px;font-weight:700;color:#51434a}
+.communications-disclaimer{font-size:11px;line-height:1.7;color:#756b72;background:#fbf7f8;border-left:3px solid var(--gold);padding:11px 13px;margin:16px 0 0}
+.message-status{display:inline-block;font-size:10px;border-radius:999px;padding:5px 8px;background:#f4edf0;color:var(--maroon);white-space:nowrap}
+.message-status-live{background:#e8f5ef;color:#176444}
+.reports-content,.inventory-content{max-width:1600px}
+.reports-note{margin:14px 0;padding:13px 16px;background:#fbf5e8;border-left:3px solid var(--gold);border-radius:8px;font-size:12px;line-height:1.6}
+.reports-note p{margin:5px 0 0;color:#6f6268}
+.reports-kpis,.inventory-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 22px}
+.reports-kpis article,.inventory-kpis article{min-width:0;display:flex;flex-direction:column;gap:7px}
+.reports-kpis article>span,.inventory-kpis article>span{font-size:11px;color:#756b72}
+.reports-kpis article>strong,.inventory-kpis article>strong{font:800 clamp(20px,2vw,28px) Manrope,sans-serif;color:var(--deep);overflow-wrap:anywhere}
+.reports-kpis article>small,.inventory-kpis article>small{font-size:10px;line-height:1.5;color:#938890}
+.reports-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.reports-grid article{overflow:hidden}
+.reports-grid .section-head{margin:0 0 8px}
+.reports-grid .section-head h2{font-size:16px;margin:0}
+.reports-grid .section-head p{margin:5px 0 0}
+.reports-daily-chart{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:5px;align-items:end;margin-top:18px;min-width:0}
+.reports-daily-chart>div{min-width:0;text-align:center}
+.reports-daily-bars{height:125px;display:flex;align-items:end;justify-content:center;gap:2px;border-bottom:1px solid var(--line)}
+.reports-daily-bars span{display:block;width:40%;min-height:2px;background:linear-gradient(180deg,#c6a45b,#641c35);border-radius:4px 4px 0 0}
+.reports-daily-chart small{display:block;font-size:8px;color:#756b72;white-space:nowrap;transform:rotate(-35deg);transform-origin:top center;margin-top:8px}
+.reports-tech-note{font-size:11px;color:#756b72;margin-top:16px}
+.inventory-forms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;margin:18px 0}
+.inventory-forms .record-form{margin:0;min-width:0}
+.inventory-content .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stock-low{background:#fff8ec}
+.stock-low td:first-child{border-left:3px solid var(--gold)}
+.student-portal-shell{min-height:100vh;background:var(--paper);color:var(--ink)}
+.student-portal-header{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,52px)}
+.student-portal-brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+.student-portal-brand img{width:42px;height:42px;object-fit:contain}
+.student-portal-brand strong{display:block;font:800 12px Manrope;color:var(--deep);letter-spacing:.06em}
+.student-portal-brand small{display:block;font-size:9px;letter-spacing:.1em;color:var(--muted);margin-top:4px}
+.student-portal-user{display:flex;align-items:center;gap:16px}
+.student-portal-user>span{font-size:12px;font-weight:700;text-align:right}
+.student-portal-user small{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:4px}
+.student-portal-main{max-width:1450px;margin:0 auto;padding:28px clamp(16px,3vw,42px)}
+.student-portal-welcome{display:flex;justify-content:space-between;align-items:center;gap:22px;border-radius:16px;padding:clamp(22px,4vw,36px);background:linear-gradient(115deg,#421225,#641c35 72%,#84503c);color:#fff}
+.student-portal-welcome .eyebrow{color:#e7ce91}
+.student-portal-welcome h1{font:800 clamp(26px,4vw,38px) Manrope;margin:0 0 10px}
+.student-portal-welcome p:not(.eyebrow){font-size:13px;line-height:1.7;color:#f2e7eb;max-width:660px;margin:0}
+.student-portal-seal{width:82px;height:82px;border:1px solid #ddc17c;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;font:800 24px Manrope;color:#f1d99d}
+.student-portal-seal span{font:600 8px 'DM Sans',sans-serif;letter-spacing:.16em;margin-top:4px}
+.student-portal-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.student-portal-kpis article{display:flex;flex-direction:column;gap:7px;min-width:0}
+.student-portal-kpis article span{font-size:11px;color:#756b72}
+.student-portal-kpis article strong{font:800 clamp(20px,2vw,27px) Manrope;color:var(--deep);overflow-wrap:anywhere}
+.student-portal-kpis article small{font-size:10px;line-height:1.5;color:#938890}
+.student-portal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px;align-items:start}
+.student-portal-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+.student-portal-panel h2{font:800 16px Manrope;margin:0 0 7px}
+.student-portal-panel .section-head{margin:0 0 12px}
+.student-portal-panel .section-head h2{margin:0}
+.student-portal-panel .section-head p{margin:5px 0 0}
+.student-details{display:grid;grid-template-columns:minmax(100px,.75fr) minmax(0,1.25fr);gap:11px 16px;font-size:12px;margin:18px 0 4px}
+.student-details dt{color:#756b72}
+.student-details dd{margin:0;font-weight:700;overflow-wrap:anywhere;text-transform:capitalize}
+.portal-message{padding:12px 0;border-bottom:1px solid var(--line)}
+.portal-message:last-child{border-bottom:0}
+.portal-message small{font-size:10px;color:var(--muted)}
+.portal-message h3{font-size:13px;margin:8px 0}
+.portal-message p{font-size:12px;line-height:1.7;white-space:pre-wrap}
+.student-portal-main footer{margin-top:28px}
+@media(max-width:1050px){.reports-kpis,.inventory-kpis,.student-portal-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.communications-grid{grid-template-columns:1fr}.inventory-forms{grid-template-columns:1fr}}
+@media(max-width:720px){.reports-grid,.student-portal-grid{grid-template-columns:1fr}.reports-daily-chart{gap:2px}.reports-daily-bars{height:90px}.reports-daily-chart small{font-size:7px}.student-portal-header{align-items:flex-start}.student-portal-user{gap:8px}.student-portal-user>span{max-width:120px}.student-portal-seal{width:62px;height:62px;font-size:18px}.student-portal-seal span{font-size:7px}.communications-panel{padding:16px}.inventory-content .form-grid{grid-template-columns:1fr}}
+@media(max-width:420px){.reports-kpis,.inventory-kpis,.student-portal-kpis{grid-template-columns:1fr}.student-portal-header{flex-direction:column}.student-portal-user{width:100%;justify-content:space-between}.student-portal-user>span{text-align:left}.student-details{grid-template-columns:1fr;gap:5px}.student-details dd{margin-bottom:8px}}
+@media print{.student-portal-header,.workspace-topbar,.no-print,.toolbar,.quiet-button{display:none!important}.content,.student-portal-main{margin:0!important;padding:0!important;max-width:none!important}.reports-kpis,.student-portal-kpis{break-inside:avoid}.table-wrap{overflow:visible!important;border:1px solid #ccc}.records-table{font-size:9px}.reports-grid{gap:8px}.reports-grid article,.student-portal-panel{break-inside:avoid}}
