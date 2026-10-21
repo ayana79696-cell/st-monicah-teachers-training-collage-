@@ -26,8 +26,9 @@ const crest = 'https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._
 
 function displayAdmission(value?: string | null) {
   if (!value) return 'Pending assignment';
-  const match = value.match(/^(?:PASS\\s*)?(\\d+)$/i);
-  return match ? String(Number(match[1])).padStart(3, '0') : value;
+  const normalized = value.trim().replace(/^PASS\s*/i, '');
+  if (/^\d+$/.test(normalized)) return normalized.padStart(3, '0');
+  return value;
 }
 
 function displayDate(value?: string | null) {
@@ -40,6 +41,7 @@ export default function OfficialStudentPassport({
   student,
   passport,
   programmeTitle,
+  applicantSignatureUrl: _applicantSignatureUrl,
   photoUrl,
 }: {
   student: OfficialPassportStudent;
@@ -53,74 +55,132 @@ export default function OfficialStudentPassport({
     ? window.location.origin + '/verify-passport?token=' + encodeURIComponent(passport.verification_token)
     : '';
   const qrUrl = verificationUrl
-    ? 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=3&data=' + encodeURIComponent(verificationUrl)
+    ? 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=2&data=' + encodeURIComponent(verificationUrl)
     : '';
+  const portrait = photoUrl || passport.photo_url || student.passport_photo_url || '';
+  const active = (passport.status || 'active').toLowerCase() === 'active';
 
   return (
     <>
-      <article className="official-passport-card passport-card" aria-label="Official St. Monicah student passport">
-        <div className="official-passport-watermark passport-card-watermark" aria-hidden="true"><img src={crest} alt="" /></div>
-        <header className="official-passport-top passport-card-top">
-          <img src={crest} alt="St. Monicah college crest" />
-          <div><strong>ST. MONICAH</strong><span>TEACHERS TRAINING COLLEGE</span><small>OFFICIAL STUDENT PASSPORT</small></div>
+      <article className="smid-card" aria-label="St. Monicah student identity card">
+        <div className="smid-watermark" aria-hidden="true"><img src={crest} alt="" /></div>
+
+        <header className="smid-header">
+          <div className="smid-crest-frame"><img src={crest} alt="St. Monicah crest" /></div>
+          <div className="smid-heading">
+            <strong>ST. MONICAH</strong>
+            <span>TEACHERS TRAINING COLLEGE</span>
+            <small>OFFICIAL STUDENT IDENTITY</small>
+          </div>
+          <div className="smid-header-mark" aria-hidden="true"><span>SM</span></div>
         </header>
-        <div className="official-passport-body passport-card-body">
-          <div className="official-passport-photo passport-photo">
-            {(photoUrl || passport.photo_url || student.passport_photo_url)
-              ? <img src={photoUrl || passport.photo_url || student.passport_photo_url || ''} alt="Student portrait" />
-              : <div className="official-passport-photo-placeholder">PHOTO</div>}
+
+        <div className="smid-content">
+          <div className="smid-portrait">
+            {portrait ? <img src={portrait} alt="Student portrait" /> : (
+              <div className="smid-photo-placeholder"><span>PHOTO</span><small>Student image</small></div>
+            )}
           </div>
-          <div className="official-passport-details passport-details">
-            <span className="official-passport-label passport-label">STUDENT NAME</span>
-            <h3>{fullName || '—'}</h3>
-            <span className="official-passport-label passport-label">ADMISSION NUMBER</span>
-            <strong>{displayAdmission(student.admission_number)}</strong>
-            <span className="official-passport-label passport-label">PROGRAMME</span>
-            <strong>{programmeTitle || 'Not assigned'}</strong>
-            <span className="official-passport-label passport-label">INTAKE</span>
-            <strong>{[student.intake, student.intake_year].filter(Boolean).join(' ') || '—'}</strong>
-            <span className="official-passport-label passport-label">PASSPORT NUMBER</span>
-            <strong>{passport.passport_number || '—'}</strong>
+
+          <div className="smid-details">
+            <div className="smid-name-block">
+              <span className="smid-label">STUDENT NAME</span>
+              <h3 title={fullName || 'Student name'}>{fullName || 'Student name'}</h3>
+            </div>
+            <div className="smid-data-grid">
+              <div className="smid-data-item">
+                <span className="smid-label">ADMISSION NO.</span>
+                <strong>{displayAdmission(student.admission_number)}</strong>
+              </div>
+              <div className="smid-data-item">
+                <span className="smid-label">PASSPORT NO.</span>
+                <strong>{passport.passport_number || '—'}</strong>
+              </div>
+              <div className="smid-data-item smid-course">
+                <span className="smid-label">PROGRAMME</span>
+                <strong title={programmeTitle || 'Programme not assigned'}>{programmeTitle || 'Programme not assigned'}</strong>
+              </div>
+              <div className="smid-data-item">
+                <span className="smid-label">INTAKE</span>
+                <strong>{[student.intake, student.intake_year].filter(Boolean).join(' ') || '—'}</strong>
+              </div>
+            </div>
           </div>
-          <div className="official-passport-qr passport-qr">
-            {qrUrl && <img src={qrUrl} alt="QR code for online passport verification" />}
-            <small>SCAN TO VERIFY</small>
-          </div>
+
+          <aside className="smid-verification">
+            <div className="smid-qr-frame">
+              {qrUrl ? <img src={qrUrl} alt="QR code for online passport verification" /> : <span>QR</span>}
+            </div>
+            <span className="smid-scan-label">SCAN TO VERIFY</span>
+            <span className={'smid-state ' + (active ? 'is-active' : 'is-inactive')}>{active ? 'ACTIVE' : 'REVOKED'}</span>
+          </aside>
         </div>
-        <div className="official-passport-signatures"><div className="official-passport-signature official-authorized-signature"><span>AUTHORIZED SIGNATURE</span>{passport.authorized_signature_data_url ? <img src={passport.authorized_signature_data_url} alt="Authorized college officer signature" /> : <small>Signature pending</small>}</div></div>
-        <footer className="official-passport-footer passport-card-footer">
-          <span>ISSUED {displayDate(passport.issued_at)}</span>
-          <span>{passport.expires_at ? 'EXPIRES ' + displayDate(passport.expires_at) : 'VALID UNTIL REVOKED OR EXPIRED'}</span>
+
+        <footer className="smid-footer">
+          <div className="smid-official-signature">
+            <div className="smid-signature-mark">
+              {passport.authorized_signature_data_url
+                ? <img src={passport.authorized_signature_data_url} alt="Authorized officer signature" />
+                : <span className="smid-signature-blank" />}
+            </div>
+            <span>AUTHORIZED OFFICER</span>
+          </div>
+          <div className="smid-date">
+            <span>ISSUED</span>
+            <strong>{displayDate(passport.issued_at)}</strong>
+          </div>
+          <div className="smid-date smid-validity">
+            <span>VALIDITY</span>
+            <strong>{passport.expires_at ? 'Until ' + displayDate(passport.expires_at) : 'Until revoked'}</strong>
+          </div>
+          <div className="smid-footer-rule" />
         </footer>
       </article>
+
       <style jsx global>{`
-        .official-passport-card{position:relative;isolation:isolate;display:grid;grid-template-rows:12mm minmax(0,1fr) 4mm 4mm;width:100%;max-width:620px;aspect-ratio:1.586;margin:0 auto;overflow:hidden;border:1px solid #c8a96a;border-radius:3mm;background:#fffdf8;color:#321d26;box-shadow:0 8px 24px rgba(49,17,34,.06);print-color-adjust:exact;-webkit-print-color-adjust:exact}
-        .official-passport-watermark{position:absolute;inset:0;z-index:-1;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
-        .official-passport-watermark img{width:72%;height:90%;object-fit:contain;opacity:.085;filter:grayscale(1)}
-        .official-passport-top{display:flex;align-items:center;gap:2.5mm;padding:1.5mm 2.5mm;background:#4a142b;color:#fff}
-        .official-passport-top>img{width:9mm;height:9mm;object-fit:contain;padding:.5mm;background:#fff;border-radius:50%}
-        .official-passport-top>div{display:grid;gap:.5mm}
-        .official-passport-top strong{font-size:7.5pt;line-height:1}
-        .official-passport-top span,.official-passport-top small{font-size:4pt;letter-spacing:.04em}
-        .official-passport-body{display:grid;grid-template-columns:18mm minmax(0,1fr) 12mm;align-items:center;gap:2mm;min-height:0;padding:1.5mm 2.5mm 0}
-        .official-passport-photo{width:17mm;height:23mm;overflow:hidden;border:1px solid #d8c9ae;border-radius:1.5mm;background:#f4eddf;aspect-ratio:auto}
-        .official-passport-photo>img{display:block;width:100%;height:100%;object-fit:cover}
-        .official-passport-photo-placeholder{display:grid;place-items:center;width:100%;height:100%;font-size:5pt;color:#8b7b63}
-        .official-passport-details{display:grid;align-content:center;gap:.55mm;min-width:0}
-        .official-passport-label{font-size:4pt;line-height:1;color:#8e6a43;letter-spacing:.07em}
-        .official-passport-details h3{margin:0;font-size:7.5pt;line-height:1.08;overflow-wrap:anywhere}
-        .official-passport-details strong{font-size:6pt;line-height:1.05;font-weight:750;overflow-wrap:anywhere}
-        .official-passport-qr{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7mm;min-width:0}
-        .official-passport-qr img{display:block;width:11mm;height:11mm;object-fit:contain;background:#fff}
-        .official-passport-qr small{font-size:3pt;line-height:1;text-align:center;letter-spacing:.03em}
-        .official-passport-signatures{display:flex;align-items:end;gap:2mm;padding:0 2.5mm .5mm}
-        .official-passport-signature{display:flex;align-items:flex-end;gap:1.2mm;min-width:0;max-width:70%;overflow:hidden;border-bottom:.2mm solid #bca67d;padding-bottom:.4mm}
-        .official-passport-signature span{flex:0 0 auto;font-size:3.4pt;line-height:1;color:#80684f;letter-spacing:.03em}
-        .official-passport-signature img{display:block;max-width:19mm;width:auto;max-height:4mm;object-fit:contain;object-position:left bottom}
-        .official-passport-signature small{font-size:3pt;color:#93806a;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .official-passport-footer{display:flex;justify-content:space-between;align-items:center;gap:1mm;padding:.7mm 2.5mm;background:#f8f0df;font-size:3.3pt;line-height:1;color:#6e5944}
-        @media(max-width:600px){.official-passport-card{border-radius:2mm}.official-passport-watermark img{width:78%;opacity:.075}.official-passport-details h3{font-size:clamp(7px,2.3vw,10px)}.official-passport-details strong{font-size:clamp(5px,1.7vw,7px)}}
-        @media print{html,body{width:90mm!important;height:60mm!important;margin:0!important;padding:0!important;overflow:hidden!important}body *{visibility:hidden!important}.official-passport-card,.official-passport-card *{visibility:visible!important}.official-passport-card{position:absolute!important;left:0!important;top:0!important;width:85.6mm!important;height:54mm!important;max-width:none!important;aspect-ratio:auto!important;margin:0!important;border-radius:2mm!important;box-shadow:none!important;break-inside:avoid!important;grid-template-rows:12mm minmax(0,1fr) 4mm 4mm!important;overflow:hidden!important}.official-passport-watermark img{opacity:.08!important}.official-passport-top{padding:1mm 1.5mm!important;gap:1mm!important}.official-passport-top>img{width:7mm!important;height:7mm!important}.official-passport-top strong{font-size:6pt!important}.official-passport-top span,.official-passport-top small{font-size:3.2pt!important}.official-passport-body{grid-template-columns:14mm minmax(0,1fr) 9mm!important;gap:1mm!important;padding:.7mm 1.2mm 0!important}.official-passport-photo{width:13mm!important;height:17mm!important}.official-passport-details{gap:.35mm!important}.official-passport-label{font-size:3.2pt!important}.official-passport-details h3{font-size:5.4pt!important;line-height:1.02!important}.official-passport-details strong{font-size:4.2pt!important;line-height:1.02!important}.official-passport-qr img{width:8mm!important;height:8mm!important}.official-passport-qr small{font-size:2.2pt!important}.official-passport-signatures{padding:0 1.2mm .3mm!important;gap:1mm!important}.official-passport-signature{gap:.6mm!important}.official-passport-signature span{font-size:2.8pt!important}.official-passport-signature img{max-width:16mm!important;max-height:3.5mm!important}.official-passport-signature small{font-size:2.5pt!important}.official-passport-footer{padding:.4mm 1.2mm!important;font-size:2.8pt!important}@page{size:90mm 60mm;margin:2mm}}
+        .smid-card{position:relative;isolation:isolate;display:grid;grid-template-rows:22% minmax(0,1fr) 18%;width:100%;max-width:600px;aspect-ratio:1.586;margin:0 auto;overflow:hidden;border:1px solid #d5b76f;border-radius:15px;background:#fffdf8;color:#34212b;box-shadow:0 18px 45px rgba(66,18,37,.14);print-color-adjust:exact;-webkit-print-color-adjust:exact;font-family:'DM Sans',Arial,sans-serif}
+        .smid-card *{box-sizing:border-box;min-width:0}
+        .smid-watermark{position:absolute;inset:0;z-index:-1;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+        .smid-watermark img{width:54%;height:90%;object-fit:contain;opacity:.055;filter:grayscale(1)}
+        .smid-header{position:relative;display:flex;align-items:center;gap:clamp(7px,1.5vw,13px);padding:8px 13px;background:linear-gradient(110deg,#35101f 0%,#641c35 68%,#7a2b49 100%);color:#fff;overflow:hidden}
+        .smid-crest-frame{display:grid;place-items:center;flex:0 0 auto;width:clamp(30px,6vw,44px);height:clamp(30px,6vw,44px);padding:3px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+        .smid-crest-frame img{display:block;width:100%;height:100%;object-fit:contain}
+        .smid-heading{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0;line-height:1.05}
+        .smid-heading strong{font-family:Manrope,'DM Sans',Arial,sans-serif;font-size:clamp(11px,2.15vw,16px);font-weight:800;letter-spacing:.11em}
+        .smid-heading span{font-size:clamp(6px,1.05vw,8px);font-weight:700;letter-spacing:.105em}
+        .smid-heading small{margin-top:2px;font-size:clamp(5px,.86vw,7px);font-weight:800;letter-spacing:.14em;color:#f4d99a}
+        .smid-header-mark{position:absolute;right:-10px;top:-18px;display:grid;place-items:center;width:85px;height:85px;border:1px solid rgba(235,210,150,.22);border-radius:50%;color:rgba(245,222,169,.22);font:800 23px Manrope}
+        .smid-content{display:grid;grid-template-columns:23% minmax(0,1fr) 14%;align-items:center;gap:clamp(6px,1.4vw,12px);padding:8px 13px 7px;min-height:0}
+        .smid-portrait{align-self:center;width:100%;aspect-ratio:4/5;max-height:100%;overflow:hidden;border:1px solid #d8c6a0;border-radius:6px;background:#f4eddf;box-shadow:0 4px 10px rgba(52,33,43,.09)}
+        .smid-portrait>img{display:block;width:100%;height:100%;object-fit:cover}
+        .smid-photo-placeholder{display:flex;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;color:#9f8967}
+        .smid-photo-placeholder span{font:800 clamp(7px,1.1vw,10px) Manrope;letter-spacing:.12em}
+        .smid-photo-placeholder small{font-size:clamp(5px,.8vw,7px)}
+        .smid-details{display:flex;flex-direction:column;justify-content:center;gap:7px;min-width:0;overflow:hidden}
+        .smid-label{display:block;margin-bottom:3px;color:#927143;font-size:clamp(5px,.78vw,7px);font-weight:800;letter-spacing:.12em;line-height:1.1}
+        .smid-name-block h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;margin:0;color:#351426;font:800 clamp(12px,2.35vw,17px)/1.08 Manrope,'DM Sans',Arial,sans-serif;overflow-wrap:anywhere}
+        .smid-data-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+        .smid-data-item{overflow:hidden}
+        .smid-data-item strong{display:block;overflow:hidden;color:#402b35;font-size:clamp(7px,1.17vw,9px);font-weight:750;line-height:1.14;text-overflow:ellipsis;overflow-wrap:anywhere}
+        .smid-course strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;white-space:normal}
+        .smid-verification{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0}
+        .smid-qr-frame{display:grid;place-items:center;width:100%;max-width:82px;aspect-ratio:1;padding:3px;border:1px solid #e8dcc4;border-radius:6px;background:#fff;box-shadow:0 3px 8px rgba(52,33,43,.06)}
+        .smid-qr-frame img{display:block;width:100%;height:100%;object-fit:contain}
+        .smid-qr-frame>span{font:800 12px Manrope;color:#927143}
+        .smid-scan-label{font-size:clamp(4px,.7vw,6px);font-weight:800;letter-spacing:.08em;color:#765d42;text-align:center;white-space:nowrap}
+        .smid-state{display:inline-flex;justify-content:center;padding:3px 6px;border-radius:999px;font-size:clamp(5px,.72vw,6px);font-weight:900;letter-spacing:.08em}
+        .smid-state.is-active{background:#e6f3e8;color:#28653b}
+        .smid-state.is-inactive{background:#fae7e5;color:#a52d2b}
+        .smid-footer{position:relative;display:grid;grid-template-columns:1.25fr .72fr 1fr;align-items:center;gap:10px;padding:5px 13px 8px;border-top:1px solid #eadbbd;background:linear-gradient(100deg,#fcf6e9,#f4e7c9)}
+        .smid-official-signature,.smid-date{display:flex;flex-direction:column;justify-content:flex-end;gap:3px;min-width:0}
+        .smid-signature-mark{display:flex;align-items:flex-end;height:clamp(13px,2.8vw,21px);max-width:100%;overflow:hidden}
+        .smid-signature-mark img{display:block;width:auto;max-width:100%;height:100%;object-fit:contain;object-position:left bottom}
+        .smid-signature-blank{display:block;width:90%;height:100%;border-bottom:1px solid #a68d61}
+        .smid-official-signature>span,.smid-date>span{color:#866d49;font-size:clamp(5px,.73vw,6px);font-weight:800;letter-spacing:.1em;line-height:1}
+        .smid-date strong{overflow:hidden;color:#412535;font-size:clamp(6px,1vw,8px);font-weight:800;line-height:1.12;text-overflow:ellipsis;white-space:nowrap}
+        .smid-footer-rule{position:absolute;right:0;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#641c35,#c6a45b,#641c35)}
+        @media(max-width:540px){.smid-card{border-radius:9px}.smid-header{gap:6px;padding:5px 7px}.smid-crest-frame{width:27px;height:27px}.smid-heading strong{font-size:clamp(8px,2.5vw,12px)}.smid-heading span{font-size:clamp(5px,1.45vw,7px)}.smid-heading small{font-size:clamp(4px,1.1vw,6px)}.smid-content{grid-template-columns:22% minmax(0,1fr) 14%;gap:5px;padding:5px 7px}.smid-details{gap:4px}.smid-data-grid{gap:4px 5px}.smid-label{font-size:clamp(4px,1.05vw,6px);letter-spacing:.07em}.smid-name-block h3{font-size:clamp(8px,2.7vw,12px)}.smid-data-item strong{font-size:clamp(5.5px,1.7vw,8px)}.smid-qr-frame{padding:2px}.smid-footer{gap:5px;padding:4px 7px 7px}.smid-official-signature>span,.smid-date>span{font-size:clamp(4px,1vw,5.5px)}.smid-date strong{font-size:clamp(5px,1.45vw,7px)}}
+        @media print{html,body{width:90mm!important;height:60mm!important;margin:0!important;padding:0!important;overflow:hidden!important}body *{visibility:hidden!important}.smid-card,.smid-card *{visibility:visible!important}.smid-card{position:absolute!important;left:0!important;top:0!important;width:85.6mm!important;height:54mm!important;max-width:none!important;aspect-ratio:auto!important;margin:0!important;border-radius:1.5mm!important;box-shadow:none!important;grid-template-rows:22% minmax(0,1fr) 18%!important;overflow:hidden!important}.smid-watermark img{opacity:.065!important}.smid-header{gap:1.5mm!important;padding:1mm 1.5mm!important}.smid-crest-frame{width:8mm!important;height:8mm!important;padding:.5mm!important}.smid-heading strong{font-size:6.3pt!important}.smid-heading span{font-size:3.4pt!important}.smid-heading small{font-size:3pt!important}.smid-content{grid-template-columns:16mm minmax(0,1fr) 10mm!important;gap:1.3mm!important;padding:1.2mm 1.5mm .8mm!important}.smid-details{gap:1mm!important}.smid-portrait{width:15mm!important;height:19mm!important}.smid-label{font-size:3.1pt!important;margin-bottom:.35mm!important}.smid-name-block h3{font-size:6.2pt!important;line-height:1.05!important}.smid-data-grid{gap:1.1mm 1.4mm!important}.smid-data-item strong{font-size:4.25pt!important;line-height:1.08!important}.smid-qr-frame{max-width:9.3mm!important;padding:.3mm!important;border-radius:.5mm!important}.smid-scan-label{font-size:2.5pt!important}.smid-state{font-size:2.7pt!important;padding:.3mm .7mm!important}.smid-footer{gap:1.4mm!important;padding:.6mm 1.5mm 1.5mm!important}.smid-signature-mark{height:4mm!important}.smid-official-signature>span,.smid-date>span{font-size:2.8pt!important}.smid-date strong{font-size:3.8pt!important}.smid-footer-rule{height:.7mm!important}@page{size:90mm 60mm;margin:2mm}}
       `}</style>
     </>
   );
