@@ -1,7 +1,5 @@
 'use client';
 
-import type { ReactNode } from 'react';
-
 type Props = { active?: 'overview'|'students'|'academics'|'finance'|'people'|'admissions'|'communication'|'passports' };
 const academics = [
   ['Programmes','college_programmes'],['Academic periods','college_academic_periods'],
@@ -25,7 +23,7 @@ export default function ErpNavigation({ active='overview' }: Props) {
     <nav className="workspace-topnav" aria-label="Main navigation">
       <a className={'topnav-link '+(isActive('overview')?'active':'')} href="/">⌂ <span>Home</span></a>
       <a className={'topnav-link '+(isActive('students')?'active':'')} href="/workspace?module=college_students">♙ <span>Students</span></a>
-      <details className="topnav-dropdown" open={undefined}><summary className={academicsActive?'nav-current':''}>▤ <span>Academics</span> ⌄</summary><div className="topnav-menu">{academics.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
+      <details className="topnav-dropdown"><summary className={academicsActive?'nav-current':''}>▤ <span>Academics</span> ⌄</summary><div className="topnav-menu">{academics.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
       <a className={'topnav-link '+(financeActive?'active':'')} href="/workspace?module=college_payments">▦ <span>Finance</span></a>
       <a className={'topnav-link '+(isActive('people')?'active':'')} href="/workspace?module=college_staff">♧ <span>HR &amp; Staff</span></a>
       <a className={'topnav-link '+(isActive('admissions')?'active':'')} href="/admissions">♙ <span>Admissions</span></a>
