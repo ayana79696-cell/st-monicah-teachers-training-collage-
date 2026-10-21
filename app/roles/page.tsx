@@ -41,9 +41,9 @@ export default function RolesPage(){
    if(!current?.active){router.replace('/login');return;}
    setProfile(current as Profile);
    if(current.role!=='super_admin'){setError('Only the Super Administrator can manage login access and roles.');setUsers([]);return;}
-   const {data,error:userError}=await db.from('college_profiles').select('id,full_name,role,department,phone,active,created_at').order('full_name').limit(1000);
+   const {data:userList,error:userError}=await db.from('college_profiles').select('id,full_name,role,department,phone,active,created_at').order('full_name').limit(1000);
    if(userError)throw userError;
-   const list=(userError?[]:user||[]) as Profile[];setUsers(list);
+   const list=(userList||[]) as Profile[];setUsers(list);
    setRoleDrafts(Object.fromEntries(list.map(u=>[u.id,u.role])));
    setActiveDrafts(Object.fromEntries(list.map(u=>[u.id,u.active])));
   }catch(e:any){setError(e?.message||'Unable to load access profiles.');}
