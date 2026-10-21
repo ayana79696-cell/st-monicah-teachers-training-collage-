@@ -1,4 +1,5 @@
 'use client';
+import ErpNavigation from '@/components/ErpNavigation';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -92,18 +93,7 @@ export default function Home() {
   if(!profile)return <main className="login-shell"><section className="login-card"><h1>Profile awaiting access</h1><p className="muted">This sign-in does not have an active college role. Ask the college Super Administrator to activate your profile.</p>{error&&<p className="error-message">{error}</p>}<button onClick={signOut}>Sign out</button></section></main>;
   return <main className="shell">
     <section className="workspace-topbar"><a className="topbar-brand" href="/"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="St. Monicah Teacher’s Training College crest"/><span><strong>ST. MONICA'S</strong><small>TEACHERS TRAINING COLLEGE</small></span></a>
-      <nav className="workspace-topnav" aria-label="Main navigation">
-        <a className="topnav-link active" href="#overview">⌂ <span>Home</span></a>
-        <a className="topnav-link" href="/workspace?module=college_students">♙ <span>Students</span></a>
-        <details className="topnav-dropdown"><summary>▤ <span>Academics</span> ⌄</summary><div className="topnav-menu">{modules.filter(m=>['college_programmes','college_academic_periods','college_timetable_sessions','college_attendance','college_assessments','college_practice_placements','college_practice_partners'].includes(m.table)).map(m=><a key={m.table} href={'/workspace?module='+encodeURIComponent(m.table)}>{m.name}</a>)}</div></details>
-        <a className="topnav-link" href="/workspace?module=college_payments">▦ <span>Finance</span></a>
-        <a className="topnav-link" href="/workspace?module=college_staff">♧ <span>HR &amp; Staff</span></a>
-        <a className="topnav-link" href="/admissions">♙ <span>Admissions</span></a>
-        <a className="topnav-link" href="/communications">✉ <span>Communication</span></a>
-        <details className="topnav-dropdown"><summary>••• <span>More</span> ⌄</summary><div className="topnav-menu">{modules.filter(m=>!['college_students','college_programmes','college_academic_periods','college_timetable_sessions','college_attendance','college_assessments','college_practice_placements','college_practice_partners','college_staff','college_fee_charges','college_payments'].includes(m.table)).map(m=><a key={m.table} href={'/workspace?module='+encodeURIComponent(m.table)}>{m.name}</a>)}<a href="/passports">Passport Studio</a><a href="/finance/receipts">Bank payments &amp; receipts</a></div></details>
-      </nav>
-      <details className="workspace-mobile-menu"><summary><span aria-hidden="true">☰</span> Menu</summary><div className="workspace-mobile-panel"><a className="active" href="#overview">Overview</a><a href="/workspace?module=college_students">Students</a><a href="/workspace?module=college_programmes">Academics</a><a href="/workspace?module=college_payments">Finance dashboard</a><a href="/workspace?module=college_staff">HR &amp; Staff</a><a href="/admissions">Admissions Desk</a><a href="/communications">Communications</a><a href="/passports">Passport Studio</a><a href="/finance/receipts">Bank payments &amp; receipts</a><p>MORE COLLEGE MODULES</p>{modules.filter(m=>!['college_students','college_programmes','college_staff','college_payments'].includes(m.table)).map(m=><a key={m.table} href={'/workspace?module='+encodeURIComponent(m.table)}>{m.name}</a>)}<button type="button" onClick={signOut}>Sign out</button></div></details>
-      <div className="topbar-user"><span>{profile.full_name}<small>{profile.role.replaceAll('_',' ')}</small></span><button className="quiet-button" onClick={signOut}>Sign out</button></div>
+      <ErpNavigation active="overview"/><div className="topbar-user"><span>{profile.full_name}<small>{profile.role.replaceAll('_',' ')}</small></span><button className="quiet-button" onClick={signOut}>Sign out</button></div>
     </section>
     <section className="content" id="overview"><header><div><p className="eyebrow">ST. MONICA'S · COLLEGE MANAGEMENT</p><h1>College overview</h1><p className="muted">Welcome, {profile.full_name}. Your college workspace is connected to live data.</p></div><div className="status"><i /> Secure session</div></header>
     {message&&<p className="success-message">{message}</p>}
