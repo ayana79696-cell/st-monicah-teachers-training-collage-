@@ -1,6 +1,6 @@
 'use client';
 
-type Props = { active?: 'overview'|'students'|'academics'|'attendance'|'finance'|'people'|'admissions'|'communication'|'passports' };
+type Props = { active?: 'overview'|'students'|'academics'|'attendance'|'finance'|'people'|'admissions'|'communication'|'passports'|'roles' };
 const academics = [
   ['Programmes','college_programmes'],['Academic periods','college_academic_periods'],
   ['Units','college_units'],['Timetables','college_timetable_sessions'],
@@ -28,7 +28,7 @@ export default function ErpNavigation({ active='overview' }: Props) {
       <a className={'topnav-link '+(isActive('people')?'active':'')} href="/workspace?module=college_staff">♧ <span>HR &amp; Staff</span></a>
       <a className={'topnav-link '+(isActive('admissions')?'active':'')} href="/admissions">♙ <span>Admissions</span></a>
       <a className={'topnav-link '+(isActive('communication')?'active':'')} href="/communications">✉ <span>Messages</span></a>
-      <details className="topnav-dropdown"><summary className={isActive('passports')?'nav-current':''}>••• <span>More</span> ⌄</summary><div className="topnav-menu"><a className={active==='attendance'?'active':''} href="/attendance">QR Attendance &amp; Daily Register</a><a href="/passports">Passport Studio</a><a href="/finance/receipts">Bank payments &amp; receipts</a><a href="/apply" target="_blank">Public application form ↗</a>{more.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
+      <details className="topnav-dropdown"><summary className={isActive('passports')?'nav-current':''}>••• <span>More</span> ⌄</summary><div className="topnav-menu"><a className={active==='attendance'?'active':''} href="/attendance">QR Attendance &amp; Daily Register</a><a href="/passports">Passport Studio</a><a className={active===\'roles\'?\'active\':\'\'} href="/roles">Roles &amp; Access</a><a href="/finance/receipts">Bank payments &amp; receipts</a><a href="/apply" target="_blank">Public application form ↗</a>{more.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
     </nav>
     <details className="workspace-mobile-menu"><summary><span aria-hidden="true">☰</span> Menu</summary><div className="workspace-mobile-panel">
       <a className={isActive('overview')?'active':''} href="/">Overview</a>
