@@ -61,7 +61,7 @@ export default function OfficialStudentPassport({
     : '';
   const portrait = photoUrl || passport.photo_url || student.passport_photo_url || '';
   const active = (passport.status || 'active').toLowerCase() === 'active';
-  const signatureImage = passport.authorized_signature_data_url || officerSignatureUrl || '';
+  const signatureImage = officerSignatureUrl || passport.authorized_signature_data_url || '';
 
   return (
     <>
