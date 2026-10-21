@@ -50,6 +50,7 @@ export default function AttendancePage(){
  const [lastScan,setLastScan]=useState<ScanReceipt|null>(null);
  const [error,setError]=useState('');
  const [notice,setNotice]=useState('');
+ const [reportPrinting,setReportPrinting]=useState(false);
  const scannerRef=useRef<any>(null);
  const processingRef=useRef(false);
  const lastScannedRef=useRef({token:'',at:0});
@@ -164,6 +165,8 @@ export default function AttendancePage(){
   scannerRef.current=null;setCameraMessage('Camera stopped. Select Start camera when ready to scan the next passport.');
  }
  async function submitManualQr(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!manualQr.trim())return;await recordQrAttendance(manualQr);setManualQr('');}
+ function printDailyReport(){setReportPrinting(true);window.setTimeout(()=>window.print(),180);}
+ useEffect(()=>{const done=()=>setReportPrinting(false);window.addEventListener('afterprint',done);return()=>window.removeEventListener('afterprint',done)},[]);
  function exportRegister(){
   const lines=[['Date','Admission number','Student name','Programme','Attendance status','Method','Time scanned'],
    ...roster.map(({student,programme,record})=>[registerDate,student.admission_number,[student.first_name,student.middle_name,student.last_name].filter(Boolean).join(' '),programme?.title||'',record?.status||'not_scanned',record?.entry_method||'—',formatTime(record?.scanned_at||record?.created_at)])];
@@ -189,12 +192,13 @@ export default function AttendancePage(){
      {lastScan&&<div className={'attendance-scan-result '+(lastScan.error?'bad':lastScan.already_marked?'repeat':'good')}><div className="attendance-result-icon">{lastScan.error?'!':'✓'}</div><div><strong>{lastScan.error?'Scan not accepted':lastScan.already_marked?'Already present':'Attendance confirmed'}</strong>{lastScan.error?<p>{lastScan.error}</p>:<><p>{lastScan.student_name} · {lastScan.admission_number}</p><small>{lastScan.programme_title||'Programme not assigned'} · {lastScan.passport_number||'College passport'} · {formatTime(lastScan.scanned_at)}</small></>}</div></div>}
     </section>
     <section className="attendance-panel attendance-register-panel">
-     <div className="attendance-panel-title"><div><p className="eyebrow">REGISTER</p><h2>Daily attendance</h2></div><button type="button" className="secondary-button" onClick={exportRegister} disabled={loading||!students.length}>Export CSV</button></div>
+     <div className="attendance-panel-title"><div><p className="eyebrow">REGISTER</p><h2>Daily attendance</h2></div><div className="attendance-report-actions"><button type="button" className="secondary-button" onClick={exportRegister} disabled={loading||!students.length}>Export CSV</button><button type="button" className="primary-button" onClick={printDailyReport} disabled={loading||!students.length}>Download daily PDF</button></div></div>
      <div className="attendance-register-toolbar"><label>Register date<input type="date" value={registerDate} max={nairobiDate()} onChange={e=>{setCameraActive(false);setRegisterDate(e.target.value);}}/></label><label className="attendance-search">Search trainee<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Name or admission no."/></label><button type="button" className="secondary-button attendance-refresh" onClick={()=>void loadRegister(registerDate,false)} disabled={refreshing}>{refreshing?'Refreshing…':'Refresh'}</button></div>
      <div className="attendance-table-wrap"><table className="attendance-table"><thead><tr><th>Trainee</th><th>Status</th><th>Arrival</th></tr></thead><tbody>{roster.map(({student,programme,record})=><tr key={student.id}><td><strong>{[student.first_name,student.middle_name,student.last_name].filter(Boolean).join(' ')}</strong><small>{student.admission_number}{programme?.title?' · '+programme.title:''}</small></td><td><span className={'attendance-status-tag '+(record?.status||'not-marked')}>{record?.status==='present'?'Present':record?.status==='late'?'Late':record?.status==='absent'?'Absent':record?.status==='excused'?'Excused':'Not marked'}</span></td><td><span>{formatTime(record?.scanned_at||record?.created_at)}</span><small>{record?.entry_method==='qr'?'QR scan':record?'Manual record':'Awaiting scan'}</small></td></tr>)}{!loading&&roster.length===0&&<tr><td colSpan={3} className="attendance-empty-cell">No active trainees match this search.</td></tr>}{loading&&<tr><td colSpan={3} className="attendance-empty-cell">Loading daily register…</td></tr>}</tbody></table></div>
      <div className="attendance-register-footer"><span>Showing {roster.length} active trainee{roster.length===1?'':'s'}</span><span>{registerDate} · East Africa Time</span></div>
     </section>
    </div>
+   {reportPrinting&&<article className="attendance-print-report"><header className="attendance-print-brand"><img src={crest} alt="College crest"/><div><h1>St. Monicah Teachers Training College</h1><h2>Daily Student Attendance Report</h2><p>Attendance date: {registerDate} · East Africa Time</p></div></header><div className="attendance-print-summary"><span>Active trainees: <strong>{students.length}</strong></span><span>Present: <strong>{markedCount}</strong></span><span>Late: <strong>{lateCount}</strong></span><span>Not marked: <strong>{notScannedCount}</strong></span></div><table><thead><tr><th>#</th><th>Admission number</th><th>Student name</th><th>Programme</th><th>Status</th><th>Arrival time</th><th>Method</th></tr></thead><tbody>{roster.map(({student,programme,record},index)=><tr key={student.id}><td>{index+1}</td><td>{student.admission_number}</td><td>{[student.first_name,student.middle_name,student.last_name].filter(Boolean).join(' ')}</td><td>{programme?.title||'—'}</td><td>{record?.status||'Not marked'}</td><td>{formatTime(record?.scanned_at||record?.created_at)}</td><td>{record?.entry_method==='qr'?'QR scan':record?'Manual':'—'}</td></tr>)}</tbody></table><footer>Generated from the St. Monicah College ERP · Authorized daily attendance record</footer></article>}
    <footer className="attendance-footer no-print">St. Monicah Teachers Training College <span>Attendance is stored securely in the college database. Repeated QR scans do not create duplicate daily records.</span></footer>
   </section>
  </main>;
