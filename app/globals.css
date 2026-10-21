@@ -352,3 +352,27 @@ footer span{color:#9b8e96}
   .print-area:not(.thermal-print) .print-signatures{display:grid!important}
   .print-area:not(.thermal-print) .print-signatures{margin-top:30px!important}
 }
+
+
+/* Finance workspace payment-method cards and compact responsive navigation */
+.workspace-topbar{flex-wrap:wrap;gap:10px 18px}
+.workspace-topnav{flex-wrap:wrap;justify-content:center;row-gap:4px}
+.topnav-link,.topnav-dropdown>summary{padding:9px 10px;font-size:10px}
+.topnav-menu{z-index:90}
+@media(min-width:901px) and (max-width:1250px){.workspace-topbar{align-items:center}.topbar-brand{min-width:155px}.topbar-brand .crest-logo{width:40px;height:40px}.topbar-brand strong{font-size:10px}.topbar-brand small{font-size:7px}.workspace-topnav{gap:2px}.topnav-link,.topnav-dropdown>summary{padding:8px 7px;font-size:9px}.topbar-user>span{max-width:86px}}
+.payment-method-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:4px 0 16px}
+.payment-method-card{display:flex;min-width:0;min-height:106px;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;padding:12px;border:1px solid #eadfe4;border-radius:12px;background:#fff;text-align:left;color:#442337;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.payment-method-card:hover{border-color:#b88b9e;transform:translateY(-1px)}
+.payment-method-card.chosen{border:2px solid #641c35;background:#fbf1f5;box-shadow:0 0 0 3px rgba(100,28,53,.07);padding:11px}
+.payment-method-card strong{font:800 12px Manrope,sans-serif}
+.payment-method-card small{font-size:9px;color:#8c7882;line-height:1.4}
+.payment-method-icon{display:grid;place-items:center;width:43px;height:29px;border-radius:7px;background:#f4e7ed;color:#641c35;font:800 11px Manrope,sans-serif}
+.cash-icon{background:#eaf5e9;color:#24743a}
+.cheque-icon{background:#f5efe2;color:#806027;font-size:19px}
+.bank-logo-strip{display:flex;align-items:center;gap:4px;min-height:29px;flex-wrap:wrap}
+.bank-logo-strip b{display:inline-grid;place-items:center;min-width:35px;height:25px;padding:0 5px;border-radius:5px;background:#f2e8ec;color:#641c35;font-size:8px;font-weight:900}
+.bank-logo-strip b:first-child{background:#e5eef9;color:#174a86}
+.bank-logo-strip b:nth-child(2){background:#e8f3e9;color:#237342}
+.bank-logo-strip b:nth-child(3){background:#f9e9e6;color:#b33a32}
+.mpesa-wordmark{display:inline-flex;align-items:center;min-height:29px;padding:4px 8px;border-radius:6px;background:#e9f5e9;color:#16823a;font:900 14px Arial,sans-serif;letter-spacing:-.04em}
+@media(max-width:540px){.fees-workarea{grid-template-columns:minmax(0,1fr)}.payment-method-picker{grid-template-columns:repeat(2,minmax(0,1fr))}.fees-toolbar{align-items:stretch;flex-direction:column}.fees-toolbar .toolbar{width:100%;flex-wrap:wrap}.fees-toolbar .search-input{min-width:0;flex:1}.fees-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
