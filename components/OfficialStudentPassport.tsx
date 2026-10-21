@@ -45,6 +45,7 @@ export default function OfficialStudentPassport({
   student: OfficialPassportStudent;
   passport: OfficialPassportRecord;
   programmeTitle?: string | null;
+  applicantSignatureUrl?: string;
   photoUrl?: string | null;
 }) {
   const fullName = [student.first_name, student.middle_name, student.last_name].filter(Boolean).join(' ');
