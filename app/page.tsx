@@ -47,6 +47,7 @@ export default function Home() {
         setEmail(session.user.email ?? '');
         const {data:p,error:pError}=await supabase.from('college_profiles').select('id,full_name,role,department,active').eq('id',session.user.id).maybeSingle();
         if(pError) throw pError;
+        if(p?.active && p.role==='student'){router.replace('/portal');return;}
         if(p?.active){setProfile(p as Profile);}
         else setSetup(true);
         // Do not block the first workspace render on many exact-count database queries.
