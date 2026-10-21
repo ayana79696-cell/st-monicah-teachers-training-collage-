@@ -1,6 +1,6 @@
 'use client';
 
-type Props = { active?: 'overview'|'students'|'academics'|'finance'|'people'|'admissions'|'communication'|'passports' };
+type Props = { active?: 'overview'|'students'|'academics'|'attendance'|'finance'|'people'|'admissions'|'communication'|'passports' };
 const academics = [
   ['Programmes','college_programmes'],['Academic periods','college_academic_periods'],
   ['Units','college_units'],['Timetables','college_timetable_sessions'],
@@ -23,19 +23,19 @@ export default function ErpNavigation({ active='overview' }: Props) {
     <nav className="workspace-topnav" aria-label="Main navigation">
       <a className={'topnav-link '+(isActive('overview')?'active':'')} href="/">⌂ <span>Home</span></a>
       <a className={'topnav-link '+(isActive('students')?'active':'')} href="/workspace?module=college_students">♙ <span>Students</span></a>
-      <details className="topnav-dropdown"><summary className={academicsActive?'nav-current':''}>▤ <span>Academics</span> ⌄</summary><div className="topnav-menu">{academics.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
+      <details className="topnav-dropdown"><summary className={(academicsActive||active==='attendance')?'nav-current':''}>▤ <span>Academics</span> ⌄</summary><div className="topnav-menu">{academics.map(([label,key])=>key==='college_attendance'?<a key={key} className={active==='attendance'?'active':''} href="/attendance">✓ QR attendance &amp; daily register</a>:<a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
       <a className={'topnav-link '+(financeActive?'active':'')} href="/workspace?module=college_payments">▦ <span>Finance</span></a>
       <a className={'topnav-link '+(isActive('people')?'active':'')} href="/workspace?module=college_staff">♧ <span>HR &amp; Staff</span></a>
       <a className={'topnav-link '+(isActive('admissions')?'active':'')} href="/admissions">♙ <span>Admissions</span></a>
       <a className={'topnav-link '+(isActive('communication')?'active':'')} href="/communications">✉ <span>Messages</span></a>
-      <details className="topnav-dropdown"><summary className={isActive('passports')?'nav-current':''}>••• <span>More</span> ⌄</summary><div className="topnav-menu"><a href="/passports">Passport Studio</a><a href="/finance/receipts">Bank payments &amp; receipts</a><a href="/apply" target="_blank">Public application form ↗</a>{more.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
+      <details className="topnav-dropdown"><summary className={isActive('passports')?'nav-current':''}>••• <span>More</span> ⌄</summary><div className="topnav-menu"><a className={active==='attendance'?'active':''} href="/attendance">QR Attendance &amp; Daily Register</a><a href="/passports">Passport Studio</a><a href="/finance/receipts">Bank payments &amp; receipts</a><a href="/apply" target="_blank">Public application form ↗</a>{more.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}</div></details>
     </nav>
     <details className="workspace-mobile-menu"><summary><span aria-hidden="true">☰</span> Menu</summary><div className="workspace-mobile-panel">
       <a className={isActive('overview')?'active':''} href="/">Overview</a>
       <a className={isActive('students')?'active':''} href="/workspace?module=college_students">Students</a>
-      <p>ACADEMICS</p>{academics.map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}
+      <p>ACADEMICS</p>{academics.map(([label,key])=>key==='college_attendance'?<a key={key} className={active==='attendance'?'active':''} href="/attendance">QR attendance &amp; daily register</a>:<a key={key} href={'/workspace?module='+key}>{label}</a>)}
       <p>FINANCE</p><a className={financeActive?'active':''} href="/workspace?module=college_payments">Finance dashboard</a><a href="/workspace?module=college_bank_accounts">Bank &amp; M-Pesa</a><a href="/workspace?module=college_fee_structures">Fees &amp; Charges</a><a href="/finance/receipts">Bank payments &amp; receipts</a>
-      <p>PEOPLE &amp; SERVICES</p><a href="/workspace?module=college_staff">HR &amp; Staff</a><a href="/admissions">Admissions Desk</a><a href="/communications">Communications</a><a href="/passports">Passport Studio</a><a href="/apply" target="_blank">Public application form ↗</a>
+      <p>PEOPLE &amp; SERVICES</p><a href="/workspace?module=college_staff">HR &amp; Staff</a><a href="/admissions">Admissions Desk</a><a href="/communications">Communications</a><a className={active==='attendance'?'active':''} href="/attendance">QR attendance &amp; daily register</a><a href="/passports">Passport Studio</a><a href="/apply" target="_blank">Public application form ↗</a>
       <p>MORE MODULES</p>{more.filter(([,key])=>!['college_payments','college_bank_accounts','college_fee_structures','college_fee_charges','college_fee_heads'].includes(key)).map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}
     </div></details>
   </>;
