@@ -42,12 +42,14 @@ export default function OfficialStudentPassport({
   passport,
   programmeTitle,
   applicantSignatureUrl: _applicantSignatureUrl,
+  officerSignatureUrl,
   photoUrl,
 }: {
   student: OfficialPassportStudent;
   passport: OfficialPassportRecord;
   programmeTitle?: string | null;
   applicantSignatureUrl?: string;
+  officerSignatureUrl?: string;
   photoUrl?: string | null;
 }) {
   const fullName = [student.first_name, student.middle_name, student.last_name].filter(Boolean).join(' ');
@@ -59,7 +61,7 @@ export default function OfficialStudentPassport({
     : '';
   const portrait = photoUrl || passport.photo_url || student.passport_photo_url || '';
   const active = (passport.status || 'active').toLowerCase() === 'active';
-  const signatureImage = passport.authorized_signature_data_url || _applicantSignatureUrl || '';
+  const signatureImage = passport.authorized_signature_data_url || officerSignatureUrl || '';
 
   return (
     <>
