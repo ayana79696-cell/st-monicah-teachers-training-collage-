@@ -99,7 +99,27 @@ const studentFieldGroups={
  documents:{title:'Admission document checklist',fields:['id_document_received','birth_certificate_received','academic_certificate_received','passport_photo_received','medical_clearance_received','insurance_document_received','signed_declaration_received','admission_letter_received']}
 };
 function Page(){const router=useRouter(),params=useSearchParams(),table=params.get('module')||'college_students';const def=defs.find(d=>d[1]===table)||defs[0];const [rows,setRows]=useState<Record<string,any>[]>([]),[profile,setProfile]=useState<any>(null),[busy,setBusy]=useState(true),[error,setError]=useState(''),[show,setShow]=useState(false),[values,setValues]=useState<Record<string,string>>({}),[search,setSearch]=useState(''),[saving,setSaving]=useState(false),[notice,setNotice]=useState(''),[lookupOptions,setLookupOptions]=useState<Record<string,{value:string;label:string}[]>>({}),[printDoc,setPrintDoc]=useState<any>(null),[editId,setEditId]=useState<string|null>(null);const [financeTab,setFinanceTab]=useState<'payment'|'history'|'structures'|'balances'>('payment');const [financeStructures,setFinanceStructures]=useState<Record<string,any>[]>([]);const [financeCharges,setFinanceCharges]=useState<Record<string,any>[]>([]);const [financeStudents,setFinanceStudents]=useState<Record<string,any>[]>([]);const [financeBanks,setFinanceBanks]=useState<Record<string,any>[]>([]);
-const load=useCallback(async()=>{setBusy(true);setError('');try{const db=createClient(),{data:{session}}=await db.auth.getSession();if(!session){router.replace('/login');return;}const {data:p,error:pe}=await db.from('college_profiles').select('full_name,role,active').eq('id',session.user.id).maybeSingle();if(pe)throw pe;if(!p?.active){router.replace('/');return;}setProfile(p);const {data,error:e}=await db.from(def[1]).select('*').limit(100);if(e)throw e;setRows(data||[]);if(def[1]==='college_payments'){const [st,fc,fs,bk]=await Promise.all([db.from('college_students').select('*').limit(500),db.from('college_fee_charges').select('*').limit(1000),db.from('college_fee_structures').select('*').limit(500),db.from('college_bank_accounts').select('*').eq('active',true).order('bank_name')]);if(st.error)throw st.error;if(fc.error)throw fc.error;if(fs.error)throw fs.error;if(bk.error)throw bk.error;setFinanceStudents(st.data||[]);setFinanceCharges(fc.data||[]);setFinanceStructures(fs.data||[]);setFinanceBanks(bk.data||[]);}
+const load=useCallback(async()=>{setBusy(true);setError('');try{const db=createClient(),{data:{session}}=await db.auth.getSession();if(!session){router.replace('/login');return;}const {data:p,error:pe}=await db.from('college_profiles').select('full_name,role,active').eq('id',session.user.id).maybeSingle();if(pe)throw pe;if(!p?.active){router.replace('/');return;}setProfile(p);
+if(def[1]==='college_fee_heads'){
+ const standardHeads=[
+  {code:'TUITION',name:'Tuition Fees',description:'Teaching and learning charges',active:true},
+  {code:'REGISTRATION',name:'Registration Fees',description:'Student registration and admission processing',active:true},
+  {code:'EXAMINATION',name:'Examination Fees',description:'Examinations and assessment',active:true},
+  {code:'ICT',name:'ICT Fees',description:'Computer laboratory, internet and technology services',active:true},
+  {code:'LIBRARY',name:'Library Fees',description:'Library resources and services',active:true},
+  {code:'TEACHING-PRACTICE',name:'Teaching Practice Fees',description:'Teaching practice placement and supervision',active:true},
+  {code:'ACCOMMODATION',name:'Accommodation Fees',description:'Hostel and accommodation charges where applicable',active:true},
+  {code:'STUDENT-ACTIVITY',name:'Student Activity Fees',description:'Student activities and college events',active:true},
+  {code:'CAUTION-MONEY',name:'Caution Money',description:'Refundable student deposit, subject to college policy',active:true},
+  {code:'GRADUATION',name:'Graduation Fees',description:'Graduation and completion costs when applicable',active:true}
+ ];
+ const {data:existingHeads,error:headsError}=await db.from('college_fee_heads').select('code');
+ if(headsError)throw headsError;
+ const existingCodes=new Set((existingHeads||[]).map((h:any)=>String(h.code||'').toUpperCase()));
+ const missingHeads=standardHeads.filter(h=>!existingCodes.has(h.code));
+ if(missingHeads.length){const {error:seedError}=await db.from('college_fee_heads').insert(missingHeads);if(seedError)throw seedError;}
+}
+const {data,error:e}=await db.from(def[1]).select('*').limit(100);if(e)throw e;setRows(data||[]);if(def[1]==='college_payments'){const [st,fc,fs,bk]=await Promise.all([db.from('college_students').select('*').limit(500),db.from('college_fee_charges').select('*').limit(1000),db.from('college_fee_structures').select('*').limit(500),db.from('college_bank_accounts').select('*').eq('active',true).order('bank_name')]);if(st.error)throw st.error;if(fc.error)throw fc.error;if(fs.error)throw fs.error;if(bk.error)throw bk.error;setFinanceStudents(st.data||[]);setFinanceCharges(fc.data||[]);setFinanceStructures(fs.data||[]);setFinanceBanks(bk.data||[]);}
 const needed=Array.from(new Set((def[2] as any[]).map(f=>f[0]).filter((key:string)=>relationFields[key])));
 const optionEntries=await Promise.all(needed.map(async key=>{const rel=relationFields[key];const {data:items}=await db.from(rel.table).select('*').limit(500);return [key,(items||[]).map((row:Record<string,any>)=>({value:String(row.id),label:rel.label(row)})).filter((o:{value:string;label:string})=>o.value&&o.label)] as const;}));
 setLookupOptions(Object.fromEntries(optionEntries));}catch(e){setError(e instanceof Error?e.message:'Unable to load records.');}finally{setBusy(false);}},[def,router]);
