@@ -444,3 +444,25 @@ footer span{color:#9b8e96}
 @media(max-width:1250px){.topbar-brand{min-width:165px}.topbar-brand strong{font-size:12px}.workspace-topbar{gap:10px}.workspace-topnav .topnav-link,.workspace-topnav .topnav-dropdown>summary{padding-inline:7px;font-size:10px}}
 @media(max-width:900px){.workspace-topbar{justify-content:space-between}.home-hero-crest{right:26px;width:144px;padding:14px}.home-hero-crest .seal-logo{width:82px;height:82px}}
 @media(max-width:650px){.welcome-featured{min-height:unset;padding:22px 18px 24px;background-position:62% center}.welcome-featured .welcome-copy{max-width:100%}.welcome-featured .welcome-copy h2{font-size:29px;max-width:100%}.welcome-featured .welcome-copy>p:not(.eyebrow){font-size:12px;max-width:100%}.welcome-featured .hero-action{display:flex;width:fit-content;max-width:100%;font-size:11px;margin-right:0}.home-hero-crest{display:none}.home-hero-orb{width:38px;height:38px;font-size:20px;right:14px;top:14px}.workspace-topbar{padding-inline:13px}.topbar-brand .crest-logo{width:39px;height:39px}.topbar-brand strong{font-size:11px}.topbar-brand small{font-size:8px}}
+
+/* ST. MONICAH CREST PALETTE — clearer nested navigation and action buttons */
+:root{--crest-maroon:#641c35;--crest-deep:#421225;--crest-gold:#d6b46b;--crest-gold-light:#f8edcf;--crest-cream:#fffaf0}
+.finance-subnav{background:linear-gradient(135deg,#fffdf8,#f7f0df);border:1px solid #dfc98f;box-shadow:0 8px 22px rgba(66,18,37,.07)}
+.finance-subnav a{background:#fff;border:1px solid #e4d2a5;color:#512039;font-weight:750;box-shadow:0 2px 5px rgba(66,18,37,.035);transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease}
+.finance-subnav a:hover,.finance-subnav a.active{background:linear-gradient(135deg,#641c35,#421225);border-color:#d6b46b;color:#fff;box-shadow:0 5px 13px rgba(66,18,37,.17);transform:translateY(-1px)}
+.primary-button,button:not(.quiet-button):not(.secondary-button):not(.payment-method-card):not(.workspace-mobile-menu button){background:linear-gradient(135deg,#641c35,#421225);color:#fff;border:1px solid #b18a48;box-shadow:0 4px 10px rgba(66,18,37,.12)}
+.primary-button:hover,button:not(.quiet-button):not(.secondary-button):not(.payment-method-card):not(.workspace-mobile-menu button):hover{background:linear-gradient(135deg,#7a2948,#51152d);border-color:#e0c47e;box-shadow:0 7px 16px rgba(66,18,37,.18)}
+.secondary-button{background:#fffaf0;color:#541a32;border:1px solid #d6b46b;box-shadow:0 2px 6px rgba(66,18,37,.045)}
+.secondary-button:hover{background:#f5e8c5;border-color:#b18a48;color:#421225}
+.quiet-button{color:#641c35;font-weight:800}
+.quiet-button:hover{color:#9b6a20;text-decoration:underline}
+.finance-task-grid>a{background:linear-gradient(145deg,#fff,#fffaf0);border:1px solid #e0cfaa;color:#421225;box-shadow:0 5px 16px rgba(66,18,37,.055);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.finance-task-grid>a:hover{transform:translateY(-3px);border-color:#c9a75d;box-shadow:0 12px 24px rgba(66,18,37,.12)}
+.finance-task-grid>a .task-icon,.finance-task-grid>a [class*="icon"]{background:linear-gradient(145deg,#641c35,#421225);color:#f8e7b6;border:1px solid #d6b46b}
+.payment-method-card{background:#fffaf0!important;border:1px solid #d6b46b!important;color:#421225!important}
+.payment-method-card:hover,.payment-method-card[aria-pressed="true"],.payment-method-card.selected{background:linear-gradient(135deg,#641c35,#421225)!important;color:#fff!important;border-color:#e1c47a!important}
+.topnav-menu a{color:#421225}
+.topnav-menu a:hover{background:#641c35;color:#fff;border-left:3px solid #d6b46b}
+.record-form button,.toolbar button{min-height:40px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #d6b46b!important;outline-offset:2px}
+@media(max-width:650px){.finance-subnav a{justify-content:flex-start;min-height:43px;padding:10px 11px;font-size:11px}.finance-task-grid>a{border-radius:13px}}
