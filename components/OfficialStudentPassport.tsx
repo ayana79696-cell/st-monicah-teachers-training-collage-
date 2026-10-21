@@ -123,7 +123,7 @@ export default function OfficialStudentPassport({
           <div className="smid-official-signature">
             <div className="smid-signature-mark">
               {signatureImage
-                ? <img src={signatureImage} alt="Authorized officer signature" />
+                ? <img className="smid-signature-image" src={signatureImage} alt="Authorized officer signature" loading="eager" decoding="sync" />
                 : <span className="smid-signature-blank" />}
             </div>
             <span>AUTHORIZED OFFICER</span>
@@ -177,7 +177,7 @@ export default function OfficialStudentPassport({
         .smid-footer{position:relative;display:grid;grid-template-columns:1.45fr .65fr .95fr;align-items:center;gap:8px;padding:4px 13px 8px;border-top:1px solid #eadbbd;background:linear-gradient(100deg,#fcf6e9,#f4e7c9)}
         .smid-official-signature,.smid-date{display:flex;flex-direction:column;justify-content:flex-end;gap:3px;min-width:0}
         .smid-signature-mark{display:flex;align-items:flex-end;height:clamp(18px,3.4vw,25px);max-width:100%;overflow:hidden}
-        .smid-signature-mark img{display:block;width:auto;max-width:100%;height:100%;object-fit:contain;object-position:left bottom;filter:contrast(1.15)}
+        .smid-signature-mark img,.smid-signature-image{display:block!important;width:100%!important;max-width:100%!important;height:100%!important;object-fit:contain!important;object-position:left bottom!important;filter:contrast(1.28) brightness(.82)!important;opacity:1!important;visibility:visible!important}
         .smid-signature-blank{display:block;width:88%;height:80%;border-bottom:1.2px solid #7f6240}
         .smid-official-signature>span,.smid-date>span{color:#866d49;font-size:clamp(5px,.73vw,6px);font-weight:800;letter-spacing:.1em;line-height:1}
         .smid-date strong{overflow:hidden;color:#412535;font-size:clamp(6px,1vw,8px);font-weight:800;line-height:1.12;text-overflow:ellipsis;white-space:nowrap}
