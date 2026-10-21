@@ -487,11 +487,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .attendance-help{font-size:12px;color:#7c6b73;line-height:1.6;margin:0 0 12px}
 .attendance-scanner-frame{position:relative;min-height:270px;overflow:hidden;border:1px dashed #d7c2cc;border-radius:13px;background:#21131b;display:grid;place-items:center}
 .attendance-scanner-frame.active{border:1px solid #b68f4c}
-#attendance-qr-reader{width:100%;max-width:100%;min-height:0}
-#attendance-qr-reader:empty{display:none}
+#attendance-qr-reader{display:block;width:100%;max-width:100%;min-height:240px;background:#21131b}
+#attendance-qr-reader:empty{min-height:240px}
 #attendance-qr-reader video{width:100%!important;max-height:360px!important;object-fit:cover!important}
 #attendance-qr-reader img{max-width:100%}
-#attendance-qr-reader__scan_region{min-height:0!important}
+#attendance-qr-reader__scan_region{min-height:220px!important;width:100%!important}
 #attendance-qr-reader__dashboard{background:#fffdf9;color:#421225;font-size:11px}
 #attendance-qr-reader__dashboard_section_csr button{margin:4px;border:1px solid #d6b46b;border-radius:8px;padding:7px;background:#641c35;color:#fff}
 .attendance-camera-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;color:#fff;pointer-events:none;padding:24px}
