@@ -23,11 +23,12 @@ type Draft = {
 type Profile = { id: string; full_name: string; role: string; active: boolean };
 const DB_NAME = 'st-monicah-field-companion';
 const STORE = 'drafts';
+const ASSIGNMENTS = 'assignments';
 const ALLOWED_ROLES = ['super_admin', 'principal', 'practice_supervisor'];
 
 function openDraftDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
+    const request = indexedDB.open(DB_NAME, 2);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE)) {
@@ -35,6 +36,7 @@ function openDraftDb(): Promise<IDBDatabase> {
         store.createIndex('owner_id', 'owner_id', { unique: false });
         store.createIndex('sync_state', 'sync_state', { unique: false });
       }
+      if (!db.objectStoreNames.contains(ASSIGNMENTS)) db.createObjectStore(ASSIGNMENTS, { keyPath: 'owner_id' });
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error('Local draft storage could not open.'));
@@ -56,6 +58,8 @@ async function putDraft(draft: Draft): Promise<void> {
     req.onerror = () => { db.close(); reject(req.error ?? new Error('Could not save draft on this device.')); };
   });
 }
+async function cacheAssignments(ownerId: string, value: { profile: Profile; placements: Placement[]; staffId: string | null }): Promise<void> { const db = await openDraftDb(); return new Promise((resolve, reject) => { const req = db.transaction(ASSIGNMENTS, 'readwrite').objectStore(ASSIGNMENTS).put({ owner_id: ownerId, ...value, cached_at: new Date().toISOString() }); req.onsuccess = () => { db.close(); resolve(); }; req.onerror = () => { db.close(); reject(req.error); }; }); }
+async function readAssignments(ownerId: string): Promise<{ profile: Profile; placements: Placement[]; staffId: string | null } | null> { const db = await openDraftDb(); return new Promise((resolve, reject) => { const req = db.transaction(ASSIGNMENTS, 'readonly').objectStore(ASSIGNMENTS).get(ownerId); req.onsuccess = () => { const value = req.result ?? null; db.close(); resolve(value); }; req.onerror = () => { db.close(); reject(req.error); }; }); }
 async function deleteDraft(id: string): Promise<void> {
   const db = await openDraftDb();
   return new Promise((resolve, reject) => {
@@ -119,13 +123,15 @@ export default function FieldCompanionPage() {
     if (partnersResult.error) throw partnersResult.error;
     const studentMap = new Map((studentsResult.data ?? []).map((s: any) => [s.id, [s.first_name, s.middle_name, s.last_name].filter(Boolean).join(' ') + (s.admission_number ? ' · ' + s.admission_number : '')]));
     const partnerMap = new Map((partnersResult.data ?? []).map((p: any) => [p.id, p.institution_name]));
-    const visibleRows = rows.filter((r: any) => r.supervisor_id === null || r.supervisor_id === staffResult.data?.id);
+    const { data: currentProfile } = await supabase.from('college_profiles').select('id,full_name,role,active').eq('id', userId).maybeSingle();
+    const visibleRows = currentProfile?.role === 'practice_supervisor' ? rows.filter((r: any) => Boolean(staffResult.data?.id) && r.supervisor_id === staffResult.data?.id) : rows;
     const mapped: Placement[] = visibleRows.map((r: any) => ({
       ...r, student_label: studentMap.get(r.student_id) ?? 'Trainee record', school_label: partnerMap.get(r.partner_id) ?? 'Host school not set',
     }));
     setPlacements(mapped);
     if (!form.placement_id && mapped.length) setForm(old => ({ ...old, placement_id: mapped[0].id }));
     setStaffId(staffResult.data?.id ?? null);
+    if (currentProfile) await cacheAssignments(userId, { profile: currentProfile as Profile, placements: mapped, staffId: staffResult.data?.id ?? null });
     // Cache only this authenticated supervisor's assignments for offline forms.
     const db = await openDraftDb();
     await new Promise<void>((resolve, reject) => {
@@ -140,7 +146,7 @@ export default function FieldCompanionPage() {
       tx.oncomplete = () => { db.close(); resolve(); };
       tx.onerror = () => { db.close(); reject(tx.error); };
     });
-  }, [supabase, form.placement_id]);
+  }, [supabase]);
 
   const syncPending = useCallback(async (userId: string) => {
     if (!navigator.onLine) return;
@@ -209,21 +215,27 @@ export default function FieldCompanionPage() {
           setError('This module is limited to active Super Administrators, Principals and Teaching Practice Supervisors.');
           setLoading(false); return;
         }
-        if (!p && navigator.onLine) {
+        let effectiveProfile = p as Profile | null;
+        if (!navigator.onLine) {
+          const cached = await readAssignments(session.user.id);
+          if (!cached?.profile || !cached.profile.active || !ALLOWED_ROLES.includes(cached.profile.role)) {
+            setError('This device has no previously verified Field Companion profile. Connect to the internet and open this module before using it offline.');
+            setLoading(false); return;
+          }
+          effectiveProfile = cached.profile;
+          setPlacements(cached.placements);
+          setStaffId(cached.staffId);
+        }
+        if (!effectiveProfile) {
           setError('Your college profile could not be verified. Sign in online and ask the Super Administrator to check your role.');
           setLoading(false); return;
         }
-        const effectiveProfile = p ?? { id: session.user.id, full_name: 'Field supervisor', role: 'practice_supervisor', active: true };
         if (!active) return;
-        setProfile(effectiveProfile as Profile);
+        setProfile(effectiveProfile);
         await refreshDrafts(session.user.id);
         if (navigator.onLine) {
           await loadAssignments(session.user.id, session.user.email ?? '');
           await syncPending(session.user.id);
-        } else {
-          const all = await allDrafts();
-          const ids = [...new Set(all.filter(d => d.owner_id === session.user.id && d.sync_state === 'pending').map(d => d.placement_id))];
-          setPlacements(ids.map(id => ({ id, student_id: '', partner_id: null, supervisor_id: null, starts_on: null, ends_on: null, status: 'active', approval_status: 'approved', student_label: 'Previously assigned placement', school_label: 'Cached placement' })));
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Unable to open the Field Companion.');
