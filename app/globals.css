@@ -740,3 +740,41 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:720px){.reports-grid,.student-portal-grid{grid-template-columns:1fr}.reports-daily-chart{gap:2px}.reports-daily-bars{height:90px}.reports-daily-chart small{font-size:7px}.student-portal-header{align-items:flex-start}.student-portal-user{gap:8px}.student-portal-user>span{max-width:120px}.student-portal-seal{width:62px;height:62px;font-size:18px}.student-portal-seal span{font-size:7px}.communications-panel{padding:16px}.inventory-content .form-grid{grid-template-columns:1fr}}
 @media(max-width:420px){.reports-kpis,.inventory-kpis,.student-portal-kpis{grid-template-columns:1fr}.student-portal-header{flex-direction:column}.student-portal-user{width:100%;justify-content:space-between}.student-portal-user>span{text-align:left}.student-details{grid-template-columns:1fr;gap:5px}.student-details dd{margin-bottom:8px}}
 @media print{.student-portal-header,.workspace-topbar,.no-print,.toolbar,.quiet-button{display:none!important}.content,.student-portal-main{margin:0!important;padding:0!important;max-width:none!important}.reports-kpis,.student-portal-kpis{break-inside:avoid}.table-wrap{overflow:visible!important;border:1px solid #ccc}.records-table{font-size:9px}.reports-grid{gap:8px}.reports-grid article,.student-portal-panel{break-inside:avoid}}
+
+
+/* Marks, result entry and academic approval workflow */
+.results-content{max-width:1550px}
+.results-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.results-kpis article{display:flex;flex-direction:column;gap:7px;min-width:0}
+.results-kpis article>span{font-size:11px;color:#756b72}
+.results-kpis article>strong{font:800 clamp(20px,2vw,28px) Manrope,sans-serif;color:var(--deep);overflow-wrap:anywhere}
+.results-kpis article>small{font-size:10px;color:#938890;line-height:1.5}
+.results-workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.results-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;min-width:0}
+.results-panel h2{font:800 17px Manrope,sans-serif;margin:0 0 8px}
+.results-panel .section-head{margin:0 0 16px}
+.results-panel .section-head h2{margin:0}
+.results-panel .section-head p{margin:5px 0 0}
+.results-select{display:block;width:100%;max-width:none;margin-top:8px;background:#fff;font-size:13px}
+.assessment-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;background:#fbf8f9;border:1px solid #eee6ea;border-radius:10px;padding:14px;margin-top:16px}
+.assessment-meta>div{min-width:0}
+.assessment-meta small{display:block;font-size:10px;color:#82757c;margin-bottom:5px}
+.assessment-meta strong{display:block;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.assessment-status{display:inline-flex!important;align-items:center;border-radius:999px;padding:5px 9px;background:#f4edf0;color:var(--maroon);font-size:10px!important;font-weight:800!important}
+.assessment-open{background:#e8f5ef;color:#176444!important}
+.assessment-submitted{background:#fff3d8;color:#8b5b00!important}
+.assessment-approved{background:#e8f5ef;color:#176444!important}
+.results-entry-form{border:1px solid #eee6ea;border-radius:12px;padding:18px;margin:20px 0 16px}
+.results-entry-form h2{margin-bottom:14px}
+.results-entry-form label{display:block;font-size:12px;font-weight:700}
+.results-entry-form input,.results-entry-form select,.results-entry-form textarea{display:block;box-sizing:border-box;width:100%;padding:11px;margin-top:7px;border:1px solid #d9cbd0;border-radius:8px;background:#fff;font:inherit}
+.results-comment-field{grid-column:1/-1}
+.results-action-row,.results-approval-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fbf8f9;border:1px solid #eee6ea;border-radius:10px;padding:14px 16px;margin:14px 0}
+.results-action-row p,.results-approval-banner p{margin:0;font-size:12px;line-height:1.7;color:#756b72}
+.results-approval-banner strong{display:block;margin-bottom:6px;color:var(--deep)}
+.results-approval-banner>div{min-width:0}
+.results-approved-banner{background:#f1f8f4;border-color:#d7eade}
+.results-panel .muted{font-size:11px;line-height:1.6}
+@media(max-width:1000px){.results-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assessment-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.results-panel{padding:15px}.results-entry-form{padding:13px}.results-entry-form .form-grid{grid-template-columns:1fr}.results-action-row,.results-approval-banner{align-items:flex-start;flex-direction:column}.assessment-meta{gap:10px;padding:11px}}
+@media print{.results-content .results-kpis{break-inside:avoid}.results-workspace{display:block}.results-panel{break-inside:avoid;margin:0 0 10px;padding:10px}.results-content .results-panel:first-child .results-entry-form,.results-content .results-panel:first-child .results-action-row,.results-content .results-panel:first-child .results-approval-banner{display:none!important}}
