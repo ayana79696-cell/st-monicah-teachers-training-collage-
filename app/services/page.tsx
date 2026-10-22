@@ -7,7 +7,7 @@ import {createClient} from '@/lib/supabase/client';
 type Row=Record<string,any>;
 const modules=[
  {key:'college_parent_links',title:'Parent/student links',fields:[['parent_profile_id','Parent profile UUID','text'],['student_id','Student UUID','text'],['relationship','Relationship','text'],['active','Active (true/false)','select:true,false']],label:'student_id'},
- {key:'college_learning_resources',title:'Learning resources',fields:[['title','Title','text'],['description','Description','textarea'],['resource_type','Type','select:document,video,link,presentation,reading'],['resource_url','Resource URL','text'],['unit_id','Unit ID (optional)','text']],label:'title'},
+ {key:'college_learning_resources',title:'Learning resources',fields:[['title','Title','text'],['description','Description','textarea'],['resource_type','Type','select:document,video,link,presentation,reading'],['resource_url','Resource URL','text'],['unit_id','Unit ID (optional)','text'],['is_published','Publish to students','select:true,false']],label:'title'},
  {key:'college_learning_assignments',title:'Learning assignments',fields:[['unit_id','Unit ID','text'],['title','Title','text'],['instructions','Instructions','textarea'],['due_at','Due date','datetime-local'],['max_score','Maximum score','number'],['status','Status','select:draft,published,closed']],label:'title'},
  {key:'college_unit_registrations',title:'Unit registration',fields:[['student_id','Student UUID','text'],['unit_id','Unit UUID','text'],['academic_period_id','Academic period UUID','text'],['status','Status','select:registered,completed,withdrawn'],['notes','Notes','textarea']],label:'student_id'},
  {key:'college_graduation_clearance',title:'Graduation clearance',fields:[['student_id','Student UUID','text'],['academic_period_id','Academic period UUID','text'],['clearance_area','Clearance area','text'],['status','Status','select:pending,cleared,blocked'],['notes','Notes','textarea']],label:'clearance_area'},
@@ -38,7 +38,7 @@ export default function ServicesPage(){
  useEffect(()=>{void load();},[load]);
  async function save(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');setNotice('');
   if(!profile||!['super_admin','principal','registrar','finance','hr','hod','lecturer','practice_supervisor','ict_admin'].includes(profile.role)){setError('Your role does not have permission to add these records.');setBusy(false);return;}
-  try{const payload:Row={};for(const f of mod.fields){const [name,,type]=f;const value=form[name];if(value!==''&&value!==undefined&&value!==null)payload[name]=type==='number'?Number(value):value;}
+  try{const payload:Row={};for(const f of mod.fields){const [name,,type]=f;const value=form[name];if(value!==''&&value!==undefined&&value!==null)payload[name]=type==='number'?Number(value):(['is_published','active'].includes(name)?value==='true':value);}
    if(['college_learning_resources','college_quality_records','college_workflow_rules','college_finance_import_batches'].includes(key))payload.created_by=profile.id;
    if(key==='college_unit_registrations')payload.registered_by=profile.id;
    const {error:e2}=await db.from(key).insert(payload);if(e2)throw e2;
