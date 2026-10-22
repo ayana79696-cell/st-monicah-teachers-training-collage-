@@ -21,6 +21,7 @@ const modules = [
   {name:'Alumni & Employment',table:'college_alumni_records',desc:'Graduate outcomes, employment tracking and alumni contact consent',icon:'AL'},
   {name:'Library',table:'college_library_items',desc:'Catalogue, lending and return management',icon:'LB'},
   {name:'Accommodation',table:'college_hostel_rooms',desc:'Hostel buildings, rooms and capacity',icon:'AC'},
+  {name:'Accommodation Allocations',table:'college_hostel_allocations',desc:'Assign students to rooms and track check-in and checkout dates',icon:'RM'},
   {name:'Procurement',table:'college_procurement_requests',desc:'Requests, approvals and estimated costs',icon:'PR'},
   {name:'Teaching Practice Partners',table:'college_practice_partners',desc:'Partner schools and placement contacts',icon:'PS'},
   {name:'Communications',table:'college_messages',desc:'College announcements and message history',icon:'CM'},
