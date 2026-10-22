@@ -18,6 +18,7 @@ export default function StudentPortalPage() {
   const [charges, setCharges] = useState<Row[]>([]);
   const [attendance, setAttendance] = useState<Row[]>([]);
   const [results, setResults] = useState<Row[]>([]);
+  const [assessmentDetails, setAssessmentDetails] = useState<Record<string, Row>>({});
   const [messages, setMessages] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,14 +47,20 @@ export default function StudentPortalPage() {
         db.from('college_payments').select('amount_kes,payment_method,reference_number,bank_name,paid_at,created_at').eq('student_id', p.student_id).order('paid_at', {ascending:false}).limit(100),
         db.from('college_fee_charges').select('description,amount_kes,discount_kes,due_date,charge_status,created_at').eq('student_id', p.student_id).order('created_at', {ascending:false}).limit(100),
         db.from('college_attendance').select('session_date,status,unit_id').eq('student_id', p.student_id).order('session_date', {ascending:false}).limit(150),
-        db.from('college_results').select('assessment_id,score,lecturer_comment,approved_at,created_at').eq('student_id', p.student_id).order('created_at', {ascending:false}).limit(100),
+        db.from('college_results').select('assessment_id,score,lecturer_comment,approved_at,created_at').eq('student_id', p.student_id).not('approved_at','is',null).order('created_at', {ascending:false}).limit(100),
         db.from('college_messages').select('id,subject,message_body,channel,created_at').eq('status','sent').eq('channel','in_app').order('created_at', {ascending:false}).limit(100)
       ]);
       if (programmeResult.data) setProgrammeTitle([programmeResult.data.code, programmeResult.data.title].filter(Boolean).join(' — '));
       setPayments(paymentResult.error ? [] : (paymentResult.data || []) as Row[]);
       setCharges(chargeResult.error ? [] : (chargeResult.data || []) as Row[]);
       setAttendance(attendanceResult.error ? [] : (attendanceResult.data || []) as Row[]);
-      setResults(resultResult.error ? [] : (resultResult.data || []) as Row[]);
+      const approvedResults = resultResult.error ? [] : (resultResult.data || []) as Row[];
+      setResults(approvedResults);
+      const assessmentIds = [...new Set(approvedResults.map(r => String(r.assessment_id || '')).filter(Boolean))];
+      if (assessmentIds.length) {
+        const { data: assessmentRows, error: assessmentError } = await db.from('college_assessments').select('id,title,assessment_type,assessment_date,max_score').in('id', assessmentIds);
+        if (!assessmentError) setAssessmentDetails(Object.fromEntries((assessmentRows || []).map((a: Row) => [a.id, a])));
+      } else setAssessmentDetails({});
       setMessages(messageResult.error ? [] : (messageResult.data || []) as Row[]);
       const skipped = [paymentResult, chargeResult, attendanceResult, resultResult, messageResult].filter(x => x.error);
       if (skipped.length) setError('Some portal sections are temporarily unavailable due to database access policies. Your other visible records are shown; contact the college administrator if this persists.');
@@ -84,7 +91,7 @@ export default function StudentPortalPage() {
           <article className="student-portal-panel"><div className="section-head"><div><h2>Fee charges</h2><p className="muted">Posted items that contribute to the balance</p></div></div>{charges.length ? <div className="table-wrap"><table className="records-table"><thead><tr><th>Charge</th><th>Status</th><th>Amount</th><th>Due date</th></tr></thead><tbody>{charges.map((c,i)=><tr key={i}><td>{c.description || 'College charge'}</td><td>{String(c.charge_status || '—').replaceAll('_',' ')}</td><td>{money(Math.max(0,Number(c.amount_kes || 0)-Number(c.discount_kes || 0)))}</td><td>{c.due_date || '—'}</td></tr>)}</tbody></table></div> : <p className="empty-state">No visible fee charges.</p>}</article>
           <article className="student-portal-panel"><div className="section-head"><div><h2>Payment history</h2><p className="muted">Latest transactions</p></div></div>{payments.length ? <div className="table-wrap"><table className="records-table"><thead><tr><th>Date</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead><tbody>{payments.map((p,i)=><tr key={i}><td>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-KE',{timeZone:'Africa/Nairobi'}) : '—'}</td><td>{String(p.payment_method || '—').replaceAll('_',' ')}</td><td>{p.reference_number || '—'}</td><td>{money(Number(p.amount_kes || 0))}</td></tr>)}</tbody></table></div> : <p className="empty-state">No visible payments.</p>}</article>
           <article className="student-portal-panel"><div className="section-head"><div><h2>Attendance</h2><p className="muted">Most recent attendance entries</p></div></div>{attendance.length ? <div className="table-wrap"><table className="records-table"><thead><tr><th>Date</th><th>Status</th><th>Record type</th></tr></thead><tbody>{attendance.slice(0,50).map((a,i)=><tr key={i}><td>{a.session_date || '—'}</td><td>{a.status || '—'}</td><td>{a.unit_id ? 'Unit session' : 'Daily register'}</td></tr>)}</tbody></table></div> : <p className="empty-state">No visible attendance records.</p>}</article>
-          <article className="student-portal-panel"><div className="section-head"><div><h2>Assessment results</h2><p className="muted">Results are identified as approved when a lecturer/approver has approved them.</p></div></div>{results.length ? <div className="table-wrap"><table className="records-table"><thead><tr><th>Assessment reference</th><th>Score</th><th>Status</th><th>Comment</th></tr></thead><tbody>{results.map((r,i)=><tr key={i}><td>{String(r.assessment_id || '').slice(0,8) || 'Assessment'}</td><td>{r.score ?? '—'}</td><td>{r.approved_at ? 'Approved' : 'Pending approval'}</td><td>{r.lecturer_comment || '—'}</td></tr>)}</tbody></table></div> : <p className="empty-state">No visible results yet.</p>}</article>
+          <article className="student-portal-panel"><div className="section-head"><div><h2>Assessment results</h2><p className="muted">Only results approved by an authorized academic approver are shown here.</p></div></div>{results.length ? <div className="table-wrap"><table className="records-table"><thead><tr><th>Assessment</th><th>Score</th><th>Date</th><th>Comment</th></tr></thead><tbody>{results.map((r,i)=><tr key={i}><td><strong>{assessmentDetails[String(r.assessment_id)]?.title || 'Assessment'}</strong><small className="muted" style={{display:'block'}}>{assessmentDetails[String(r.assessment_id)]?.assessment_type || ''}</small><small className="muted" style={{display:'block'}}>{assessmentDetails[String(r.assessment_id)]?.max_score ? 'Maximum '+assessmentDetails[String(r.assessment_id)].max_score : ''}</small></td><td>{r.score ?? '—'}{assessmentDetails[String(r.assessment_id)]?.max_score ? ' / '+assessmentDetails[String(r.assessment_id)].max_score : ''}</td><td>{assessmentDetails[String(r.assessment_id)]?.assessment_date || (r.approved_at ? new Date(r.approved_at).toLocaleDateString('en-KE',{timeZone:'Africa/Nairobi'}) : '—')}</td><td>{r.lecturer_comment || '—'}</td></tr>)}</tbody></table></div> : <p className="empty-state">No visible results yet.</p>}</article>
           <article className="student-portal-panel"><div className="section-head"><div><h2>College announcements</h2><p className="muted">Published in-app notices</p></div></div>{messages.length ? messages.map(m=><div className="portal-message" key={m.id}><small>{new Date(m.created_at).toLocaleString('en-KE',{timeZone:'Africa/Nairobi'})}</small><h3>{m.subject}</h3><p>{m.message_body}</p></div>) : <p className="empty-state">No announcements are available for your account at this time.</p>}</article>
         </section>
       </>}
