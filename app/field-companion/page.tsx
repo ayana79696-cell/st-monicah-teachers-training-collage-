@@ -202,7 +202,15 @@ export default function FieldCompanionPage() {
     const onOffline = () => setOnline(false);
     window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
-    if ('serviceWorker' in navigator) void navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+    if ('serviceWorker' in navigator) {
+      const alreadyControlled = Boolean(navigator.serviceWorker.controller);
+      void navigator.serviceWorker.register('/sw.js').then(() => {
+        // Reload once under the active worker so this route's Next.js chunks are cached too.
+        if (!alreadyControlled) {
+          navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload(), { once: true });
+        }
+      }).catch(() => undefined);
+    }
     let active = true;
     async function init() {
       try {
