@@ -59,6 +59,7 @@ const selectOptions:Record<string,string[]> = {
  'college_student_welfare_cases.priority':['low','normal','high','urgent'],
  'college_student_welfare_cases.status':['open','in_progress','referred','resolved','closed'],
  'college_alumni_records.employment_status':['unknown','seeking','employed','self_employed','further_study','not_seeking'],
+ 'college_alumni_records.consent_to_contact':['true','false'],
  'college_profiles.role':['super_admin','principal','registrar','hod','lecturer','finance','librarian','hostel_manager','student','practice_supervisor','hr','procurement_officer','ict_admin'],
  'college_staff_leave_requests.leave_type':['annual','sick','maternity','paternity','compassionate','study','unpaid','other'],
  'college_staff_leave_requests.status':['pending','approved','rejected','cancelled'],
