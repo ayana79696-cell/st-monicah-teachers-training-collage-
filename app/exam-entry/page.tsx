@@ -1,0 +1,101 @@
+'use client';
+import ErpNavigation from '@/components/ErpNavigation';
+import {useCallback,useEffect,useMemo,useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {createClient} from '@/lib/supabase/client';
+
+type Student={id:string;admission_number:string;first_name:string;middle_name:string|null;last_name:string;programme_id:string|null;intake:string|null;intake_year:number|null;status:string};
+type Programme={id:string;code:string;title:string;programme_category:string;duration_label:string|null;active:boolean};
+type Paper={paper_code:string;paper_title:string;result_value:string};
+type Exam={id:string;student_id:string;programme_id:string;exam_type:string;exam_year:number;session_name:string;candidate_number:string|null;official_mean_grade:string|null;official_status:string;paper_results:Paper[];result_reference:string|null;is_verified:boolean;created_at:string;notes:string|null};
+const inputStyle:React.CSSProperties={width:'100%',boxSizing:'border-box',border:'1px solid #decfd6',borderRadius:9,padding:'10px 11px',background:'#fff',color:'#2b1a22',font:'inherit'};
+const buttonMain:React.CSSProperties={border:0,borderRadius:9,padding:'11px 15px',background:'#7b1e35',color:'#fff',fontWeight:750,cursor:'pointer'};
+const buttonAlt:React.CSSProperties={border:'1px solid #decfd6',borderRadius:9,padding:'10px 14px',background:'#fff',color:'#68263a',fontWeight:700,cursor:'pointer'};
+const fullName=(s:Student)=>[s.first_name,s.middle_name,s.last_name].filter(Boolean).join(' ');
+const examTypes=[['school_based_assessment','KNEC School-Based Assessment (SBA)'],['summative_assessment','KNEC Summative Assessment'],['official_final_result','Official final KNEC result']];
+const resultOptions=[['pending','Pending / not yet released'],['pass','Pass — official result confirmed'],['fail','Fail — official result confirmed'],['crnm','CRNM — course requirements not met'],['pended','P — result pended'],['withheld','W — result withheld'],['absent','Absent'],['irregularity','Examination irregularity'],['ungraded','Ungraded'],['other','Other official notation']];
+export default function ExamEntryPage(){
+ const db=useMemo(()=>createClient(),[]),router=useRouter();
+ const [students,setStudents]=useState<Student[]>([]),[programmes,setProgrammes]=useState<Programme[]>([]),[records,setRecords]=useState<Exam[]>([]);
+ const [profile,setProfile]=useState<any>(null),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[search,setSearch]=useState('');
+ const [papers,setPapers]=useState<Paper[]>([{paper_code:'',paper_title:'',result_value:''}]);
+ const [form,setForm]=useState<any>({student_id:'',programme_id:'',exam_type:'official_final_result',exam_year:new Date().getFullYear(),session_name:'',candidate_number:'',institution_code:'',official_mean_grade:'',official_status:'pending',result_reference:'',source_document_path:'',completion_date:'',notes:'',is_verified:false});
+ const load=useCallback(async()=>{
+  setLoading(true);setError('');
+  try{
+   const {data:{session}}=await db.auth.getSession();if(!session){router.replace('/login');return;}
+   const {data:p,error:pe}=await db.from('college_profiles').select('id,role,active').eq('id',session.user.id).maybeSingle();
+   if(pe)throw pe;if(!p?.active){router.replace('/login');return;}setProfile(p);
+   const [st,pr,ex]=await Promise.all([
+    db.from('college_students').select('id,admission_number,first_name,middle_name,last_name,programme_id,intake,intake_year,status').order('admission_number'),
+    db.from('college_programmes').select('id,code,title,programme_category,duration_label,active').eq('active',true).order('title'),
+    db.from('college_knec_exam_results').select('*').order('created_at',{ascending:false}).limit(500)
+   ]);
+   if(st.error)throw st.error;if(pr.error)throw pr.error;if(ex.error)throw ex.error;
+   setStudents((st.data||[]) as Student[]);setProgrammes((pr.data||[]) as Programme[]);setRecords((ex.data||[]) as Exam[]);
+  }catch(e:any){setError(e?.message||'Unable to load examination records.');}
+  finally{setLoading(false);}
+ },[db,router]);
+ useEffect(()=>{void load();},[load]);
+ const studentMap=useMemo(()=>new Map(students.map(s=>[s.id,s])),[students]);
+ const programmeMap=useMemo(()=>new Map(programmes.map(p=>[p.id,p])),[programmes]);
+ const allowed=['super_admin','principal','registrar'].includes(profile?.role);
+ const shown=records.filter(r=>{const s=studentMap.get(r.student_id);const p=programmeMap.get(r.programme_id);return [s?fullName(s):'',s?.admission_number||'',p?.title||'',r.session_name,r.candidate_number||'',r.result_reference||'',r.official_status,r.official_mean_grade||''].join(' ').toLowerCase().includes(search.toLowerCase());});
+ const updatePaper=(i:number,key:keyof Paper,value:string)=>setPapers(old=>old.map((p,j)=>j===i?{...p,[key]:value}:p));
+ function clearForm(){setForm({student_id:'',programme_id:'',exam_type:'official_final_result',exam_year:new Date().getFullYear(),session_name:'',candidate_number:'',institution_code:'',official_mean_grade:'',official_status:'pending',result_reference:'',source_document_path:'',completion_date:'',notes:'',is_verified:false});setPapers([{paper_code:'',paper_title:'',result_value:''}]);setNotice('');setError('');}
+ async function save(e:React.FormEvent){
+  e.preventDefault();setSaving(true);setError('');setNotice('');
+  try{
+   if(!allowed)throw new Error('Only the super admin, principal, or registrar can enter or verify official KNEC examination records.');
+   const student=studentMap.get(form.student_id);if(!student)throw new Error('Choose a student.');
+   if(!programmeMap.has(form.programme_id))throw new Error('Choose the programme for this examination record.');
+   if(!String(form.session_name||'').trim())throw new Error('Enter the exam session name, for example November 2026.');
+   if(form.is_verified&&!String(form.result_reference||'').trim())throw new Error('Enter the official result slip / printout reference before marking the result verified.');
+   if(form.exam_type==='official_final_result'&&form.is_verified&&form.official_status==='pass'&&!String(form.official_mean_grade||'').trim())throw new Error('Enter the official mean grade or result notation shown on the KNEC printout.');
+   const cleanPapers=papers.filter(p=>p.paper_code.trim()||p.paper_title.trim()||p.result_value.trim()).map(p=>({paper_code:p.paper_code.trim(),paper_title:p.paper_title.trim(),result_value:p.result_value.trim()}));
+   const payload={
+    student_id:student.id,programme_id:form.programme_id,exam_type:form.exam_type,exam_year:Number(form.exam_year),session_name:String(form.session_name).trim(),
+    candidate_number:String(form.candidate_number||'').trim()||null,institution_code:String(form.institution_code||'').trim()||null,
+    official_mean_grade:String(form.official_mean_grade||'').trim()||null,official_status:form.official_status,paper_results:cleanPapers,
+    result_reference:String(form.result_reference||'').trim()||null,source_document_path:String(form.source_document_path||'').trim()||null,
+    completion_date:form.completion_date||null,notes:String(form.notes||'').trim()||null,is_verified:!!form.is_verified,
+    entered_by:profile.id,verified_by:form.is_verified?profile.id:null,verified_at:form.is_verified?new Date().toISOString():null,updated_at:new Date().toISOString()
+   };
+   const {error:e2}=await db.from('college_knec_exam_results').upsert(payload,{onConflict:'student_id,programme_id,exam_type,exam_year,session_name'});if(e2)throw e2;
+   setNotice(form.exam_type==='official_final_result'&&form.is_verified&&form.official_status==='pass'?'Verified final result saved. Graduation record has been updated; a certificate draft is generated only when clearance is also confirmed.':'Exam record saved. No pass has been inferred from numerical marks; graduation uses only a verified official final result.');
+   await load();
+  }catch(e:any){setError([e?.message,e?.details,e?.hint,e?.code?'Code: '+e.code:null].filter(Boolean).join(' — ')||'Could not save examination record.');}
+  finally{setSaving(false);}
+ }
+ async function toggleVerified(r:Exam){setError('');setNotice('');if(!allowed)return;const next=!r.is_verified;if(next&&!r.result_reference){setError('This record needs an official result reference before it can be verified.');return;}try{const {error:e}=await db.from('college_knec_exam_results').update({is_verified:next,verified_by:next?profile.id:null,verified_at:next?new Date().toISOString():null,updated_at:new Date().toISOString()}).eq('id',r.id);if(e)throw e;setNotice('Record verification updated. If this is the official final result, the graduation register will recalculate eligibility.');await load();}catch(e:any){setError(e?.message||'Unable to update verification.');}}
+ return <main className="workspace-shell"><ErpNavigation active="academics"/><div style={{maxWidth:1450,margin:'0 auto',padding:24,color:'#2b1a22'}}>
+ <header style={{background:'linear-gradient(120deg,#32101d,#7b1e35 65%,#b39048)',color:'#fff',borderRadius:20,padding:28,display:'flex',justifyContent:'space-between',alignItems:'center',gap:18,flexWrap:'wrap',marginBottom:16}}><div><small style={{letterSpacing:2,color:'#efd59a',fontWeight:800}}>ACADEMIC REGISTRY · KNEC RECORDS</small><h1 style={{fontSize:36,margin:'8px 0'}}>Examinations &amp; Result Entry</h1><p style={{maxWidth:850,lineHeight:1.65,margin:0,color:'#f7e9ee'}}>Enter KNEC school-based assessments, summative assessments and official final results. Paper grades are stored as entered; the ERP does not invent KNEC pass marks.</p></div><button style={{...buttonAlt,background:'#e8c77e',border:0,color:'#32101d'}} onClick={()=>void load()}>Refresh records</button></header>
+ <div style={{border:'1px solid #ead9df',background:'#fff8fa',borderRadius:12,padding:14,lineHeight:1.55,fontSize:13,marginBottom:18}}><b>Official result rule:</b> KNEC's 2026 teacher-education materials distinguish School-Based Assessment (including project/practical tasks) from Summative Assessment. A candidate's verified official final result is recorded separately. <b>Pass + verified result + college clearance</b> makes the graduation record eligible for a certificate draft; Pending, P, W, CRNM, absent, irregularity or ungraded do not trigger a certificate.</div>
+ <section style={{background:'#fff',border:'1px solid #e8dce1',borderRadius:18,padding:22,marginBottom:18}}><h2 style={{fontSize:21,margin:'0 0 5px'}}>Add examination result</h2><p style={{fontSize:13,color:'#75656d',margin:'0 0 18px'}}>Paper lines are editable to match the candidate’s actual combination shown in official KNEC materials. This is a college record, not KNEC’s own assessment portal.</p>
+ <form onSubmit={save} style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:14}}>
+ <label>Student<select required value={form.student_id} onChange={e=>{const s=studentMap.get(e.target.value);setForm((f:any)=>({...f,student_id:e.target.value,programme_id:s?.programme_id||f.programme_id}));}} style={inputStyle}><option value="">Select student…</option>{students.map(s=><option key={s.id} value={s.id}>{fullName(s)} · {s.admission_number}</option>)}</select></label>
+ <label>Programme<select required value={form.programme_id} onChange={e=>setForm({...form,programme_id:e.target.value})} style={inputStyle}><option value="">Select programme…</option>{programmes.map(p=><option key={p.id} value={p.id}>{p.code} — {p.title}</option>)}</select></label>
+ <label>Examination record type<select required value={form.exam_type} onChange={e=>setForm({...form,exam_type:e.target.value,official_status:'pending',is_verified:false})} style={inputStyle}>{examTypes.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label>
+ <label>Exam year<input type="number" required min="2000" max="2200" value={form.exam_year} onChange={e=>setForm({...form,exam_year:e.target.value})} style={inputStyle}/></label>
+ <label>Session / sitting<input required value={form.session_name} onChange={e=>setForm({...form,session_name:e.target.value})} placeholder="e.g. November 2026 / Year 2 SBA" style={inputStyle}/></label>
+ <label>KNEC assessment / candidate number<input value={form.candidate_number} onChange={e=>setForm({...form,candidate_number:e.target.value})} placeholder="Enter as shown on official record" style={inputStyle}/></label>
+ <label>College / examination centre code<input value={form.institution_code} onChange={e=>setForm({...form,institution_code:e.target.value})} placeholder="Optional — use official centre code" style={inputStyle}/></label>
+ <label>Official mean grade / result notation<input value={form.official_mean_grade} onChange={e=>setForm({...form,official_mean_grade:e.target.value})} placeholder="Enter exactly as shown on result printout" style={inputStyle}/></label>
+ <label>Overall official result status<select required value={form.official_status} onChange={e=>setForm({...form,official_status:e.target.value})} style={inputStyle}>{resultOptions.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label>
+ <label>Official result printout reference<input value={form.result_reference} onChange={e=>setForm({...form,result_reference:e.target.value})} placeholder="Slip no. / result letter / file reference" style={inputStyle}/></label>
+ <label>Secure document path or URL (optional)<input value={form.source_document_path} onChange={e=>setForm({...form,source_document_path:e.target.value})} placeholder="Private document storage path" style={inputStyle}/></label>
+ <label>Completion date (if confirmed)<input type="date" value={form.completion_date} onChange={e=>setForm({...form,completion_date:e.target.value})} style={inputStyle}/></label>
+ <label style={{gridColumn:'1/-1'}}>Notes<textarea rows={2} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Administrative notes, result status notes or special case" style={inputStyle}/></label>
+ <div style={{gridColumn:'1/-1',border:'1px solid #ead9df',borderRadius:12,padding:14,background:'#fff9fb'}}><div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}><div><b>Paper / subject result lines</b><small style={{display:'block',color:'#76666e',marginTop:4}}>Enter the official KNEC paper code, title and exact grade/mark/result. Leave unused lines blank; these lines do not calculate the final official result.</small></div><button type="button" style={buttonAlt} onClick={()=>setPapers(old=>[...old,{paper_code:'',paper_title:'',result_value:''}])}>＋ Add paper</button></div>
+ {papers.map((p,i)=><div key={i} style={{display:'grid',gridTemplateColumns:'minmax(100px,0.8fr) minmax(180px,2fr) minmax(140px,1fr) auto',gap:8,marginTop:10,alignItems:'center'}}><input aria-label={'Paper code '+(i+1)} value={p.paper_code} onChange={e=>updatePaper(i,'paper_code',e.target.value)} placeholder="Paper code" style={inputStyle}/><input aria-label={'Paper title '+(i+1)} value={p.paper_title} onChange={e=>updatePaper(i,'paper_title',e.target.value)} placeholder="Paper / subject title" style={inputStyle}/><input aria-label={'Grade or mark '+(i+1)} value={p.result_value} onChange={e=>updatePaper(i,'result_value',e.target.value)} placeholder="Grade / mark" style={inputStyle}/><button type="button" style={buttonAlt} disabled={papers.length===1} onClick={()=>setPapers(old=>old.filter((_,j)=>j!==i))}>Remove</button></div>)}</div>
+ <label style={{gridColumn:'1/-1',display:'flex',alignItems:'flex-start',gap:10,border:'1px solid #d4eadb',background:'#f1fbf4',borderRadius:12,padding:14}}><input type="checkbox" checked={form.is_verified} onChange={e=>setForm({...form,is_verified:e.target.checked})} style={{width:18,height:18,marginTop:2,accentColor:'#28734d'}}/><span><b>Verified against official KNEC result / assessment record</b><small style={{display:'block',color:'#5e7166',lineHeight:1.5,marginTop:4}}>Only tick after matching the student's candidate number and result to the official record. On the final result form, only a verified Pass can feed graduation eligibility.</small></span></label>
+ <div style={{gridColumn:'1/-1',display:'flex',gap:10,flexWrap:'wrap'}}><button disabled={saving||loading||!allowed} style={buttonMain}>{saving?'Saving…':'Save examination record'}</button><button type="button" onClick={clearForm} style={buttonAlt}>Clear form</button>{!allowed&&profile&&<small style={{color:'#a21c30'}}>Your role is read-only for official exam records.</small>}</div>
+ </form>
+ {error&&<p role="alert" style={{padding:12,borderRadius:9,background:'#fff0f0',color:'#9d2222',fontSize:13}}>{error}</p>}{notice&&<p role="status" style={{padding:12,borderRadius:9,background:'#ebf9f0',color:'#18683c',fontSize:13}}>{notice}</p>}
+ </section>
+ <section style={{background:'#fff',border:'1px solid #e8dce1',borderRadius:18,padding:22}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}><div><h2 style={{fontSize:21,margin:'0 0 5px'}}>KNEC results register</h2><p style={{fontSize:13,color:'#75656d',margin:0}}>SBA, summative and official final-result records stored for the college.</p></div><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search student, candidate, programme or session" style={{...inputStyle,maxWidth:420}}/></div>
+ {loading?<p>Loading records…</p>:shown.length===0?<p style={{color:'#75656d',padding:12}}>No examination records found. Add a test entry above to test the workflow.</p>:<div style={{overflowX:'auto',marginTop:14}}><table style={{width:'100%',minWidth:1050,borderCollapse:'collapse',fontSize:12}}><thead><tr>{['Student','Programme / type','Year & session','Official result','Papers','Verification','Actions'].map(c=><th key={c} style={{background:'#f8f1f4',padding:12,textAlign:'left',color:'#6e5260'}}>{c}</th>)}</tr></thead><tbody>{shown.map(r=>{const s=studentMap.get(r.student_id),p=programmeMap.get(r.programme_id);return <tr key={r.id}><td style={{padding:12,borderBottom:'1px solid #eee'}}><b>{s?fullName(s):'Student'}</b><small style={{display:'block',color:'#796971'}}>{s?.admission_number||'—'} · {r.candidate_number||'No candidate no.'}</small></td><td style={{padding:12,borderBottom:'1px solid #eee'}}><b>{p?.title||'Programme'}</b><small style={{display:'block',color:'#796971'}}>{r.exam_type.replaceAll('_',' ')}</small></td><td style={{padding:12,borderBottom:'1px solid #eee'}}>{r.exam_year}<small style={{display:'block',color:'#796971'}}>{r.session_name}</small><small style={{display:'block',color:'#796971'}}>Ref: {r.result_reference||'—'}</small></td><td style={{padding:12,borderBottom:'1px solid #eee'}}><b>{r.official_status.toUpperCase()}</b><small style={{display:'block',color:'#796971'}}>Mean grade: {r.official_mean_grade||'—'}</small></td><td style={{padding:12,borderBottom:'1px solid #eee'}}>{Array.isArray(r.paper_results)?r.paper_results.length:0} paper(s)<small style={{display:'block',color:'#796971'}}>{Array.isArray(r.paper_results)?r.paper_results.slice(0,2).map(x=>x.paper_title||x.paper_code||x.result_value).filter(Boolean).join(', '):''}</small></td><td style={{padding:12,borderBottom:'1px solid #eee'}}><b style={{color:r.is_verified?'#176b45':'#976100'}}>{r.is_verified?'VERIFIED':'UNVERIFIED'}</b></td><td style={{padding:12,borderBottom:'1px solid #eee'}}>{allowed&&<button style={buttonAlt} onClick={()=>void toggleVerified(r)} disabled={saving}>{r.is_verified?'Mark unverified':'Verify record'}</button>}</td></tr>})}</tbody></table></div>}
+ </section>
+ <p style={{margin:'14px 4px',fontSize:12,color:'#78666e',lineHeight:1.7}}>KNEC 2026 materials identify TECBA as the e-assessment portal for teacher-education assessment. This ERP is for the college's secure recordkeeping and verification; it does not submit assessments to KNEC or replace KNEC's official result slips and certificate process.</p>
+ </div></main>;
+}
