@@ -177,7 +177,7 @@ export default function ReportsPage() {
   const lowStock = inventory.filter(i => Number(i.quantity_on_hand || 0) <= Number(i.reorder_level || 0));
   const submittedAssessments = assessmentRows.filter(a => a.status === 'submitted').length;
   const resultsAwaitingApproval = resultRows.filter(r => !r.approved_at).length;
-  const averageScoreRate = resultRows.length ? Math.round(resultRows.reduce((sum,r) => { const a = assessmentRows.find(x => x.id === r.assessment_id); return sum + (Number(a?.max_score || 0) > 0 ? Number(r.score || 0) / Number(a.max_score) * 100 : 0); }, 0) / resultRows.length) : null;
+  const averageScoreRate = resultRows.length ? Math.round(resultRows.reduce((sum,r) => { const a = assessmentRows.find(x => x.id === r.assessment_id); return sum + (Number(a?.max_score || 0) > 0 ? Number(r.score || 0) / Number(a?.max_score) * 100 : 0); }, 0) / resultRows.length) : null;
 
   function exportSummary() {
     const lines = [
