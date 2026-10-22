@@ -778,3 +778,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:1000px){.results-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.assessment-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.results-panel{padding:15px}.results-entry-form{padding:13px}.results-entry-form .form-grid{grid-template-columns:1fr}.results-action-row,.results-approval-banner{align-items:flex-start;flex-direction:column}.assessment-meta{gap:10px;padding:11px}}
 @media print{.results-content .results-kpis{break-inside:avoid}.results-workspace{display:block}.results-panel{break-inside:avoid;margin:0 0 10px;padding:10px}.results-content .results-panel:first-child .results-entry-form,.results-content .results-panel:first-child .results-action-row,.results-content .results-panel:first-child .results-approval-banner{display:none!important}}
+
+.roles-department-input{display:block;box-sizing:border-box;width:100%;min-width:150px;padding:7px 8px;margin:7px 0;border:1px solid #e1d5db;border-radius:7px;background:#fff;font:inherit;font-size:11px;color:var(--ink)}
+.roles-table{min-width:1040px}
+.roles-table td select,.roles-table td input{max-width:220px}
