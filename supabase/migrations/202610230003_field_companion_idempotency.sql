@@ -1,0 +1,3 @@
+alter table public.college_practice_visits add column if not exists supervisor_verified_by uuid;
+drop index if exists public.college_practice_visits_client_record_id_uidx;
+create unique index college_practice_visits_client_record_id_uidx on public.college_practice_visits (client_record_id);
