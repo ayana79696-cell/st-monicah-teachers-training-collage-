@@ -13,6 +13,7 @@ const attendanceRoles = ['super_admin', 'principal', 'registrar', 'hod', 'lectur
 const admissionsRoles = ['super_admin', 'principal', 'registrar'];
 const staffRoles = ['super_admin', 'principal', 'registrar', 'hod', 'hr'];
 const stockRoles = ['super_admin', 'principal', 'finance', 'registrar', 'procurement_officer', 'ict_admin'];
+const academicRoles = ['super_admin','principal','registrar','hod','lecturer'];
 
 function money(value: number) {
   return new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES', maximumFractionDigits: 0 }).format(value || 0);
@@ -36,6 +37,8 @@ export default function ReportsPage() {
   const [staff, setStaff] = useState<Row[]>([]);
   const [placements, setPlacements] = useState<Row[]>([]);
   const [inventory, setInventory] = useState<Row[]>([]);
+  const [resultRows, setResultRows] = useState<Row[]>([]);
+  const [assessmentRows, setAssessmentRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -98,11 +101,17 @@ export default function ReportsPage() {
         idx.inventory = tasks.length;
         tasks.push(getRows('Inventory', db.from('college_inventory_items').select('id,item_name,category,quantity_on_hand,reorder_level,active').eq('active', true).order('item_name').limit(2000)));
       }
+      if (academicRoles.includes(p.role)) {
+        idx.results = tasks.length;
+        tasks.push(getRows('Assessment results', db.from('college_results').select('id,assessment_id,score,approved_at,created_at').order('created_at', { ascending: false }).limit(10000)));
+        idx.assessments = tasks.length;
+        tasks.push(getRows('Assessments', db.from('college_assessments').select('id,title,status,max_score,assessment_type').order('created_at', { ascending: false }).limit(1500)));
+      }
       const result = await Promise.all(tasks);
       setStudents(result[idx.students] || []); setProgrammes(result[idx.programmes] || []);
       setPayments(result[idx.payments] || []); setCharges(result[idx.charges] || []);
       setAttendance(result[idx.attendance] || []); setApplications(result[idx.applications] || []);
-      setStaff(result[idx.staff] || []); setPlacements(result[idx.placements] || []); setInventory(result[idx.inventory] || []);
+      setStaff(result[idx.staff] || []); setPlacements(result[idx.placements] || []); setInventory(result[idx.inventory] || []); setResultRows(result[idx.results] || []); setAssessmentRows(result[idx.assessments] || []);
       setPartialNotes(notes);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unable to load management reports.');
@@ -166,6 +175,9 @@ export default function ReportsPage() {
   const attendanceRate = countedAttendance ? Math.round((present / countedAttendance) * 100) : 0;
   const waitingApplications = applications.filter(a => ['pending', 'under_review', 'incomplete'].includes(a.status)).length;
   const lowStock = inventory.filter(i => Number(i.quantity_on_hand || 0) <= Number(i.reorder_level || 0));
+  const submittedAssessments = assessmentRows.filter(a => a.status === 'submitted').length;
+  const resultsAwaitingApproval = resultRows.filter(r => !r.approved_at).length;
+  const averageScoreRate = resultRows.length ? Math.round(resultRows.reduce((sum,r) => { const a = assessmentRows.find(x => x.id === r.assessment_id); return sum + (Number(a?.max_score || 0) > 0 ? Number(r.score || 0) / Number(a.max_score) * 100 : 0); }, 0) / resultRows.length) : null;
 
   function exportSummary() {
     const lines = [
@@ -182,7 +194,10 @@ export default function ReportsPage() {
       ['Posted fee charges less discounts (KES)', postedCharges],
       ['Estimated outstanding balance (KES)', outstanding],
       ['Teaching practice placements', placements.length],
-      ['Low-stock inventory items', lowStock.length]
+      ['Low-stock inventory items', lowStock.length],
+      ['Assessments submitted for approval', submittedAssessments],
+      ['Marks awaiting approval', resultsAwaitingApproval],
+      ['Average score rate (%)', averageScoreRate === null ? 'Not available' : averageScoreRate]
     ];
     const csv = lines.map(row => row.map(csvEscape).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
@@ -216,6 +231,8 @@ export default function ReportsPage() {
           {attendanceRoles.includes(profile?.role || '') && <article style={cardStyle}><span>Attendance rate</span><strong>{countedAttendance ? attendanceRate + '%' : '—'}</strong><small>Based on visible attendance entries</small></article>}
           {admissionsRoles.includes(profile?.role || '') && <article style={cardStyle}><span>Applications to review</span><strong>{waitingApplications}</strong><small>Pending, under review or incomplete</small></article>}
           {staffRoles.includes(profile?.role || '') && <article style={cardStyle}><span>Staff records</span><strong>{staff.length.toLocaleString('en-KE')}</strong><small>{staff.filter(s => s.employment_status === 'active').length} marked active</small></article>}
+          {academicRoles.includes(profile?.role || '') && <article style={cardStyle}><span>Assessments awaiting approval</span><strong>{submittedAssessments}</strong><small>{resultsAwaitingApproval} individual marks currently pending approval</small></article>}
+          {academicRoles.includes(profile?.role || '') && <article style={cardStyle}><span>Average score rate</span><strong>{averageScoreRate === null ? '—' : averageScoreRate + '%'}</strong><small>Based on marks visible to your role</small></article>}
           {stockRoles.includes(profile?.role || '') && <article style={cardStyle}><span>Low-stock items</span><strong>{lowStock.length}</strong><small>Active items at or below reorder level</small></article>}
         </section>
         <section className="reports-grid">
@@ -223,6 +240,7 @@ export default function ReportsPage() {
           <article style={chartStyle}><div className="section-head"><div><h2>Students by programme</h2><p className="muted">Top programme counts</p></div></div><BarRows rows={programmeCounts.map(([label, value]) => ({ label, value }))} /></article>
           {financialRoles.includes(profile?.role || '') && <article style={chartStyle}><div className="section-head"><div><h2>Payments collected</h2><p className="muted">Last six calendar months</p></div></div><BarRows moneyValues rows={monthlyPayments.map(m => ({ label: m.label, value: Math.round(m.amount) }))} /></article>}
           {attendanceRoles.includes(profile?.role || '') && <article style={chartStyle}><div className="section-head"><div><h2>Attendance activity</h2><p className="muted">Last 14 days; present/late versus absent</p></div></div><div className="reports-daily-chart">{dailyAttendance.map(d => <div key={d.key} title={d.label + ': ' + d.present + ' present/late, ' + d.absent + ' absent'}><div className="reports-daily-bars"><span style={{ height: Math.max(2, Math.min(100, d.present * 8)) + '%' }} /><span style={{ height: Math.max(2, Math.min(100, d.absent * 8)) + '%', background: '#c6a45b' }} /></div><small>{d.label}</small></div>)}</div></article>}
+          {academicRoles.includes(profile?.role || '') && <article style={chartStyle}><div className="section-head"><div><h2>Results &amp; approval status</h2><p className="muted">Assessment workflow at a glance</p></div><a href="/results">Open results →</a></div><BarRows rows={['draft','open','submitted','approved'].map(status => ({ label: status.replaceAll('_',' '), value: assessmentRows.filter(a => a.status === status).length }))} /><p className="muted" style={{marginTop:16}}>Marks awaiting approval: <strong>{resultsAwaitingApproval}</strong></p></article>}
           {stockRoles.includes(profile?.role || '') && <article style={chartStyle}><div className="section-head"><div><h2>Reorder watch</h2><p className="muted">Stock at or below minimum</p></div><a href="/inventory">Open inventory →</a></div>{lowStock.length ? <div className="table-wrap"><table className="records-table"><thead><tr><th>Item</th><th>On hand</th><th>Reorder level</th></tr></thead><tbody>{lowStock.slice(0, 20).map(i => <tr key={i.id}><td>{i.item_name}<small className="muted" style={{ display: 'block' }}>{i.category}</small></td><td><strong>{i.quantity_on_hand}</strong></td><td>{i.reorder_level}</td></tr>)}</tbody></table></div> : <p className="empty-state">No active items at or below reorder level.</p>}</article>}
           {admissionsRoles.includes(profile?.role || '') && <article style={chartStyle}><div className="section-head"><div><h2>Admissions pipeline</h2><p className="muted">Applications by stage</p></div><a href="/admissions">Open admissions →</a></div><BarRows rows={[...new Set(applications.map(a => String(a.status || 'unknown')))].map(s => ({ label: s.replaceAll('_', ' '), value: applications.filter(a => String(a.status || 'unknown') === s).length }))} /></article>}
         </section>
