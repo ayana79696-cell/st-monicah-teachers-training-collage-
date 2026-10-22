@@ -6,6 +6,7 @@ Verified in source/database during the October 22, 2026 implementation review:
 - All 60 public application tables have row-level security enabled; the audit found no public table with RLS disabled or RLS enabled without policies.
 - Audit triggers, inventory movement enforcement, leave/payroll schema, student account linkage, marks entry/approval RPCs and scoped lecturer/HOD access were added to the connected Supabase project.
 - Reports, inventory, communications and private student portal have dedicated routes.
+- Staff development, staff appraisals, student welfare cases and alumni/employment tables are now migrated with row-level security and role-scoped policies; the workspace provides record forms for these areas.
 - GitHub Actions runs the Next.js production build. Check the latest run after every commit; an older READY deployment does not prove the latest commit is live.
 
 ## Staff and student access setup
