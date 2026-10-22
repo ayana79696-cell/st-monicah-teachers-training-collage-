@@ -64,7 +64,7 @@ export default function LoginPage() {
       <div className="login-card-crest"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="" /></div>
       <p className="eyebrow">WELCOME BACK</p>
       <h1>Enter your workspace.</h1>
-      <p className="muted">Sign in with your Super Administrator credentials to continue.</p>
+      <p className="muted">Sign in with your college account to continue.</p>
       <form onSubmit={submit} className="login-form">
         <label htmlFor="admin-email">College account email<input id="admin-email" name="email" type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Enter your college email" required /></label>
         <label htmlFor="admin-password">Password<input id="admin-password" name="password" autoComplete="current-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" required /></label>
