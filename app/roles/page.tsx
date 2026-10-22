@@ -20,7 +20,8 @@ const roles=[
  {value:'hr',label:'Human resources officer',description:'Staff records, leave workflows and payroll preparation'},
  {value:'procurement_officer',label:'Procurement officer',description:'Stock, procurement and inventory workflows'},
  {value:'ict_admin',label:'ICT administrator',description:'Technical administration and inventory control'},
- {value:'student',label:'Student',description:'Private self-service access to the linked student record'}
+ {value:'student',label:'Student',description:'Private self-service access to the linked student record'},
+ {value:'parent',label:'Parent / sponsor',description:'Restricted family portal for explicitly linked student records'}
 ];
 export default function RolesPage(){
  const router=useRouter();
