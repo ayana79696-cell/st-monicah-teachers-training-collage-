@@ -1,5 +1,5 @@
-const CACHE = 'st-monicah-field-v1';
-const SHELL = ['/field-companion', '/offline.html', '/manifest.json'];
+const CACHE = 'st-monicah-field-v2';
+const SHELL = ['/field-companion', '/timetable', '/offline.html', '/manifest.json'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
@@ -20,7 +20,7 @@ self.addEventListener('fetch', event => {
   }
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then(response => {
-      if (response.ok && url.pathname === '/field-companion') caches.open(CACHE).then(cache => cache.put('/field-companion', response.clone()));
+      if (response.ok && (url.pathname === '/field-companion' || url.pathname === '/timetable')) caches.open(CACHE).then(cache => cache.put(url.pathname, response.clone()));
       return response;
     }).catch(async () => (await caches.match(url.pathname)) || (await caches.match('/offline.html')) || Response.error()));
   }
