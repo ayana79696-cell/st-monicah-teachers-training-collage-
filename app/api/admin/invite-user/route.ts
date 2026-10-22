@@ -135,11 +135,11 @@ export async function POST(request: NextRequest) {
   }
 
   if (role === 'lecturer' && staffId) {
-    const { error: linkError } = await admin.from('college_staff').update({ profile_id: newUserId }).eq('id', staffId).is('profile_id', null);
-    if (linkError) {
+    const { data: linkedStaff, error: linkError } = await admin.from('college_staff').update({ profile_id: newUserId }).eq('id', staffId).is('profile_id', null).select('id').maybeSingle();
+    if (linkError || !linkedStaff) {
       await admin.from('college_profiles').delete().eq('id', newUserId);
       await admin.auth.admin.deleteUser(newUserId);
-      return NextResponse.json({ error: 'Could not link the lecturer to the selected active staff record, so the invitation was rolled back. ' + linkError.message }, { status: 500 });
+      return NextResponse.json({ error: 'Could not link the lecturer to the selected active staff record, so the invitation was rolled back. ' + (linkError?.message || 'That staff record was linked to another account while the invitation was being created.') }, { status: 500 });
     }
   }
 
