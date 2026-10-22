@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const ALLOWED_ROLES = [
   'principal', 'registrar', 'hod', 'lecturer', 'finance', 'librarian',
   'hostel_manager', 'student', 'practice_supervisor', 'hr',
-  'procurement_officer', 'ict_admin',
+  'procurement_officer', 'ict_admin', 'parent',
 ] as const;
 
 export async function POST(request: NextRequest) {
