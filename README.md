@@ -9,7 +9,8 @@ A role-based college management ERP for St. Monicah Teachers Training College, b
 - **Teaching practice:** placements, partner schools and supervision records.
 - **Attendance:** QR-based daily register and printable reports.
 - **Finance:** fee structures and charges, payments, bank accounts, statements and receipts.
-- **People & operations:** staff records, role/access management, staff leave requests and payroll-period/entry records.
+- **People & operations:** staff records, role/access management, staff leave requests, payroll-period/entry records, staff appraisals and professional-development tracking.
+- **Student affairs & graduate outcomes:** restricted welfare/support cases with assigned follow-ups, plus alumni records and graduate employment outcomes with explicit contact-consent tracking.
 - **Campus services:** library, hostel/accommodation, procurement and inventory stock ledger.
 - **Communications:** saved drafts, in-app student announcements and explicit queued status for SMS/email awaiting provider configuration.
 - **Reports & audit:** role-aware management dashboards/CSV summary and database-level audit logging on important records.
