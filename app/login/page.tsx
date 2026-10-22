@@ -8,6 +8,7 @@ const SUPER_ADMIN_EMAIL = 'superadmin@stmonicah.com';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState(SUPER_ADMIN_EMAIL);
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +20,7 @@ export default function LoginPage() {
     try {
       const supabase = createClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: SUPER_ADMIN_EMAIL,
+        email: email.trim(),
         password,
       });
       if (signInError) throw signInError;
@@ -65,12 +66,12 @@ export default function LoginPage() {
       <h1>Enter your workspace.</h1>
       <p className="muted">Sign in with your Super Administrator credentials to continue.</p>
       <form onSubmit={submit} className="login-form">
-        <label htmlFor="admin-email">Administrator email<input id="admin-email" type="email" value={SUPER_ADMIN_EMAIL} readOnly aria-readonly="true" /></label>
+        <label htmlFor="admin-email">College account email<input id="admin-email" name="email" type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Enter your college email" required /></label>
         <label htmlFor="admin-password">Password<input id="admin-password" name="password" autoComplete="current-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" required /></label>
         {error && <p role="alert" className="error-message">{error}</p>}
         <button disabled={busy} type="submit">{busy ? 'Authenticating…' : 'Access your workspace'} <span aria-hidden="true">↗</span></button>
       </form>
-      <div className="login-trust"><span>✧</span> Protected by Supabase authentication</div>
+      <div className="login-trust"><span>✧</span> Protected by Supabase authentication <a href="/forgot-password">Forgot password?</a></div>
       <p className="login-foot">ST. MONICAH TEACHERS TRAINING COLLEGE <span>·</span> AUTHORIZED USERS ONLY</p>
     </section>
     <div className="login-copyright">© {new Date().getFullYear()} St. Monicah Teachers Training College</div>
