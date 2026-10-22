@@ -28,7 +28,7 @@ const ALLOWED_ROLES = ['super_admin', 'principal', 'practice_supervisor'];
 
 function openDraftDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 2);
+    const request = indexedDB.open(DB_NAME, 3);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE)) {
