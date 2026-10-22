@@ -18,6 +18,7 @@ const relationFields:Record<string,{table:string;label:(row:Record<string,any>)=
  observer_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
  staff_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
  reviewer_id:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
+ room_id:{table:'college_hostel_rooms',label:r=>[r.building,r.room_number].filter(Boolean).join(' · ')},
  assigned_to:{table:'college_staff',label:r=>[r.full_name,r.staff_number].filter(Boolean).join(' · ')},
  payroll_period_id:{table:'college_payroll_periods',label:r=>String(r.payroll_month||'Payroll period')}
 };
@@ -90,6 +91,7 @@ const defs:Def[]=[
 ['Staff','college_staff',[['staff_number','Staff number',1],['full_name','Full name',1],['email','Email'],['phone','Phone'],['department','Department'],['position','Position'],['employment_status','Employment status']]],
 ['Teaching practice partners','college_practice_partners',[['institution_name','Host school name',1],['school_type','School type'],['county','County'],['sub_county','Sub-county'],['address','Physical address'],['contact_person','School contact person'],['phone','School phone'],['email','School email'],['mentor_name','Mentor teacher'],['mentor_phone','Mentor phone'],['placement_capacity','Placement capacity'],['approved','Approved partner?'],['active','Active partner?'],['notes','Notes']]],
 ['Hostel rooms','college_hostel_rooms',[['building','Building',1],['room_number','Room number',1],['capacity','Capacity',1],['gender_section','Section']]],
+ ['Accommodation allocations','college_hostel_allocations',[['student_id','Student',1],['room_id','Hostel room',1],['starts_on','Allocation start date',1],['ends_on','End / checkout date'],['status','Allocation status',1]]],
 ['Library items','college_library_items',[['title','Title',1],['author','Author'],['isbn','ISBN'],['category','Category']]],
 ['Procurement requests','college_procurement_requests',[['request_number','Request number',1],['department','Department'],['description','Description',1],['quantity','Quantity',1],['estimated_cost_kes','Estimated cost (KES)'],['status','Status']]],
 ['Fee charges','college_fee_charges',[['student_id','Student',1],['academic_period_id','Academic period'],['fee_head_id','Fee head'],['description','Charge description',1],['amount_kes','Amount (KES)',1],['discount_kes','Approved discount (KES)'],['due_date','Due date'],['charge_status','Charge status'],['notes','Notes']]],
