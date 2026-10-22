@@ -49,7 +49,8 @@ export default function Home() {
         if(pError) throw pError;
         if(p?.active && p.role==='student'){router.replace('/portal');return;}
         if(p?.active){setProfile(p as Profile);}
-        else setSetup(true);
+        else if(!p && (session.user.email ?? '').toLowerCase() === 'superadmin@stmonicah.com'){setSetup(true);}
+        else {setSetup(false);setError(p ? 'This college profile is inactive. Ask the Super Administrator to review access.' : 'Only superadmin@stmonicah.com may claim initial setup. Ask the college Super Administrator to create your profile.');}
         // Do not block the first workspace render on many exact-count database queries.
         // Load only the four headline counts in the background after authentication succeeds.
         if(p?.active) {
@@ -74,6 +75,8 @@ export default function Home() {
   },[router]);
   async function claimAdmin(e:React.FormEvent<HTMLFormElement>) {
     e.preventDefault();setBusy(true);setError('');setMessage('');
+    const {data:{session:currentSession}}=await createClient().auth.getSession();
+    if((currentSession?.user.email ?? '').toLowerCase()!=='superadmin@stmonicah.com'){setError('Only superadmin@stmonicah.com may claim the first Super Administrator profile.');setBusy(false);return;}
     try {
       const supabase=createClient();
       const {error:rpcError}=await supabase.rpc('claim_initial_college_super_admin',{p_full_name:name.trim()});
@@ -89,7 +92,7 @@ export default function Home() {
   }
   async function signOut(){const supabase=createClient();await supabase.auth.signOut();router.replace('/login');}
   if(loading)return <main className="login-shell"><section className="login-card"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="St. Monicah Teacher’s Training College crest" /><h1>Opening college workspace…</h1><p className="muted">Connecting securely to St. Monica’s database.</p></section></main>;
-  if(error && !profile && !setup)return <main className="login-shell"><section className="login-card"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="St. Monicah Teacher’s Training College crest" /><h1>Connection needs attention</h1><p className="error-message">{error}</p><p className="muted">Check that the Supabase URL and public key are configured in Vercel.</p><button onClick={()=>router.push('/login')}>Back to sign in</button></section></main>;
+  if(error && !profile && !setup)return <main className="login-shell"><section className="login-card"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="St. Monicah Teacher’s Training College crest" /><h1>Access needs attention</h1><p className="error-message">{error}</p><p className="muted">Check the account status or ask the college Super Administrator to confirm your access. If this is a connection error, verify the Supabase URL and public key configuration.</p><button onClick={()=>router.push('/login')}>Back to sign in</button></section></main>;
   if(setup)return <main className="login-shell"><section className="login-card"><div className="login-brand"><img className="crest-logo" src="https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png" alt="St. Monicah Teacher’s Training College crest" /><div><strong>ST. MONICA'S</strong><span>TEACHERS TRAINING COLLEGE</span></div></div><p className="eyebrow">ONE-TIME COLLEGE SETUP</p><h1>Set up your administrator</h1><p className="muted">Signed in as {email}. If no college profile exists yet, this account can claim the first Super Administrator role. This action is available only once.</p><form className="login-form" onSubmit={claimAdmin}><label>Administrator full name<input value={name} onChange={e=>setName(e.target.value)} required minLength={2} maxLength={120} /></label>{error&&<p className="error-message" role="alert">{error}</p>}<button disabled={busy}>{busy?'Setting up…':'Complete first-time setup'}</button></form><p className="login-foot">After setup, create all other accounts from Settings & Access. Never share your password.</p></section></main>;
   if(!profile)return <main className="login-shell"><section className="login-card"><h1>Profile awaiting access</h1><p className="muted">This sign-in does not have an active college role. Ask the college Super Administrator to activate your profile.</p>{error&&<p className="error-message">{error}</p>}<button onClick={signOut}>Sign out</button></section></main>;
   return <main className="shell">
