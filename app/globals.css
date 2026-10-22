@@ -816,3 +816,67 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .roles-invite-form>.primary-button{justify-self:start}
 @media(max-width:900px){.roles-invite-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.roles-invite-grid{grid-template-columns:1fr}.roles-invite-panel{padding:15px}}
+
+
+/* Offline Field Companion */
+.field-companion-content{max-width:1480px}
+.field-connectivity{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #e5dbe0;border-radius:999px;background:#fff;font-size:11px;font-weight:800;white-space:nowrap}
+.field-connectivity i{width:7px;height:7px;border-radius:50%;background:#b16b24;display:inline-block}
+.field-connectivity.is-online i{background:#21845c}
+.field-connectivity.is-offline{background:#fff8e9;border-color:#f0dfb7;color:#7b560d}
+.field-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0}
+.field-kpis article{display:flex;flex-direction:column;gap:7px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;min-width:0}
+.field-kpis article>span{font-size:11px;color:#7c6c74}
+.field-kpis article>strong{font:800 24px Manrope,sans-serif;color:var(--deep);overflow-wrap:anywhere}
+.field-kpis article>small{font-size:10px;color:#95868d;line-height:1.6}
+.field-workspace{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.85fr);gap:16px;align-items:start}
+.field-panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:22px;min-width:0}
+.field-panel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.field-panel-heading h2{font:800 18px Manrope,sans-serif;color:var(--deep);margin:0}
+.field-panel-heading .eyebrow{margin:0 0 6px}
+.field-step{border-radius:999px;padding:6px 9px;background:#f8f1f4;color:#6d2540;font-size:9px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.field-form{display:grid;gap:14px;margin-top:18px}
+.field-form label{display:block;font-size:11px;font-weight:750;color:#55434b;min-width:0}
+.field-form input:not([type=checkbox]),.field-form select,.field-form textarea{display:block;box-sizing:border-box;width:100%;margin-top:7px;padding:11px 12px;border:1px solid #e1d5db;border-radius:8px;background:#fff;color:#2f2027;font:inherit;font-size:12px;min-width:0}
+.field-form textarea{resize:vertical;line-height:1.65}
+.field-form input:focus,.field-form select:focus,.field-form textarea:focus{outline:3px solid #c6a45b30;border-color:#b08c44}
+.field-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.field-placement-note{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#faf6f8;border:1px solid #eee4e9;border-radius:9px;padding:12px}
+.field-placement-note strong{font-size:11px;color:#5b1832}
+.field-placement-note span{font-size:10px;color:#88777f}
+.field-check{display:flex!important;align-items:flex-start;gap:9px;line-height:1.6}
+.field-check input{margin:2px 0 0;accent-color:#641d3a}
+.field-verify-box,.field-gps-box{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:15px;border:1px solid #e9dce3;border-radius:11px;background:#fcf9fa}
+.field-verify-box strong,.field-gps-box strong{font-size:12px;color:#4e172c}
+.field-verify-box p,.field-gps-box p{font-size:10px;line-height:1.7;color:#76666e;margin:6px 0}
+.field-verify-box small,.field-gps-box small{display:block;font-size:10px;color:#856d78;line-height:1.6;margin-top:6px}
+.field-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:9px;padding:11px 15px;font:750 11px Manrope,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.field-button:disabled{opacity:.48;cursor:not-allowed}
+.field-button.primary{background:#54162b;color:#fff}
+.field-button.secondary{background:#fff;color:#54162b;border-color:#dfcdd6}
+.field-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:3px}
+.field-privacy-note{font-size:10px;line-height:1.7;color:#8a7a82;margin:0}
+.field-queue-panel{position:sticky;top:16px}
+.field-empty{display:grid;justify-items:center;text-align:center;padding:30px 12px}
+.field-empty>span{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#edf7f1;color:#24744f;font-size:18px}
+.field-empty strong{font-size:12px;margin-top:13px;color:#4d2537}
+.field-empty p{font-size:11px;line-height:1.7;color:#8b7b83;max-width:280px}
+.field-record-list{display:grid;gap:10px}
+.field-record{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #f0e8ec;padding:12px 0}
+.field-record:last-child{border-bottom:0}
+.field-record>div{min-width:0}
+.field-record strong{display:block;font-size:11px;color:#4c2434;line-height:1.5;overflow-wrap:anywhere}
+.field-record p{font-size:10px;color:#82727a;line-height:1.5;margin:5px 0}
+.field-record small{font-size:9px;color:#9b8992;line-height:1.5}
+.field-sync-state{flex:none;font-size:9px;font-weight:800;border-radius:999px;padding:5px 7px}
+.field-sync-state.pending{background:#fff2d9;color:#875b10}
+.field-sync-state.synced{background:#e8f5ee;color:#216b4c}
+.field-sync-help{margin-top:15px;padding:13px;border-radius:10px;background:#faf6f8}
+.field-sync-help strong{font-size:11px;color:#5a1b34}
+.field-sync-help p{font-size:10px;line-height:1.7;color:#83727a;margin:6px 0 0}
+.field-launch-card{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:22px 0;padding:22px 24px;border:1px solid #e8d9e1;border-radius:15px;background:linear-gradient(115deg,#fff 0%,#fbf4f7 100%)}
+.field-launch-card h2{font:800 21px Manrope,sans-serif;color:#54162b;margin:4px 0 7px}
+.field-launch-card p:not(.eyebrow){font-size:12px;line-height:1.7;color:#77666f;max-width:720px;margin:0}
+.field-launch-card .eyebrow{margin:0;color:#936e3d;font-size:9px;letter-spacing:.12em;font-weight:800}
+@media(max-width:980px){.field-workspace{grid-template-columns:minmax(0,1fr)}.field-queue-panel{position:static}}
+@media(max-width:640px){.field-kpis{grid-template-columns:1fr}.field-kpis article{padding:13px}.field-panel{padding:15px}.field-form-grid{grid-template-columns:1fr}.field-verify-box,.field-gps-box{flex-direction:column}.field-actions .field-button{width:100%}.field-launch-card{align-items:flex-start;flex-direction:column;padding:18px}.field-launch-card .field-button{width:100%;box-sizing:border-box}.field-panel-heading h2{font-size:16px}}
