@@ -121,8 +121,8 @@ export default function FieldCompanionPage() {
     ]);
     if (studentsResult.error) throw studentsResult.error;
     if (partnersResult.error) throw partnersResult.error;
-    const studentMap = new Map((studentsResult.data ?? []).map((s: any) => [s.id, [s.first_name, s.middle_name, s.last_name].filter(Boolean).join(' ') + (s.admission_number ? ' · ' + s.admission_number : '')]));
-    const partnerMap = new Map((partnersResult.data ?? []).map((p: any) => [p.id, p.institution_name]));
+    const studentMap = new Map<string, string>((studentsResult.data ?? []).map((s: any) => [s.id, [s.first_name, s.middle_name, s.last_name].filter(Boolean).join(' ') + (s.admission_number ? ' · ' + s.admission_number : '')] as [string, string]));
+    const partnerMap = new Map<string, string>((partnersResult.data ?? []).map((p: any) => [p.id, p.institution_name] as [string, string]));
     const { data: currentProfile } = await supabase.from('college_profiles').select('id,full_name,role,active').eq('id', userId).maybeSingle();
     const visibleRows = currentProfile?.role === 'practice_supervisor' ? rows.filter((r: any) => Boolean(staffResult.data?.id) && r.supervisor_id === staffResult.data?.id) : rows;
     const mapped: Placement[] = visibleRows.map((r: any) => ({
