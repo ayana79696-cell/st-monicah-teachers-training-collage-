@@ -38,6 +38,14 @@ export default function RolesPage(){
  const [staffOptions,setStaffOptions]=useState<{id:string;label:string;profile_id:string|null;employment_status:string}[]>([]);
  const [staffDrafts,setStaffDrafts]=useState<Record<string,string>>({});
  const [departmentDrafts,setDepartmentDrafts]=useState<Record<string,string>>({});
+ const [inviteName,setInviteName]=useState('');
+ const [inviteEmail,setInviteEmail]=useState('');
+ const [invitePhone,setInvitePhone]=useState('');
+ const [inviteRole,setInviteRole]=useState('lecturer');
+ const [inviteDepartment,setInviteDepartment]=useState('');
+ const [inviteStudentId,setInviteStudentId]=useState('');
+ const [inviteStaffId,setInviteStaffId]=useState('');
+ const [inviteBusy,setInviteBusy]=useState(false);
  const db=createClient();
  const load=useCallback(async()=>{
   setLoading(true);setError('');
@@ -68,6 +76,30 @@ export default function RolesPage(){
   finally{setLoading(false);}
  },[router]);
  useEffect(()=>{void load();},[load]);
+
+ async function inviteAccount(event:React.FormEvent<HTMLFormElement>){
+  event.preventDefault();
+  if(profile?.role!=='super_admin'){setError('Only the Super Administrator can invite college accounts.');return;}
+  if(inviteRole==='student'&&!inviteStudentId){setError('Choose the student record for the student login.');return;}
+  if(inviteRole==='lecturer'&&!inviteStaffId){setError('Choose the active staff record for the lecturer login.');return;}
+  if(inviteRole==='hod'&&!inviteDepartment.trim()){setError('Department is required for an HOD account.');return;}
+  setInviteBusy(true);setError('');setNotice('');
+  try{
+   const response=await fetch('/api/admin/invite-user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    full_name:inviteName.trim(),email:inviteEmail.trim(),phone:invitePhone.trim()||null,
+    role:inviteRole,department:inviteDepartment.trim()||null,
+    student_id:inviteRole==='student'?inviteStudentId:null,
+    staff_id:inviteRole==='lecturer'?inviteStaffId:null
+   })});
+   const result=await response.json();
+   if(!response.ok)throw new Error(result?.error||'Invitation failed.');
+   setNotice(result.message||'Invitation email requested.');
+   setInviteName('');setInviteEmail('');setInvitePhone('');setInviteDepartment('');
+   setInviteStudentId('');setInviteStaffId('');
+   await load();
+  }catch(e:any){setError(e?.message||'Unable to create account invitation.');}
+  finally{setInviteBusy(false);}
+ }
  async function saveUser(user:Profile){
   if(profile?.role!=='super_admin'){setError('Only the Super Administrator can change roles.');return;}
   const role=roleDrafts[user.id]||user.role,active=activeDrafts[user.id]??user.active;
