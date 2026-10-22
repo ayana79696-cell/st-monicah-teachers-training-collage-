@@ -805,3 +805,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .login-trust{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:center}
 .login-trust a{margin-left:8px;font-size:11px}
 @media(max-width:480px){.auth-utility-shell{padding:14px}.auth-utility-card{border-radius:14px}.auth-utility-brand{margin-bottom:26px}}
+
+.roles-invite-panel{margin-bottom:18px}
+.roles-invite-form{display:grid;gap:14px}
+.roles-invite-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.roles-invite-grid label{display:block;font-size:11px;font-weight:700;color:#5b4c53;min-width:0}
+.roles-invite-grid input,.roles-invite-grid select{display:block;box-sizing:border-box;width:100%;margin-top:7px;padding:11px;border:1px solid #dfd1d8;border-radius:8px;background:#fff;font:inherit;font-size:12px;min-width:0}
+.roles-invite-grid input:focus,.roles-invite-grid select:focus{outline:3px solid rgba(198,164,91,.22);border-color:#b08c44}
+.roles-invite-hint{font-size:10px!important;line-height:1.7!important;margin:0}
+.roles-invite-form>.primary-button{justify-self:start}
+@media(max-width:900px){.roles-invite-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.roles-invite-grid{grid-template-columns:1fr}.roles-invite-panel{padding:15px}}
