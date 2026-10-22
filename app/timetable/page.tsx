@@ -37,9 +37,9 @@ export default function TimetablePage(){
      periodIds.length?supabase.from('college_academic_periods').select('id,academic_year,term_name').in('id',periodIds):Promise.resolve({data:[],error:null} as any)
    ]);
    if(units.error)throw units.error;if(staff.error)throw staff.error;if(periods.error)throw periods.error;
-   const um=new Map<string,string>((units.data??[]).map((x:any)=>[x.id,[x.unit_code,x.unit_title].filter(Boolean).join(' · ')]));
-   const sm=new Map<string,string>((staff.data??[]).map((x:any)=>[x.id,x.full_name]));
-   const pm=new Map<string,string>((periods.data??[]).map((x:any)=>[x.id,[x.academic_year,x.term_name].filter(Boolean).join(' · ')]));
+   const um=new Map<string,string>((units.data??[]).map((x:any)=>[x.id,[x.unit_code,x.unit_title].filter(Boolean).join(' · ')] as [string,string]));
+   const sm=new Map<string,string>((staff.data??[]).map((x:any)=>[x.id,x.full_name] as [string,string]));
+   const pm=new Map<string,string>((periods.data??[]).map((x:any)=>[x.id,[x.academic_year,x.term_name].filter(Boolean).join(' · ')] as [string,string]));
    const mapped:Session[]=sessions.map((r:any)=>({...r,unit_label:um.get(r.unit_id)??'Unit not assigned',lecturer_label:sm.get(r.lecturer_id)??'Lecturer not assigned',period_label:pm.get(r.academic_period_id)??'Academic period not set'}));
    await writeCache(mapped);const cached=await readCache();setRows(mapped);setCachedAt(cached?.cached_at??new Date().toISOString());setNotice('Timetable refreshed and saved on this device for offline viewing.');
  },[router,supabase]);
