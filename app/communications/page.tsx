@@ -98,13 +98,32 @@ export default function CommunicationsPage() {
           ? 'Awaiting provider configuration; this queued item has not been delivered.'
           : null
       };
-      const { error: insertError } = await db.from('college_messages').insert(payload);
+      const { data: savedMessage, error: insertError } = await db.from('college_messages').insert(payload).select('id').single();
       if (insertError) throw insertError;
-      setNotice(mode === 'draft'
-        ? 'Draft saved to the college database.'
-        : mode === 'publish'
-          ? 'In-app announcement published. Linked student accounts can view it in the Student Portal.'
-          : 'Message queued in the database only. It has NOT been sent; connect and configure an approved SMS/email provider before delivery.');
+      if (mode === 'queue' && channel !== 'in_app' && savedMessage?.id) {
+        const { data: { session } } = await db.auth.getSession();
+        try {
+          const response = await fetch('/api/communications/send', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: 'Bearer ' + session.access_token } : {}) }, body: JSON.stringify({ message_id: savedMessage.id }) });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const issue = String(result?.error || 'External provider did not accept the message.');
+            await db.from('college_messages').update({ provider_error: issue, status: 'queued', delivered_at: null }).eq('id', savedMessage.id);
+            setNotice('Saved to the queue, but not sent: ' + issue);
+          } else {
+            setNotice(String(result.note || ('Provider accepted ' + result.accepted + ' recipient(s). Final delivery still needs a delivery report.')));
+          }
+        } catch (sendError) {
+          const issue = sendError instanceof Error ? sendError.message : 'Could not reach the delivery service.';
+          await db.from('college_messages').update({ provider_error: issue, status: 'queued', delivered_at: null }).eq('id', savedMessage.id);
+          setNotice('Saved to the queue, but not sent: ' + issue);
+        }
+      } else {
+        setNotice(mode === 'draft'
+          ? 'Draft saved to the college database.'
+          : mode === 'publish'
+            ? 'In-app announcement published. Linked student accounts can view it in the Student Portal.'
+            : 'Message queued.');
+      }
       setSubject(''); setBody(''); setRecipientProfileId(''); await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unable to save this message. Check the college role and database permissions.');
