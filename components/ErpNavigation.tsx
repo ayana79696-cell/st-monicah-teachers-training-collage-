@@ -10,7 +10,7 @@ const academics = [
 const more = [
   ['Finance reports & balances','college_payments'],['Bank accounts & M-Pesa','college_bank_accounts'],
   ['Fee heads','college_fee_heads'],['Fee structures','college_fee_structures'],['Fee charges','college_fee_charges'],
-  ['Library','college_library_items'],['Accommodation & room allocations','college_hostel_rooms'],['Staff development','college_staff_development'],['Staff appraisals','college_staff_appraisals'],['Student welfare','college_student_welfare_cases'],['Alumni & employment','college_alumni_records'],
+  ['Library','college_library_items'],['Accommodation rooms','college_hostel_rooms'],['Accommodation allocations','college_hostel_allocations'],['Staff development','college_staff_development'],['Staff appraisals','college_staff_appraisals'],['Student welfare','college_student_welfare_cases'],['Alumni & employment','college_alumni_records'],
   ['Procurement','college_procurement_requests'],['Teaching practice partners','college_practice_partners'],
   ['Reports & audit','college_audit_log'],['Staff leave','college_staff_leave_requests'],['Payroll periods','college_payroll_periods'],['Payroll entries','college_payroll_entries'],['Settings & access','college_profiles'],
 ] as const;
