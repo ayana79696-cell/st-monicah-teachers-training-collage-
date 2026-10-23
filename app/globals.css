@@ -883,3 +883,38 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* Offline-capable timetable */
 .timetable-content{max-width:1500px}.timetable-toolbar{display:flex;align-items:end;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:22px 0 12px}.timetable-toolbar label{display:grid;gap:7px;font-size:11px;font-weight:700;color:#5b4c53;min-width:155px}.timetable-toolbar select{min-height:42px;border:1px solid #e4dbe0;border-radius:8px;padding:9px 11px;background:#fff;color:var(--ink);font:inherit}.timetable-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}.timetable-cache-note{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 16px;background:#f7f0f3;border-radius:10px;color:var(--maroon);font-size:11px}.timetable-cache-note span{color:#74656c}.timetable-view-toggle{display:flex;gap:5px;margin:18px 0}.timetable-view-toggle button{border:1px solid #e5dbe0;background:#fff;color:#6b5961;border-radius:8px;padding:9px 13px;font:600 11px 'DM Sans',sans-serif;cursor:pointer}.timetable-view-toggle button.selected{background:var(--maroon);border-color:var(--maroon);color:#fff}.timetable-week{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.timetable-day{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;min-width:0}.timetable-day-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #f0e9ed;padding-bottom:11px;margin-bottom:11px}.timetable-day-heading h2{font-size:15px;margin:0}.timetable-day-heading span{font-size:10px;color:#8d7c84}.timetable-no-session{font-size:11px;color:#9b8d93;padding:9px 0}.timetable-session{display:flex;gap:13px;border:1px solid #f0e8ec;background:#fdfbfc;border-radius:10px;padding:12px;margin:8px 0;min-width:0}.timetable-time{width:76px;flex-shrink:0;display:flex;flex-direction:column;gap:5px;color:var(--maroon);font-size:11px}.timetable-time strong{font-size:13px}.timetable-time span{color:#85757d;font-size:10px}.timetable-session-detail{display:flex;flex-direction:column;gap:5px;min-width:0}.timetable-session-detail strong{font-size:12px;overflow-wrap:anywhere}.timetable-session-detail span{font-size:11px;color:#64545d}.timetable-session-detail small{font-size:10px;color:#887981;line-height:1.45}.timetable-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.timetable-empty{margin-top:16px}.timetable-empty h2{font-size:17px}.timetable-empty .field-button{display:inline-flex;text-decoration:none;margin-top:10px}.timetable-toolbar .field-button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:42px}.timetable-toolbar .field-button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:850px){.timetable-week,.timetable-list{grid-template-columns:1fr}.timetable-toolbar-actions{margin-left:0;width:100%}.timetable-toolbar-actions .field-button{flex:1}}@media(max-width:520px){.timetable-toolbar{padding:12px}.timetable-toolbar label{width:100%}.timetable-toolbar-actions{flex-direction:column}.timetable-toolbar-actions .field-button{width:100%}.timetable-day{padding:12px}.timetable-session{padding:10px;gap:9px}.timetable-time{width:66px}}
+
+
+/* Design A: all primary modules visible, with their subpages in a second horizontal row */
+.erp-navigation{display:flex;flex:1 1 100%;flex-direction:column;gap:7px;min-width:0;width:100%}
+.workspace-topbar>.erp-navigation{flex:1 1 100%;order:3}
+.workspace-topnav{display:flex!important;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:5px;min-width:0;width:100%;overflow:visible}
+.workspace-topnav .topnav-link{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:8px 11px;border:1px solid rgba(255,255,255,.13);border-radius:9px;background:rgba(255,255,255,.055);color:#f7eaf0;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap}
+.workspace-topnav .topnav-link:hover{background:rgba(255,255,255,.12);color:#fff}
+.workspace-topnav .topnav-link.active{background:#f3dfb0;border-color:#f3dfb0;color:#421225;box-shadow:0 3px 9px rgba(0,0,0,.12)}
+.workspace-subnav{display:flex;align-items:center;gap:5px;min-width:0;width:100%;padding:7px 0 2px;border-top:1px solid rgba(255,255,255,.12);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:rgba(231,201,130,.5) transparent}
+.subnav-heading{flex:0 0 auto;color:#e8c981;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;padding:0 8px 0 1px}
+.workspace-subnav .subnav-link{display:inline-flex;align-items:center;flex:0 0 auto;min-height:29px;padding:6px 10px;border:1px solid rgba(255,255,255,.13);border-radius:8px;background:rgba(255,255,255,.045);color:#f2e1e8;text-decoration:none;font-size:10px;font-weight:600;white-space:nowrap}
+.workspace-subnav .subnav-link:hover,.workspace-subnav .subnav-link.subnav-primary{background:rgba(216,182,111,.17);border-color:rgba(216,182,111,.42);color:#fff}
+.workspace-mobile-menu{display:none!important}
+.shell>aside.sidebar,.sidebar{display:none!important}
+.shell>.content,.content{margin-left:0!important;width:100%;max-width:none}
+.workspace-topbar{flex-wrap:wrap;align-items:center;gap:8px 18px;padding-top:12px;padding-bottom:10px}
+@media(min-width:901px){.workspace-topbar>.erp-navigation{order:3}.workspace-topbar{align-items:center}.topbar-user{margin-left:auto}}
+@media(max-width:900px){
+ .workspace-topbar{position:relative;gap:10px;padding:12px 14px}
+ .workspace-topbar>.erp-navigation{order:3}
+ .workspace-topnav{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:rgba(231,201,130,.55) transparent;padding:2px 0 7px}
+ .workspace-topnav .topnav-link{flex:0 0 auto;min-height:36px;font-size:11px;padding:8px 12px}
+ .workspace-subnav{padding-top:8px;padding-bottom:5px}
+ .workspace-subnav .subnav-link{min-height:32px;font-size:10px}
+ .topbar-brand{flex:1 1 auto}
+ .topbar-user{margin-left:0}
+}
+@media(max-width:480px){
+ .workspace-topbar{padding:10px 11px}
+ .workspace-topnav{gap:5px}
+ .workspace-topnav .topnav-link{font-size:10px;padding:8px 10px}
+ .subnav-heading{font-size:8px;padding-right:5px}
+ .workspace-subnav .subnav-link{padding:7px 9px;font-size:10px}
+}
