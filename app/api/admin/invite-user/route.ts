@@ -40,10 +40,12 @@ export async function POST(request: NextRequest) {
   const department = String(body.department || '').trim();
   const studentId = String(body.student_id || '').trim() || null;
   const staffId = String(body.staff_id || '').trim() || null;
+  const password = String(body.password || '');
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
     return NextResponse.json({ error: 'Enter a valid college email address.' }, { status: 400 });
   }
+  if (password.length < 8 || password.length > 128) return NextResponse.json({ error: 'Set an initial password between 8 and 128 characters.' }, { status: 400 });
   if (fullName.length < 2 || fullName.length > 160) {
     return NextResponse.json({ error: 'Enter the person’s full name.' }, { status: 400 });
   }
@@ -56,10 +58,7 @@ export async function POST(request: NextRequest) {
   if (role === 'student' && !studentId) {
     return NextResponse.json({ error: 'Choose the student record that belongs to this account.' }, { status: 400 });
   }
-  if (role === 'lecturer' && !staffId) {
-    return NextResponse.json({ error: 'Choose the employee record that belongs to this lecturer account.' }, { status: 400 });
-  }
-
+  
   const cookieStore = await cookies();
   const callerClient = createServerClient(url, publicKey, {
     cookies: {
@@ -98,7 +97,7 @@ export async function POST(request: NextRequest) {
     if (!student) return NextResponse.json({ error: 'The selected student record was not found.' }, { status: 400 });
   }
 
-  if (role === 'lecturer' && staffId) {
+  if (staffId) {
     const { data: staff, error: staffError } = await admin
       .from('college_staff').select('id,profile_id,employment_status').eq('id', staffId).maybeSingle();
     if (staffError || !staff) return NextResponse.json({ error: 'The selected staff record was not found.' }, { status: 400 });
@@ -109,17 +108,14 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectTo = new URL('/update-password', ownOrigin).toString();
-  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName, department: department || null },
-    redirectTo,
-  });
-  if (inviteError || !invited.user) {
+  const { data: created, error: inviteError } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name: fullName, department: department || null } });
+  if (inviteError || !created.user) {
     return NextResponse.json({
       error: inviteError?.message || 'Supabase did not return a new invited account. Check whether the email is already registered and whether Supabase email delivery/redirects are configured.',
     }, { status: 400 });
   }
 
-  const newUserId = invited.user.id;
+  const newUserId = created.user.id;
   const { error: insertProfileError } = await admin.from('college_profiles').insert({
     id: newUserId,
     full_name: fullName,
@@ -134,7 +130,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'The account invitation was created but the college profile could not be saved, so the invited account was rolled back. ' + insertProfileError.message }, { status: 500 });
   }
 
-  if (role === 'lecturer' && staffId) {
+  if (staffId) {
     const { data: linkedStaff, error: linkError } = await admin.from('college_staff').update({ profile_id: newUserId }).eq('id', staffId).is('profile_id', null).select('id').maybeSingle();
     if (linkError || !linkedStaff) {
       await admin.from('college_profiles').delete().eq('id', newUserId);
@@ -148,12 +144,12 @@ export async function POST(request: NextRequest) {
     action: 'invite',
     entity_table: 'college_profiles',
     entity_id: newUserId,
-    details: { operation: 'invite', role, source: 'super_admin_invitation' },
+    details: { operation: 'invite', role, source: 'super_admin_created_login' },
   });
 
   return NextResponse.json({
     ok: true,
-    message: 'An invitation email has been requested for ' + email + '. The person must use the secure email link to set a password.',
+    message: 'Login created for ' + email + '. The selected role and college profile are saved.',
     user: { id: newUserId, full_name: fullName, email, role },
   });
 }
