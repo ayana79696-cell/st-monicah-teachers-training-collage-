@@ -9,6 +9,9 @@ type Profile={full_name:string|null;role:string;active:boolean};
 type Staff={id:string;staff_number:string;full_name:string;department:string|null;position:string|null;employment_status:string;profile_id:string|null};
 type StaffAttendance={id:string;staff_id:string;attendance_date:string;check_in_at:string|null;check_out_at:string|null;check_in_method:string;check_out_method:string|null;check_in_latitude:number|null;check_in_longitude:number|null;check_in_accuracy_m:number|null;check_out_latitude:number|null;check_out_longitude:number|null;check_out_accuracy_m:number|null;status:string;notes:string|null;created_at:string;updated_at:string};
 type GeoEvidence={latitude:number;longitude:number;accuracy:number}|null;
+type AttendanceSettings={id:string;campus_name:string;campus_latitude:number|null;campus_longitude:number|null;geofence_radius_m:number;geofence_enforced:boolean;late_grace_minutes:number;standard_shift_minutes:number;shifts_enabled:boolean;qr_attendance_enabled:boolean;updated_at:string};
+type Shift={id:string;staff_id:string;shift_date:string;starts_at:string;ends_at:string;break_minutes:number;status:string;notes:string|null};
+type OfflineEvent={id:string;staffId:string;action:'check_in'|'check_out';queuedAt:string;latitude:number|null;longitude:number|null;accuracy:number|null;note:string};
 
 const crest='https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png';
 const managerRoles=['super_admin','principal','hr'];
@@ -44,6 +47,25 @@ export default function StaffAttendancePage(){
  const [busy,setBusy]=useState('');
  const [error,setError]=useState('');
  const [notice,setNotice]=useState('');
+ const [settings,setSettings]=useState<AttendanceSettings|null>(null);
+ const [campusName,setCampusName]=useState('St. Monicah Teachers Training College');
+ const [campusLat,setCampusLat]=useState('');
+ const [campusLng,setCampusLng]=useState('');
+ const [radius,setRadius]=useState('100');
+ const [enforceFence,setEnforceFence]=useState(false);
+ const [graceMinutes,setGraceMinutes]=useState('10');
+ const [shiftMinutes,setShiftMinutes]=useState('480');
+ const [shifts,setShifts]=useState<Shift[]>([]);
+ const [shiftStaffId,setShiftStaffId]=useState('');
+ const [shiftDate,setShiftDate]=useState(nairobiDate());
+ const [shiftStart,setShiftStart]=useState('08:00');
+ const [shiftEnd,setShiftEnd]=useState('17:00');
+ const [shiftBreak,setShiftBreak]=useState('60');
+ const [shiftNote,setShiftNote]=useState('');
+ const [offlineQueue,setOfflineQueue]=useState<OfflineEvent[]>([]);
+ const [qrStaffId,setQrStaffId]=useState('');
+ const [issuedBadge,setIssuedBadge]=useState<{staffName:string;staffNo:string;token:string;expiresAt:string}|null>(null);
+ const [reviewAlerts,setReviewAlerts]=useState(true);
 
  const loadRegister=useCallback(async(date=selectedDate)=>{
   setLoading(true);setError('');
@@ -65,6 +87,18 @@ export default function StaffAttendancePage(){
    if(attendanceRes.error)throw attendanceRes.error;
    setStaff((staffRes.data||[]) as Staff[]);
    setRecords((attendanceRes.data||[]) as StaffAttendance[]);
+   const [settingsRes,shiftsRes]=await Promise.all([
+    db.from('college_attendance_settings').select('*').order('updated_at',{ascending:false}).limit(1).maybeSingle(),
+    db.from('college_staff_shifts').select('*').eq('shift_date',date).neq('status','cancelled').limit(2000)
+   ]);
+   if(settingsRes.error)throw settingsRes.error;
+   if(shiftsRes.error)throw shiftsRes.error;
+   if(settingsRes.data){
+    const s=settingsRes.data as AttendanceSettings;setSettings(s);setCampusName(s.campus_name);setCampusLat(s.campus_latitude==null?'':String(s.campus_latitude));setCampusLng(s.campus_longitude==null?'':String(s.campus_longitude));setRadius(String(s.geofence_radius_m));setEnforceFence(s.geofence_enforced);setGraceMinutes(String(s.late_grace_minutes));setShiftMinutes(String(s.standard_shift_minutes));
+   }
+   setShifts((shiftsRes.data||[]) as Shift[]);
+   try{const raw=window.localStorage.getItem('stmonicah_staff_attendance_offline_queue');setOfflineQueue(raw?JSON.parse(raw):[]);}catch{setOfflineQueue([]);}
+
   }catch(e:any){setError(e?.message||'Could not load the staff attendance register.');}
   finally{setLoading(false);}
  },[db,router,selectedDate]);
@@ -112,6 +146,66 @@ export default function StaffAttendancePage(){
   finally{setBusy('');}
  }
 
+ async function saveAttendanceSettings(){
+  setError('');setNotice('');setBusy('settings');
+  try{
+   const {data,error:rpcError}=await db.rpc('college_save_attendance_settings',{p_campus_name:campusName,p_latitude:campusLat.trim()?Number(campusLat):null,p_longitude:campusLng.trim()?Number(campusLng):null,p_radius_m:Number(radius),p_enforce:enforceFence,p_grace_minutes:Number(graceMinutes),p_shift_minutes:Number(shiftMinutes)});
+   if(rpcError)throw rpcError;
+   setSettings(data as AttendanceSettings);setNotice('Attendance security and shift settings saved.');
+   await loadRegister(selectedDate);
+  }catch(e:any){setError(e?.message||'Could not save attendance settings.');}
+  finally{setBusy('');}
+ }
+ async function saveShift(e:React.FormEvent<HTMLFormElement>){
+  e.preventDefault();setError('');setNotice('');setBusy('shift');
+  try{
+   const {data,error:rpcError}=await db.rpc('college_create_staff_shift',{p_staff_id:shiftStaffId,p_shift_date:shiftDate,p_starts_at:shiftStart,p_ends_at:shiftEnd,p_break_minutes:Number(shiftBreak),p_notes:shiftNote||null});
+   if(rpcError)throw rpcError;
+   setNotice('Shift saved. Late status will use this scheduled start and the grace period.');
+   setShiftNote('');await loadRegister(selectedDate);
+  }catch(e:any){setError(e?.message||'Could not save shift.');}
+  finally{setBusy('');}
+ }
+ function queueOffline(member:Staff,action:'check_in'|'check_out',geo:GeoEvidence){
+  const event:OfflineEvent={id:crypto.randomUUID(),staffId:member.id,action,queuedAt:new Date().toISOString(),latitude:geo?.latitude??null,longitude:geo?.longitude??null,accuracy:geo?.accuracy??null,note:'Queued while offline'};
+  const next=[...offlineQueue,event];setOfflineQueue(next);window.localStorage.setItem('stmonicah_staff_attendance_offline_queue',JSON.stringify(next));
+  setNotice('Attendance action queued on this device. It has not yet been saved to the college database.');
+ }
+ async function syncOfflineQueue(){
+  if(!navigator.onLine){setError('Reconnect to the internet before syncing the offline queue.');return;}
+  setBusy('offline-sync');setError('');setNotice('');
+  const remaining:OfflineEvent[]=[];let synced=0;
+  for(const item of offlineQueue){
+   try{
+    const {error:rpcError}=await db.rpc('college_record_staff_attendance',{p_staff_id:item.staffId,p_action:item.action,p_method:'offline_sync',p_latitude:item.latitude,p_longitude:item.longitude,p_accuracy_m:item.accuracy,p_note:'Offline action queued at '+item.queuedAt});
+    if(rpcError)throw rpcError;synced++;
+   }catch{remaining.push(item);}
+  }
+  setOfflineQueue(remaining);window.localStorage.setItem('stmonicah_staff_attendance_offline_queue',JSON.stringify(remaining));
+  setNotice(synced+' queued action(s) synchronized. '+remaining.length+' remain pending. Database time is the sync time; original queued time is preserved in the note.');
+  await loadRegister(selectedDate);setBusy('');
+ }
+ async function issueStaffBadge(){
+  setError('');setNotice('');setIssuedBadge(null);
+  const member=staff.find(s=>s.id===qrStaffId);if(!member){setError('Select a staff member first.');return;}
+  setBusy('badge');
+  try{
+   const token=crypto.randomUUID()+'-'+crypto.randomUUID();
+   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));
+   const tokenHash=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+   const expiresAt=new Date(Date.now()+365*24*60*60*1000).toISOString();
+   const {error:saveError}=await db.from('college_staff_attendance_qr').insert({staff_id:member.id,token_hash:tokenHash,expires_at:expiresAt,created_by:userId});
+   if(saveError)throw saveError;
+   setIssuedBadge({staffName:member.full_name,staffNo:member.staff_number,token,expiresAt});
+   setNotice('A unique staff attendance credential has been issued. The raw token is shown once; keep it private.');
+  }catch(e:any){setError(e?.message||'Could not issue staff credential.');}
+  finally{setBusy('');}
+ }
+ function printBadge(){
+  if(!issuedBadge)return;
+  const win=window.open('','_blank','width=500,height=650');if(!win){setError('Allow pop-ups to print the staff badge.');return;}
+  win.document.write('<!doctype html><html><head><title>Staff Attendance Badge</title><style>body{font-family:Arial;padding:24px;color:#641c35}.card{border:2px solid #641c35;border-radius:18px;padding:24px;text-align:center}small{color:#806b74}code{display:block;word-break:break-all;color:#222;font-size:11px;margin:18px 0}</style></head><body><div class="card"><h2>ST. MONICAH</h2><p>TEACHERS TRAINING COLLEGE</p><hr/><h3>'+issuedBadge.staffName.replace(/[&<>"]/g,'')+'</h3><p>'+issuedBadge.staffNo.replace(/[&<>"]/g,'')+'</p><small>Staff attendance credential — private</small><code>'+issuedBadge.token+'</code><small>Expires '+new Date(issuedBadge.expiresAt).toLocaleDateString()+'</small></div><script>window.print()<\\/script></body></html>');win.document.close();
+ }
  function exportCsv(){
   const rows=[['Date','Staff number','Staff name','Department','Position','Check-in','Check-in method','Check-out','Check-out method','Hours','Status','Location evidence'],
    ...register.map(({member,record})=>[selectedDate,member.staff_number,member.full_name,member.department||'',member.position||'',record?timeLabel(record.check_in_at):'',record?.check_in_method||'',record?timeLabel(record.check_out_at):'',record?.check_out_method||'',durationLabel(record?.check_in_at,record?.check_out_at),record?(record.check_out_at?'Shift completed':record.check_in_at?'On campus':record.status):'Not checked in',record?.check_in_latitude!=null?'GPS captured':''])];
