@@ -1,81 +1,60 @@
 'use client';
 
-type Props = { active?: 'overview'|'students'|'academics'|'attendance'|'finance'|'people'|'admissions'|'communication'|'passports'|'roles'|'reports'|'portal' };
-const academics = [
-  ['Programmes','college_programmes'],['Academic periods','college_academic_periods'],
-  ['Units','college_units'],['Timetables','college_timetable_sessions'],
-  ['Attendance','college_attendance'],['Assessments','college_assessments'],
-  ['Teaching practice','college_practice_placements'],
-] as const;
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
-export default function ErpNavigation({ active='overview' }: Props) {
-  const financeActive = active === 'finance';
-  const academicsActive = active === 'academics';
-  const isActive = (key:string) => active === key;
-  return <>
-    <nav className="workspace-topnav" aria-label="Main navigation">
-      <a className={'topnav-link '+(isActive('overview')?'active':'')} href="/">⌂ <span>Home</span></a>
-      <a className={'topnav-link '+(isActive('students')?'active':'')} href="/workspace?module=college_students">♙ <span>Students</span></a>
-      <a className={'topnav-link '+(academicsActive?'active':'')} href="/academics">▤ <span>Academics</span></a>
-      <a className={'topnav-link '+(financeActive?'active':'')} href="/workspace?module=college_payments">▦ <span>Finance</span></a>
-      <a className={'topnav-link '+(isActive('people')?'active':'')} href="/workspace?module=college_staff">♧ <span>HR &amp; Staff</span></a>
-      <a className={'topnav-link '+(isActive('admissions')?'active':'')} href="/admissions">♙ <span>Admissions</span></a>
-      <a className="topnav-link" href="/workspace?module=college_procurement_requests">▣ <span>Procurement &amp; Stock</span></a>
-      <a className="topnav-link" href="/exam-entry">▤ <span>Exams &amp; Results</span></a>
-      <a className="topnav-link" href="/passports">▧ <span>Passport Studio</span></a>
-      <a className="topnav-link" href="/timetable">▦ <span>Timetable</span></a>
-      <a className="topnav-link" href="/field-companion">⌁ <span>Field Companion</span></a>
-      <a className={'topnav-link '+(isActive('communication')?'active':'')} href="/communications">✉ <span>Messages</span></a>
-      <a className={'topnav-link '+(isActive('roles')?'active':'')} href="/roles">⚙ <span>Roles</span></a>
-      <a className={'topnav-link '+(isActive('reports')?'active':'')} href="/reports">▥ <span>Reports</span></a>
-      <a className="topnav-link" href="/graduation">Graduation</a>
-      <a className="topnav-link" href="/inventory">Stock Register</a>
-      <a className="topnav-link" href="/portal">Student Portal</a>
-      <a className="topnav-link" href="/parent-portal">Parent Portal</a>
-    </nav>
-    <details className="workspace-mobile-menu"><summary><span aria-hidden="true">☰</span> Menu</summary><div className="workspace-mobile-panel">
-      <a href="/">Home</a><a href="/workspace?module=college_students">Students</a><a href="/academics">Academics</a><a href="/workspace?module=college_payments">Finance</a><a href="/workspace?module=college_staff">HR &amp; Staff</a><a href="/admissions">Admissions</a><a href="/workspace?module=college_procurement_requests">Procurement &amp; Stock</a><a href="/exam-entry">Exams &amp; Results</a><a href="/passports">Passport Studio</a><a href="/timetable">Timetable</a><a href="/field-companion">Field Companion</a><a href="/communications">Messages</a><a href="/roles">Roles &amp; Access</a><a href="/reports">Reports</a><a href="/graduation">Graduation &amp; Certificates</a><a href="/inventory">Stock Register</a><a href="/portal">Student Portal</a><a href="/parent-portal">Parent / Sponsor Portal</a><a href="/learning">Learning Center</a><a href="/services">Learning, compliance &amp; automation</a><a href="/apply" target="_blank">Public application form ↗</a>
-    </div></details>
+type Group = 'dashboard'|'students'|'academics'|'exams'|'finance'|'hr'|'procurement'|'admissions'|'teaching'|'communications'|'reports'|'services';
 type Props = { active?: 'overview'|'students'|'academics'|'attendance'|'finance'|'people'|'admissions'|'communication'|'passports'|'roles'|'reports'|'portal' };
-const academics = [
-  ['Programmes','college_programmes'],['Academic periods','college_academic_periods'],
-  ['Units','college_units'],['Timetables','college_timetable_sessions'],
-  ['Attendance','college_attendance'],['Assessments','college_assessments'],
-  ['Teaching practice','college_practice_placements'],
-] as const;
 
-export default function ErpNavigation({ active='overview' }: Props) {
-  const financeActive = active === 'finance';
-  const academicsActive = active === 'academics';
-  const isActive = (key:string) => active === key;
-  return <>
-    <nav className="workspace-topnav" aria-label="Main navigation">
-      <a className={'topnav-link '+(isActive('overview')?'active':'')} href="/">⌂ <span>Home</span></a>
-      <a className={'topnav-link '+(isActive('students')?'active':'')} href="/workspace?module=college_students">♙ <span>Students</span></a>
-      <a className={'topnav-link '+(academicsActive?'active':'')} href="/academics">▤ <span>Academics</span></a>
-      <a className={'topnav-link '+(financeActive?'active':'')} href="/workspace?module=college_payments">▦ <span>Finance</span></a>
-      <a className={'topnav-link '+(isActive('people')?'active':'')} href="/workspace?module=college_staff">♧ <span>HR &amp; Staff</span></a>
-      <a className={'topnav-link '+(isActive('admissions')?'active':'')} href="/admissions">♙ <span>Admissions</span></a>
-      <a className="topnav-link" href="/workspace?module=college_procurement_requests">▣ <span>Procurement &amp; Stock</span></a>
-      <a className="topnav-link" href="/exam-entry">▤ <span>Exams &amp; Results</span></a>
-      <a className="topnav-link" href="/passports">▧ <span>Passport Studio</span></a>
-      <a className="topnav-link" href="/timetable">▦ <span>Timetable</span></a>
-      <a className="topnav-link" href="/field-companion">⌁ <span>Field Companion</span></a>
-      <a className={'topnav-link '+(isActive('communication')?'active':'')} href="/communications">✉ <span>Messages</span></a>
-      <a className={'topnav-link '+(isActive('roles')?'active':'')} href="/roles">⚙ <span>Roles</span></a>
-      <a className={'topnav-link '+(isActive('reports')?'active':'')} href="/reports">▥ <span>Reports</span></a>
-      <a className="topnav-link" href="/graduation">Graduation</a>
-      <a className="topnav-link" href="/inventory">Stock Register</a>
-      <a className="topnav-link" href="/portal">Student Portal</a>
-      <a className="topnav-link" href="/parent-portal">Parent Portal</a>
-    </nav>
-    <details className="workspace-mobile-menu"><summary><span aria-hidden="true">☰</span> Menu</summary><div className="workspace-mobile-panel">
-      <a className={isActive('overview')?'active':''} href="/">Overview</a>
-      <p>STUDENTS</p><a className={isActive('students')?'active':''} href="/workspace?module=college_students">Student records &amp; registration</a><a className={isActive('passports')?'active':''} href="/passports">Passport Studio</a>
-      <p>ACADEMICS</p>{academics.map(([label,key])=>key==='college_attendance'?<a key={key} className={active==='attendance'?'active':''} href="/attendance">QR attendance &amp; daily register</a>:<a key={key} href={'/workspace?module='+key}>{label}</a>)}<a href="/results">Results &amp; grading</a><a href="/exam-entry">Examinations &amp; Result Entry</a><a href="/graduation">Graduation &amp; Certificates</a>
-      <p>FINANCE</p><a className={financeActive?'active':''} href="/workspace?module=college_payments">Finance dashboard &amp; reports</a><a href="/workspace?module=college_bank_accounts">Bank accounts &amp; M-Pesa</a><a href="/workspace?module=college_fee_heads">Fee heads</a><a href="/workspace?module=college_fee_structures">Fee structures</a><a href="/workspace?module=college_fee_charges">Fee charges</a><a href="/finance/receipts">Payments &amp; receipts</a>
-      <p>HR &amp; STAFF</p><a href="/workspace?module=college_staff">Staff records &amp; HR</a><a href="/workspace?module=college_staff_leave_requests">Staff leave</a><a href="/workspace?module=college_payroll_periods">Payroll periods</a><a href="/workspace?module=college_payroll_entries">Payroll entries</a><a href="/workspace?module=college_staff_development">Staff development &amp; training</a><a href="/workspace?module=college_staff_appraisals">Staff appraisals</a><p>PEOPLE &amp; SERVICES</p><a href="/admissions">Admissions Desk</a><a href="/communications">Communications</a><a href="/field-companion">Offline Field Companion</a><a className={active==='reports'?'active':''} href="/reports">Management reports</a><a href="/inventory">Stock movement register</a><a href="/portal">Student self-service portal</a><a href="/parent-portal">Parent / sponsor portal</a><a className={active==='attendance'?'active':''} href="/attendance">QR attendance &amp; daily register</a><a href="/apply" target="_blank">Public application form ↗</a>
-      <p>MORE MODULES</p>{more.filter(([,key])=>!['college_payments','college_bank_accounts','college_fee_structures','college_fee_charges','college_fee_heads'].includes(key)).map(([label,key])=><a key={key} href={'/workspace?module='+key}>{label}</a>)}
-    </div></details>
-  </>;
+const groups: {key:Group; label:string; href:string; matches:string[]; links:{label:string;href:string}[]}[] = [
+ {key:'dashboard',label:'Dashboard',href:'/',matches:['/'],links:[{label:'Overview',href:'/'},{label:'Notifications',href:'/communications'},{label:'Quick actions',href:'/workspace?module=college_students'}]},
+ {key:'students',label:'Students',href:'/workspace?module=college_students',matches:['/passports'],links:[{label:'Student Records',href:'/workspace?module=college_students'},{label:'Registration',href:'/workspace?module=college_students'},{label:'Passport Studio',href:'/passports'},{label:'Student Welfare',href:'/workspace?module=college_student_welfare_cases'},{label:'Student Portal',href:'/portal'},{label:'Parent / Sponsor Portal',href:'/parent-portal'}]},
+ {key:'academics',label:'Academics',href:'/academics',matches:['/academics','/timetable','/attendance'],links:[{label:'Programmes',href:'/workspace?module=college_programmes'},{label:'Academic Periods',href:'/workspace?module=college_academic_periods'},{label:'Units',href:'/workspace?module=college_units'},{label:'Timetables · Offline',href:'/timetable'},{label:'QR Attendance',href:'/attendance'},{label:'Assessments',href:'/workspace?module=college_assessments'}]},
+ {key:'exams',label:'Exams & Results',href:'/exam-entry',matches:['/exam-entry','/results','/graduation'],links:[{label:'Exam Setup & Entry',href:'/exam-entry'},{label:'Results & Grading',href:'/results'},{label:'Results Analysis',href:'/reports'},{label:'Report Cards',href:'/results'},{label:'Graduation & Certificates',href:'/graduation'}]},
+ {key:'finance',label:'Finance',href:'/workspace?module=college_payments',matches:['/finance'],links:[{label:'Finance Dashboard',href:'/workspace?module=college_payments'},{label:'Fee Structures',href:'/workspace?module=college_fee_structures'},{label:'Fee Heads',href:'/workspace?module=college_fee_heads'},{label:'Fee Charges',href:'/workspace?module=college_fee_charges'},{label:'Payments',href:'/finance/receipts'},{label:'Receipts',href:'/finance/receipts'},{label:'Bank Accounts & M-Pesa',href:'/workspace?module=college_bank_accounts'},{label:'Balances & Reports',href:'/reports'}]},
+ {key:'hr',label:'HR & Staff',href:'/workspace?module=college_staff',matches:[],links:[{label:'Staff Records',href:'/workspace?module=college_staff'},{label:'Staff Attendance',href:'/attendance'},{label:'Leave',href:'/workspace?module=college_staff_leave_requests'},{label:'Payroll Periods',href:'/workspace?module=college_payroll_periods'},{label:'Payroll Entries',href:'/workspace?module=college_payroll_entries'},{label:'Staff Development',href:'/workspace?module=college_staff_development'},{label:'Performance Appraisals',href:'/workspace?module=college_staff_appraisals'}]},
+ {key:'procurement',label:'Procurement & Stock',href:'/workspace?module=college_procurement_requests',matches:['/inventory'],links:[{label:'Requisitions',href:'/workspace?module=college_procurement_requests'},{label:'Approvals',href:'/workspace?module=college_procurement_requests'},{label:'Purchase Orders',href:'/workspace?module=college_procurement_requests'},{label:'Suppliers',href:'/workspace?module=college_procurement_requests'},{label:'Deliveries & Invoices',href:'/workspace?module=college_procurement_requests'},{label:'Stock Register',href:'/inventory'},{label:'Stock Movements',href:'/inventory'},{label:'Low-stock Alerts',href:'/inventory'}]},
+ {key:'admissions',label:'Admissions',href:'/admissions',matches:['/admissions','/apply'],links:[{label:'Applications',href:'/admissions'},{label:'Application Review',href:'/admissions'},{label:'Registration',href:'/workspace?module=college_students'},{label:'Admission Letters',href:'/admissions'},{label:'Public Application Form ↗',href:'/apply'}]},
+ {key:'teaching',label:'Teaching Practice',href:'/workspace?module=college_practice_placements',matches:['/field-companion'],links:[{label:'Placements',href:'/workspace?module=college_practice_placements'},{label:'Partner Schools',href:'/workspace?module=college_practice_partners'},{label:'College Supervisors',href:'/workspace?module=college_staff'},{label:'School Visits',href:'/field-companion'},{label:'Offline Field Companion',href:'/field-companion'},{label:'Visit Observations',href:'/field-companion'},{label:'Final Assessment',href:'/workspace?module=college_practice_placements'}]},
+ {key:'communications',label:'Communications',href:'/communications',matches:[],links:[{label:'SMS & Messages',href:'/communications'},{label:'Email',href:'/communications'},{label:'Announcements',href:'/communications'},{label:'Message History',href:'/communications'}]},
+ {key:'reports',label:'Reports',href:'/reports',matches:[],links:[{label:'Academic Reports',href:'/reports'},{label:'Finance Reports',href:'/reports'},{label:'HR Reports',href:'/reports'},{label:'Procurement Reports',href:'/reports'},{label:'Management Reports',href:'/reports'},{label:'Audit Trail',href:'/reports'}]},
+ {key:'services',label:'Services & Admin',href:'/services',matches:['/roles','/learning','/services'],links:[{label:'Library',href:'/workspace?module=college_library_items'},{label:'Accommodation',href:'/workspace?module=college_hostel_rooms'},{label:'Student Welfare',href:'/workspace?module=college_student_welfare_cases'},{label:'Alumni & Employment',href:'/workspace?module=college_alumni_records'},{label:'Roles & Permissions',href:'/roles'},{label:'System Settings',href:'/services'},{label:'Learning Center',href:'/learning'}]},
+];
+
+function groupForPath(path:string, module:string, active?:Props['active']):Group {
+ if (path==='/') return 'dashboard';
+ if (path.startsWith('/passports') || module==='college_students' || module==='college_student_welfare_cases' || path==='/portal' || path==='/parent-portal') return 'students';
+ if (path.startsWith('/academics') || path==='/timetable' || path==='/attendance') return active==='people' ? 'hr' : 'academics';
+ if (path.startsWith('/exam-entry') || path==='/results' || path==='/graduation') return 'exams';
+ if (path.startsWith('/finance') || ['college_payments','college_bank_accounts','college_fee_heads','college_fee_structures','college_fee_charges'].includes(module)) return 'finance';
+ if (['college_staff','college_staff_leave_requests','college_payroll_periods','college_payroll_entries','college_staff_development','college_staff_appraisals'].includes(module)) return 'hr';
+ if (path==='/inventory' || module==='college_procurement_requests') return 'procurement';
+ if (path.startsWith('/admissions') || path==='/apply') return 'admissions';
+ if (path==='/field-companion' || module==='college_practice_placements' || module==='college_practice_partners') return 'teaching';
+ if (path==='/communications') return 'communications';
+ if (path==='/reports') return 'reports';
+ if (path==='/roles' || path==='/services' || path==='/learning' || ['college_library_items','college_hostel_rooms','college_hostel_allocations','college_alumni_records','college_profiles'].includes(module)) return 'services';
+ if (active==='people') return 'hr';
+ if (active==='finance') return 'finance';
+ if (active==='admissions') return 'admissions';
+ if (active==='communication') return 'communications';
+ if (active==='reports') return 'reports';
+ return 'dashboard';
+}
+
+export default function ErpNavigation({active='overview'}:Props) {
+ const pathname=usePathname();
+ const [module,setModule]=useState('');
+ useEffect(()=>{setModule(new URLSearchParams(window.location.search).get('module')||'');},[pathname]);
+ const current=groupForPath(pathname,module,active);
+ const group=groups.find(item=>item.key===current) ?? groups[0];
+ return <div className="erp-navigation">
+  <nav className="workspace-topnav" aria-label="Main navigation">
+   {groups.map(item=><a key={item.key} className={'topnav-link '+(item.key===current?'active':'')} href={item.href} aria-current={item.key===current?'page':undefined}>{item.label}</a>)}
+  </nav>
+  <nav className="workspace-subnav" aria-label={group.label+' subpages'}>
+   <span className="subnav-heading">{group.label}</span>
+   {group.links.map((link,index)=><a key={link.label+'-'+index} className={'subnav-link '+(index===0?'subnav-primary':'')} href={link.href}>{link.label}</a>)}
+  </nav>
+ </div>;
 }
