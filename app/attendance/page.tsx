@@ -13,7 +13,7 @@ type ScanReceipt={attendance_id?:string;student_id?:string;student_name?:string;
 
 const crest='https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png';
 const allowedRoles=['super_admin','principal','registrar','hod','lecturer','practice_supervisor'];
-const scannerLibraryUrl='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+const scannerLibraryUrls=['https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js','https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js'];
 
 function nairobiDate(){
  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Nairobi',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
@@ -80,13 +80,19 @@ export default function AttendancePage(){
  useEffect(()=>{void loadRegister(registerDate,true);},[loadRegister,registerDate]);
 
  useEffect(()=>{
-  const existing=(window as any).Html5Qrcode;if(existing){setScannerLibraryLoaded(true);return;}
-  const id='stmonicah-html5-qrcode';let script=document.getElementById(id) as HTMLScriptElement|null;
-  const onLoad=()=>setScannerLibraryLoaded(Boolean((window as any).Html5Qrcode));
-  const onError=()=>setCameraMessage('The camera scanner library could not load. Use the QR text fallback below and check your internet connection.');
-  if(!script){script=document.createElement('script');script.id=id;script.src=scannerLibraryUrl;script.async=true;script.onload=onLoad;script.onerror=onError;document.head.appendChild(script);}
-  else{script.addEventListener('load',onLoad);script.addEventListener('error',onError);if((window as any).Html5Qrcode)onLoad();}
-  return()=>{script?.removeEventListener('load',onLoad);script?.removeEventListener('error',onError);};
+  if((window as any).Html5Qrcode){setScannerLibraryLoaded(true);return;}
+  let cancelled=false;let script:HTMLScriptElement|null=null;let index=0;
+  const loadNext=()=>{
+   if(cancelled)return;
+   if(index>=scannerLibraryUrls.length){setCameraMessage('The QR scanner could not load from either source. Check internet access, then reload this page. You can still use the manual QR fallback.');return;}
+   const url=scannerLibraryUrls[index++];
+   script=document.createElement('script');script.src=url;script.async=true;script.crossOrigin='anonymous';
+   script.onload=()=>{if((window as any).Html5Qrcode)setScannerLibraryLoaded(true);else loadNext();};
+   script.onerror=()=>{script?.remove();loadNext();};
+   document.head.appendChild(script);
+  };
+  loadNext();
+  return()=>{cancelled=true;};
  },[]);
 
  const attendanceByStudent=useMemo(()=>{
@@ -161,7 +167,7 @@ export default function AttendancePage(){
     lastDecodeNoticeRef.current=Date.now();
     setCameraMessage('Camera is on and searching. Hold the full student passport QR close, flat, and centered in the viewfinder.');
    }catch(e:any){
-    setCameraMessage(e?.message||'Camera could not start. Allow camera permission and open this page over HTTPS.');setCameraActive(false);
+    setCameraMessage((e?.message||String(e)||'Camera could not start.')+' Check that this page is opened over HTTPS and camera permission is allowed. If the rear camera is unavailable, reload and try again.');setCameraActive(false);
     if(scanner){try{if(scanner.isScanning)await scanner.stop();}catch{}try{scanner.clear();}catch{}}
    }
   }
