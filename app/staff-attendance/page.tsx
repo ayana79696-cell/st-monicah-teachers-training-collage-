@@ -132,6 +132,10 @@ export default function StaffAttendancePage(){
   setBusy(member.id+':'+action);
   try{
    const geo:GeoEvidence=!canManage?await requestLocation():null;
+   if(!navigator.onLine){
+    if(!isOwn){setError('For security, offline attendance can only be queued for your own linked staff profile.');return;}
+    queueOffline(member,action,geo);return;
+   }
    const method=canManage?'manual':'self_service';
    const {data,error:rpcError}=await db.rpc('college_record_staff_attendance',{
     p_staff_id:member.id,p_action:action,p_method:method,
@@ -269,6 +273,51 @@ export default function StaffAttendancePage(){
     <footer className="staff-register-footer"><span>{register.length} staff records shown</span><span>Attendance date: {selectedDate} · Kenya time</span></footer>
    </section>
 
+   {canManage&&<section className="staff-register-panel" style={{marginTop:20}}>
+    <div className="staff-register-title"><div><p className="staff-eyebrow">SECURITY & CONFIGURATION</p><h2>Campus geofence and attendance rules</h2><p className="staff-muted">Geofencing stays off until HR enters the actual campus coordinates and deliberately enables it.</p></div><span className="staff-status empty">{settings?.geofence_enforced?'Geofence enforced':'Setup required'}</span></div>
+    <div className="staff-form-grid">
+     <label>Campus name<input value={campusName} onChange={e=>setCampusName(e.target.value)}/></label>
+     <label>Campus latitude<input type="number" step="any" value={campusLat} onChange={e=>setCampusLat(e.target.value)} placeholder="-0.0000000"/></label>
+     <label>Campus longitude<input type="number" step="any" value={campusLng} onChange={e=>setCampusLng(e.target.value)} placeholder="36.0000000"/></label>
+     <label>Permitted radius (metres)<input type="number" min="25" max="2000" value={radius} onChange={e=>setRadius(e.target.value)}/></label>
+     <label>Late grace period (minutes)<input type="number" min="0" max="180" value={graceMinutes} onChange={e=>setGraceMinutes(e.target.value)}/></label>
+     <label>Standard shift length (minutes)<input type="number" min="60" max="960" value={shiftMinutes} onChange={e=>setShiftMinutes(e.target.value)}/></label>
+    </div>
+    <label className="staff-toggle"><input type="checkbox" checked={enforceFence} onChange={e=>setEnforceFence(e.target.checked)}/> Enforce campus geofencing for self-service check-in/check-out</label>
+    <p className="staff-muted">Important: use the college’s verified coordinates, not an approximate town location. Once enabled, self-service check-in/out outside the radius is rejected.</p>
+    <button style={buttonStyle} disabled={busy==='settings'} onClick={()=>void saveAttendanceSettings()}>{busy==='settings'?'Saving…':'Save attendance rules'}</button>
+   </section>}
+
+   {canManage&&<section className="staff-register-panel" style={{marginTop:20}}>
+    <div className="staff-register-title"><div><p className="staff-eyebrow">WORKFORCE PLANNING</p><h2>Shift scheduler</h2><p className="staff-muted">Assign start/end times; attendance will flag late arrivals using the configured grace period.</p></div></div>
+    <form onSubmit={saveShift} className="staff-form-grid">
+     <label>Staff member<select required value={shiftStaffId} onChange={e=>setShiftStaffId(e.target.value)}><option value="">Choose staff</option>{staff.map(s=><option key={s.id} value={s.id}>{s.full_name} · {s.staff_number}</option>)}</select></label>
+     <label>Shift date<input required type="date" value={shiftDate} onChange={e=>setShiftDate(e.target.value)}/></label>
+     <label>Start time<input required type="time" value={shiftStart} onChange={e=>setShiftStart(e.target.value)}/></label>
+     <label>End time<input required type="time" value={shiftEnd} onChange={e=>setShiftEnd(e.target.value)}/></label>
+     <label>Break (minutes)<input type="number" min="0" max="240" value={shiftBreak} onChange={e=>setShiftBreak(e.target.value)}/></label>
+     <label>Notes<input value={shiftNote} onChange={e=>setShiftNote(e.target.value)} placeholder="Optional shift note"/></label>
+     <div><button style={buttonStyle} disabled={busy==='shift'||!staff.length}>{busy==='shift'?'Saving…':'Save shift'}</button></div>
+    </form>
+    <div className="staff-table-wrap"><table className="staff-table"><thead><tr><th>Staff</th><th>Date</th><th>Scheduled shift</th><th>Break</th><th>Attendance result</th></tr></thead><tbody>{shifts.map(s=>{const m=staff.find(x=>x.id===s.staff_id);const rec=records.find(x=>x.staff_id===s.staff_id);return <tr key={s.id}><td>{m?.full_name||'Staff member'}</td><td>{s.shift_date}</td><td>{s.starts_at.slice(0,5)}–{s.ends_at.slice(0,5)}</td><td>{s.break_minutes} min</td><td>{rec?.status==='late'?'Late arrival':rec?.check_in_at?'Checked in':'Awaiting check-in'}</td></tr>})}{!shifts.length&&<tr><td colSpan={5} className="staff-empty">No shifts scheduled for this date.</td></tr>}</tbody></table></div>
+   </section>}
+
+   <section className="staff-register-panel" style={{marginTop:20}}>
+    <div className="staff-register-title"><div><p className="staff-eyebrow">CONTINUITY & IDENTITY</p><h2>Offline sync and staff badge</h2><p className="staff-muted">Offline actions stay on this device until you sync. Staff credentials are private and can be printed for identification.</p></div></div>
+    <div className="staff-tools-row"><div><strong>{offlineQueue.length} pending offline action(s)</strong><p className="staff-muted">The original queued time is preserved in the record note. A sync uses server time for the official timestamp.</p></div><button style={buttonStyle} disabled={!offlineQueue.length||busy==='offline-sync'||!navigator.onLine} onClick={()=>void syncOfflineQueue()}>{busy==='offline-sync'?'Syncing…':'Sync pending actions'}</button></div>
+    {offlineQueue.length>0&&<ul className="staff-alert warn">{offlineQueue.map(q=><li key={q.id}>{staff.find(s=>s.id===q.staffId)?.full_name||'Staff'} — {q.action.replace('_',' ')} queued {new Date(q.queuedAt).toLocaleString()}</li>)}</ul>}
+    {canManage&&<div className="staff-badge-tools"><label>Staff member for badge<select value={qrStaffId} onChange={e=>setQrStaffId(e.target.value)}><option value="">Choose staff</option>{staff.map(s=><option key={s.id} value={s.id}>{s.full_name} · {s.staff_number}</option>)}</select></label><button style={secondaryStyle} disabled={!qrStaffId||busy==='badge'} onClick={()=>void issueStaffBadge()}>{busy==='badge'?'Issuing…':'Issue staff credential'}</button></div>}
+    {issuedBadge&&<div className="staff-issued-badge"><div><small>ST. MONICAH TEACHERS TRAINING COLLEGE</small><h3>{issuedBadge.staffName}</h3><p>{issuedBadge.staffNo}</p><small>Private attendance credential · expires {new Date(issuedBadge.expiresAt).toLocaleDateString()}</small><code>{issuedBadge.token}</code><p className="staff-muted">This is a unique credential token. A camera-scannable QR code and scan-to-check-in workflow are not enabled in this version.</p></div><button style={buttonStyle} onClick={printBadge}>Print badge</button></div>}
+   </section>
+
+   <section className="staff-register-panel" style={{marginTop:20}}>
+    <div className="staff-register-title"><div><p className="staff-eyebrow">ATTENDANCE QUALITY</p><h2>Review alerts</h2><p className="staff-muted">These flags are decision-support only; HR should verify before taking action.</p></div><button style={secondaryStyle} onClick={()=>setReviewAlerts(!reviewAlerts)}>{reviewAlerts?'Hide alerts':'Show alerts'}</button></div>
+    {reviewAlerts&&<div className="staff-alert-list">
+     {register.filter(({record})=>record&&(!record.check_out_at||record.status==='late')).map(({member,record})=><article key={member.id}><strong>{member.full_name}</strong><span>{record?.status==='late'?'Late arrival — check scheduled shift and approved exceptions.':record?.check_in_at&&!record.check_out_at?'Missing check-out — confirm whether the shift is still in progress.':'Review attendance record.'}</span></article>)}
+     {register.filter(({record})=>record&&(!record.check_out_at||record.status==='late')).length===0&&<p className="staff-muted">No automatic review flags for this date.</p>}
+    </div>}
+   </section>
+
    <section className="staff-modern-strip"><div className="staff-modern-icon">⌖</div><div><strong>One-time location evidence</strong><p>Self-service check-in/out can store GPS coordinates and accuracy when the staff member grants browser permission. This version records the location evidence but does not enforce a campus radius yet; that requires the college’s exact campus coordinates and approved radius.</p></div><div className="staff-modern-tag">PRIVACY-AWARE</div></section>
    <footer className="staff-page-footer">St. Monicah Teachers Training College · Staff attendance register · Student attendance data is not used on this page.</footer>
   </section>
@@ -294,7 +343,8 @@ export default function StaffAttendancePage(){
    .staff-modern-strip{display:flex;align-items:center;gap:16px;border:1px solid #e6d6b9;background:#fffaf0;border-radius:15px;padding:16px 20px;margin-top:18px}.staff-modern-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#f0e2bf;color:#7e5b14;font-size:22px;flex-shrink:0}.staff-modern-strip strong{color:#614416;font-size:12px}.staff-modern-strip p{margin:5px 0 0;font-size:11px;line-height:1.5;color:#806d4d}.staff-modern-tag{margin-left:auto;border:1px solid #e3d0a7;color:#806022;padding:6px 9px;border-radius:99px;font-size:9px;font-weight:800;letter-spacing:.08em;white-space:nowrap}
    .staff-page-footer{text-align:center;padding:22px 0;color:#a28d96;font-size:10px}.staff-attendance-page button:disabled{opacity:.5;cursor:not-allowed}
    @media(max-width:1000px){.staff-topbar{gap:12px}.staff-topbar .erp-navigation{order:3;flex-basis:100%}.staff-self-card{grid-template-columns:1fr 1fr}.staff-self-actions{grid-column:1/-1}.staff-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-   @media(max-width:620px){.staff-topbar{padding:12px}.staff-user{margin-left:auto}.staff-user span{display:none}.staff-page-heading{flex-direction:column}.staff-self-card{grid-template-columns:1fr;padding:18px}.staff-self-state{border-left:0;border-top:1px solid #a77a89;padding:14px 0 0}.staff-self-actions button{flex:1}.staff-stat-grid{gap:9px}.staff-stat-grid article{padding:13px!important}.staff-register-title{flex-direction:column}.staff-register-tools label,.staff-register-tools input{width:100%}.staff-date-hint{padding:0}.staff-modern-strip{align-items:flex-start;flex-wrap:wrap}.staff-modern-tag{margin-left:56px}.staff-content{padding:14px}.staff-register-panel{padding:13px}}
+   @media(max-width:620px){.staff-form-grid{grid-template-columns:1fr}.staff-tools-row,.staff-issued-badge{align-items:stretch;flex-direction:column}.staff-alert-list article{align-items:flex-start;flex-direction:column;gap:5px}.staff-alert-list article strong{min-width:0}.staff-topbar{padding:12px}.staff-user{margin-left:auto}.staff-user span{display:none}.staff-page-heading{flex-direction:column}.staff-self-card{grid-template-columns:1fr;padding:18px}.staff-self-state{border-left:0;border-top:1px solid #a77a89;padding:14px 0 0}.staff-self-actions button{flex:1}.staff-stat-grid{gap:9px}.staff-stat-grid article{padding:13px!important}.staff-register-title{flex-direction:column}.staff-register-tools label,.staff-register-tools input{width:100%}.staff-date-hint{padding:0}.staff-modern-strip{align-items:flex-start;flex-wrap:wrap}.staff-modern-tag{margin-left:56px}.staff-content{padding:14px}.staff-register-panel{padding:13px}}
+   .staff-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}.staff-form-grid label,.staff-badge-tools label{display:grid;gap:6px;font-size:11px;font-weight:800;color:#806a75}.staff-form-grid input,.staff-form-grid select,.staff-badge-tools select{width:100%;border:1px solid #e1d2d8;border-radius:9px;padding:10px;background:#fff;min-height:40px;color:#342630}.staff-toggle{display:flex;gap:9px;align-items:center;margin:15px 0;font-size:12px;color:#641c35;font-weight:700}.staff-tools-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.staff-badge-tools{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-top:16px}.staff-badge-tools label{min-width:240px}.staff-issued-badge{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px dashed #c8a7b3;border-radius:14px;padding:16px;margin-top:14px}.staff-issued-badge h3{margin:7px 0;color:#641c35}.staff-issued-badge p{margin:4px 0}.staff-issued-badge code{display:block;word-break:break-all;font-size:10px;background:#f8f1f3;padding:8px;border-radius:8px;margin-top:10px}.staff-alert-list{display:grid;gap:8px;margin-top:14px}.staff-alert-list article{display:flex;gap:14px;align-items:center;padding:12px;border-radius:10px;background:#fff8e9;border:1px solid #ead9ad;font-size:12px}.staff-alert-list article strong{min-width:170px;color:#614416}.staff-alert-list article span{color:#806d4d}.staff-tools-row p{margin:5px 0 0}.staff-form-grid button:disabled{opacity:.4}
    @media print{.staff-topbar,.staff-page-heading,.staff-self-card,.staff-stat-grid,.staff-register-tools,.staff-report-buttons,.staff-modern-strip,.staff-page-footer,.staff-alert,.staff-row-actions{display:none!important}.staff-attendance-page{background:white}.staff-content{padding:0}.staff-register-panel{border:0;box-shadow:none;padding:0}.staff-table{min-width:0}.staff-table th,.staff-table td{font-size:9px;padding:6px}}
   `}</style>
  </main>;
