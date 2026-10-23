@@ -105,15 +105,25 @@ export default function AttendancePage(){
  const recordQrAttendance=useCallback(async(raw:string)=>{
   const token=parseQrToken(raw);
   if(!token){setLastScan({error:'This QR code does not contain a valid college passport token. Scan the QR printed on the student passport.'});setError('Unrecognized QR code. Scan the QR printed on a St. Monicah student passport.');return;}
-  const now=Date.now();if(lastScannedRef.current.token===token&&now-lastScannedRef.current.at<2200)return;if(processingRef.current)return;
+  const now=Date.now();if(lastScannedRef.current.token===token&&now-lastScannedRef.current.at<1800)return;if(processingRef.current)return;
   processingRef.current=true;lastScannedRef.current={token,at:now};setScanBusy(true);setError('');setNotice('');setCameraMessage('QR code detected. Validating the student passport and saving attendance…');
   try{
    const {data,error:e}=await createClient().rpc('record_college_qr_attendance',{p_token:token});if(e)throw e;
    const result=(Array.isArray(data)?data[0]:data) as ScanReceipt|null;if(!result)throw new Error('The attendance service returned no result. Please scan again.');
-   setLastScan(result);setCameraMessage(result.already_marked?'Passport QR read successfully. This trainee was already marked present today.':'Passport QR read successfully. Attendance has been saved.');setNotice(result.already_marked?'This trainee is already marked present today. The original arrival time has been kept.':(result.student_name||'Student')+' marked present successfully.');
-   await loadRegister(registerDate,false);
+   setLastScan(result);
+   setCameraMessage(result.already_marked?'Already checked in. Ready for the next student.':'Checked in successfully. Ready for the next student.');
+   setNotice(result.already_marked?(result.student_name||'This trainee')+' is already marked present. Ready for the next scan.':(result.student_name||'Student')+' checked in. Ready for the next scan.');
+   // Update the visible register locally; avoid re-fetching students, programmes and the entire day's attendance after every scan.
+   if(result.student_id&&result.attendance_id){
+    const scannedAt=result.scanned_at||new Date().toISOString();
+    setRecords(previous=>{
+     const existing=previous.find(record=>record.student_id===result.student_id);
+     if(existing)return previous.map(record=>record.student_id===result.student_id?{...existing,id:result.attendance_id!,status:result.status||existing.status,scanned_at:existing.scanned_at||scannedAt,entry_method:result.entry_method||'qr'}:record);
+     return [{id:result.attendance_id!,student_id:result.student_id!,session_date:result.session_date||registerDate,status:result.status||'present',scanned_at:scannedAt,entry_method:result.entry_method||'qr'},...previous];
+    });
+   }
   }catch(e:any){const message=e?.message||'The QR scan could not be recorded. Please try again.';setCameraMessage('The QR was read by the camera, but attendance could not be saved. Check the error message and try again.');setLastScan({error:message});setError(message);}
-  finally{setScanBusy(false);window.setTimeout(()=>{processingRef.current=false;},700);}
+  finally{setScanBusy(false);processingRef.current=false;}
  },[loadRegister,registerDate]);
 
  useEffect(()=>{
@@ -132,11 +142,11 @@ export default function AttendancePage(){
     await scanner.start(
       {facingMode:{ideal:'environment'}},
       {
-        fps:15,
+        fps:18,
         qrbox:(w:number,h:number)=>{const size=Math.max(140,Math.min(320,Math.floor(Math.min(w,h)*0.88)));return {width:size,height:size};},
         aspectRatio:1.0,
         disableFlip:false,
-        videoConstraints:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+        videoConstraints:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}}
       },
       (decodedText:string)=>{void recordQrAttendance(decodedText);},
       (_decodeError:string)=>{
