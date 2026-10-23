@@ -191,7 +191,8 @@ export default function AttendancePage(){
   setWeeklyLoading(true);setError('');
   try{const end=addDays(weekStart,6);const db=createClient();const {data,error:e}=await db.from('college_attendance').select('id,student_id,session_date,status,notes,scanned_at,entry_method,created_at').gte('session_date',weekStart).lte('session_date',end).is('unit_id',null).order('session_date').order('scanned_at',{ascending:true,nullsFirst:false}).limit(12000);if(e)throw e;setWeeklyRecords((data||[]) as AttendanceRecord[]);setReportType('weekly');setReportPrinting(true);window.setTimeout(()=>window.print(),350);}
   catch(e:any){setError(e?.message||'Unable to prepare the weekly attendance report.');}
-  finally{setWeeklyLoading(false);}\n }
+  finally{setWeeklyLoading(false);}
+ }
  useEffect(()=>{const done=()=>setReportPrinting(false);window.addEventListener('afterprint',done);return()=>window.removeEventListener('afterprint',done)},[]);
  function exportRegister(){
   const lines=[['Date','Admission number','Student name','Programme','Attendance status','Method','Time scanned'],
