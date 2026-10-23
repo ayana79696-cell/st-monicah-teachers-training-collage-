@@ -107,7 +107,6 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const redirectTo = new URL('/update-password', ownOrigin).toString();
   const { data: created, error: inviteError } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name: fullName, department: department || null } });
   if (inviteError || !created.user) {
     return NextResponse.json({
