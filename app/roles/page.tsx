@@ -40,6 +40,7 @@ export default function RolesPage(){
  const [departmentDrafts,setDepartmentDrafts]=useState<Record<string,string>>({});
  const [inviteName,setInviteName]=useState('');
  const [inviteEmail,setInviteEmail]=useState('');
+ const [invitePassword,setInvitePassword]=useState('');
  const [invitePhone,setInvitePhone]=useState('');
  const [inviteRole,setInviteRole]=useState('lecturer');
  const [inviteDepartment,setInviteDepartment]=useState('');
@@ -89,12 +90,13 @@ export default function RolesPage(){
     full_name:inviteName.trim(),email:inviteEmail.trim(),phone:invitePhone.trim()||null,
     role:inviteRole,department:inviteDepartment.trim()||null,
     student_id:inviteRole==='student'?inviteStudentId:null,
-    staff_id:inviteRole==='lecturer'?inviteStaffId:null
+    staff_id:inviteRole!=='student'?(inviteStaffId||null):null,
+    password:invitePassword
    })});
    const result=await response.json();
    if(!response.ok)throw new Error(result?.error||'Invitation failed.');
    setNotice(result.message||'Invitation email requested.');
-   setInviteName('');setInviteEmail('');setInvitePhone('');setInviteDepartment('');
+   setInviteName('');setInviteEmail('');setInvitePassword('');setInvitePhone('');setInviteDepartment('');
    setInviteStudentId('');setInviteStaffId('');
    await load();
   }catch(e:any){setError(e?.message||'Unable to create account invitation.');}
@@ -132,11 +134,12 @@ export default function RolesPage(){
    {error&&<p className="error-message" role="alert">{error}</p>}{notice&&<p className="success-message" role="status">{notice}</p>}
    {profile?.role==='super_admin'&&<><div className="roles-stats"><article><span>Login profiles</span><strong>{users.length}</strong></article><article><span>Active accounts</span><strong>{users.filter(u=>u.active).length}</strong></article><article><span>Suspended accounts</span><strong>{users.filter(u=>!u.active).length}</strong></article><article><span>Role types</span><strong>{new Set(users.map(u=>u.role)).size}</strong></article></div>
     <section className="roles-panel roles-invite-panel">
-     <div className="roles-panel-head"><div><p className="eyebrow">ACCOUNT PROVISIONING</p><h2>Invite a college user</h2><p className="muted">The invitee receives a secure email link to set their password. Public sign-up stays disabled.</p></div></div>
+     <div className="roles-panel-head"><div><p className="eyebrow">ACCOUNT PROVISIONING</p><h2>Invite a college user</h2><p className="muted">Create the login now with a password you set. The selected role and staff link are saved at the same time.</p></div></div>
      <form className="roles-invite-form" onSubmit={inviteAccount}>
       <div className="roles-invite-grid">
        <label>Full name<input value={inviteName} onChange={e=>setInviteName(e.target.value)} required maxLength={160} placeholder="Full name"/></label>
        <label>College email<input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} required maxLength={254} placeholder="person@college.edu"/></label>
+       <label>Initial password<input type="password" value={invitePassword} onChange={e=>setInvitePassword(e.target.value)} required minLength={8} autoComplete="new-password" placeholder="At least 8 characters"/></label>
        <label>Phone (optional)<input type="tel" value={invitePhone} onChange={e=>setInvitePhone(e.target.value)} maxLength={40} placeholder="+254…"/></label>
        <label>Role<select value={inviteRole} onChange={e=>{setInviteRole(e.target.value);setInviteDepartment('');setInviteStudentId('');setInviteStaffId('');}}>{roles.filter(r=>r.value!=='super_admin').map(r=><option key={r.value} value={r.value}>{r.label}</option>)}</select></label>
        <label>Department {inviteRole==='hod'?'(required)':'(optional)'}<input value={inviteDepartment} onChange={e=>setInviteDepartment(e.target.value)} required={inviteRole==='hod'} maxLength={140} placeholder="e.g. Teacher Education"/></label>
@@ -145,8 +148,8 @@ export default function RolesPage(){
       </div>
       {inviteRole==='lecturer'&&<p className="muted roles-invite-hint">The staff record is linked automatically. Assign the lecturer to their course units after inviting.</p>}
       {inviteRole==='student'&&<p className="muted roles-invite-hint">This account is linked to exactly one student record. The portal only displays that linked student’s information.</p>}
-      <button className="primary-button" type="submit" disabled={inviteBusy}>{inviteBusy?'Creating invitation…':'Send secure invitation'}</button>
-      <p className="muted roles-invite-hint">This requires the encrypted SUPABASE_SERVICE_ROLE_KEY Vercel variable and configured Supabase email delivery/redirects.</p>
+      <button className="primary-button" type="submit" disabled={inviteBusy}>{inviteBusy?'Creating invitation…':'Create login & assign role'}</button>
+      <p className="muted roles-invite-hint">The password is sent securely to the server for account creation and is not saved in the college profile. Share it securely and ask the staff member to change it after first login.</p>
      </form>
     </section>
     <section className="roles-panel"><div className="roles-panel-head"><div><p className="eyebrow">USER DIRECTORY</p><h2>Manage login permissions</h2><p className="muted">This page changes roles for accounts that already exist in Supabase Authentication.</p></div><button className="secondary-button" onClick={()=>void load()} disabled={loading}>Refresh</button></div>
