@@ -27,6 +27,12 @@ export default function PettyCashPage(){
  const [toDate,setToDate]=useState('');
  const [week,setWeek]=useState('all');
  const [userName,setUserName]=useState('');
+ const [manualAmount,setManualAmount]=useState('');
+ const [manualDate,setManualDate]=useState(today());
+ const [manualDescription,setManualDescription]=useState('Cash added manually');
+ const [manualSource,setManualSource]=useState('');
+ const [manualReceivedBy,setManualReceivedBy]=useState('');
+ const [manualNotes,setManualNotes]=useState('');
  const [authorized,setAuthorized]=useState(false);
 
  const load=useCallback(async()=>{
@@ -100,6 +106,27 @@ export default function PettyCashPage(){
   }catch(e:any){setError(e?.message||'The transaction could not be saved.');}
   finally{setSaving(false);}
  }
+ async function addMoneyManually(e:FormEvent){
+  e.preventDefault();setError('');setNotice('');
+  if(!accountId){setError('Select a petty-cash account first.');return;}
+  if(!(Number(manualAmount)>0)){setError('Enter an amount greater than zero.');return;}
+  if(!manualDescription.trim()){setError('Enter where the money came from or why it was added.');return;}
+  setSaving(true);
+  try{
+   const {data,error:rpcError}=await supabase.rpc('college_record_petty_cash_transaction',{
+    p_account_id:accountId,p_transaction_date:manualDate,p_transaction_type:'money_in',
+    p_description:manualDescription.trim(),p_amount_kes:Number(manualAmount),p_category:'Cash Replenishment',
+    p_department:null,p_paid_to:manualSource.trim()||null,p_received_by:manualReceivedBy.trim()||null,
+    p_supplier_name:null,p_requisition_no:null,p_lpo_no:null,p_invoice_receipt_no:null,
+    p_payment_method:'cash',p_transaction_reference:null,p_notes:manualNotes.trim()||'Manually added to petty cash'
+   });
+   if(rpcError)throw rpcError;
+   setNotice('Money added successfully. Voucher: '+(data as Tx).voucher_no);
+   setManualAmount('');setManualDescription('');setManualSource('');setManualNotes('');
+   await load();
+  }catch(e:any){setError(e?.message||'Could not add money to petty cash.');}
+  finally{setSaving(false);}
+ }
  async function createAccount(e:FormEvent){
   e.preventDefault();setError('');setNotice('');
   if(!accountName.trim()){setError('Enter an account name.');return;}
@@ -132,6 +159,21 @@ export default function PettyCashPage(){
    <article className="module"><div className="module-top"><span className="module-icon">KES</span><span className="arrow">01</span></div><h3>Available balance</h3><p style={{fontSize:20,fontWeight:800,color:'#641c35'}}>{money(liveBalance)}</p><p>{selectedAccount?.name||'Select an account'}</p></article>
    <article className="module"><div className="module-top"><span className="module-icon">IN</span><span className="arrow">02</span></div><h3>Money received · filtered period</h3><p style={{fontSize:20,fontWeight:800,color:'#24613b'}}>{money(moneyIn)}</p><p>{filtered.filter(t=>t.transaction_type==='money_in').length} entries</p></article>
    <article className="module"><div className="module-top"><span className="module-icon">OUT</span><span className="arrow">03</span></div><h3>Money spent · filtered period</h3><p style={{fontSize:20,fontWeight:800,color:'#a12c43'}}>{money(moneyOut)}</p><p>{filtered.filter(t=>t.transaction_type==='money_out').length} entries</p></article>
+  </section>
+  <section className="record-form" style={{border:'2px solid #d7b45a',marginBottom:22}}>
+   <div className="section-head" style={{marginTop:0}}><div><h2>Add Money Manually</h2><p className="muted">Enter cash received or funds you are adding to petty cash. This records a money-in voucher and updates the balance automatically.</p></div></div>
+   <form onSubmit={addMoneyManually}>
+    <div className="form-grid">
+     <label>Petty-cash account<select value={accountId} onChange={e=>setAccountId(e.target.value)} required>{accounts.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
+     <label>Date<input type="date" value={manualDate} onChange={e=>setManualDate(e.target.value)} required/></label>
+     <label>Amount to add (KES)<input type="number" min="0.01" step="0.01" value={manualAmount} onChange={e=>setManualAmount(e.target.value)} required placeholder="Enter amount"/></label>
+     <label>Source / received from<input value={manualSource} onChange={e=>setManualSource(e.target.value)} placeholder="e.g. Bursar, bank withdrawal, refund"/></label>
+     <label>Description / reason<input value={manualDescription} onChange={e=>setManualDescription(e.target.value)} onFocus={()=>{if(manualDescription==='Cash added manually')setManualDescription('');}} required maxLength={500} placeholder="Why is money being added?"/></label>
+     <label>Recorded by<input value={manualReceivedBy} onChange={e=>setManualReceivedBy(e.target.value)} placeholder="Your name (optional)"/></label>
+     <label>Notes<input value={manualNotes} onChange={e=>setManualNotes(e.target.value)} placeholder="Optional notes"/></label>
+    </div>
+    <div className="toolbar"><button className="primary-button" disabled={saving||loading}>{saving?'Adding money…':'Add money to petty cash'}</button></div>
+   </form>
   </section>
   <section className="record-form"><div className="section-head" style={{marginTop:0}}><div><h2>Record transaction</h2><p className="muted">Voucher numbers and balances are generated by the database.</p></div></div>
    <form onSubmit={submit}>
