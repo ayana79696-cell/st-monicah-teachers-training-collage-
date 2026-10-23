@@ -18,7 +18,8 @@ const roles=[
  {value:'hostel_manager',label:'Hostel manager',description:'Accommodation and hostel records'},
  {value:'practice_supervisor',label:'Teaching practice supervisor',description:'Teaching practice placements and visits'},
  {value:'hr',label:'Human resources officer',description:'Staff records, leave workflows and payroll preparation'},
- {value:'procurement_officer',label:'Procurement officer',description:'Stock, procurement and inventory workflows'},
+ {value:'procurement_officer',label:'Procurement officer',description:'Suppliers, purchase orders and procurement workflows'},
+ {value:'storekeeper',label:'Storekeeper / receiving officer',description:'Receive approved deliveries and post accepted stock receipts'},
  {value:'ict_admin',label:'ICT administrator',description:'Technical administration and inventory control'},
  {value:'student',label:'Student',description:'Private self-service access to the linked student record'}
 ];
