@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 type Profile = { id: string; full_name: string; role: string; active: boolean };
 type Programme = { id: string; title: string; code: string };
 type StudentAccount = { id: string; full_name: string };
+type ProviderReadiness = { providers: Record<string, { name: string; configured: boolean; senderConfigured?: boolean; testMode?: boolean; domainConfigured?: boolean; webhookConfigured?: boolean }>; webhooks: { smsCallbackConfigured: boolean; publicBaseUrlConfigured: boolean }; note: string };
 type MessageRow = {
   id: string; audience: string; subject: string; message_body: string; channel: string;
   status: string; created_at: string; programme_id?: string | null; recipient_profile_id?: string | null; delivered_at?: string | null;
@@ -33,6 +34,9 @@ export default function CommunicationsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [providerReadiness, setProviderReadiness] = useState<ProviderReadiness | null>(null);
+  const [providerReadinessError, setProviderReadinessError] = useState('');
+  const [providerReadinessLoading, setProviderReadinessLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
@@ -69,6 +73,18 @@ export default function CommunicationsPage() {
   }, [router]);
 
   useEffect(() => { void load(); }, [load]);
+
+  const loadProviderReadiness = useCallback(async () => {
+    setProviderReadinessLoading(true); setProviderReadinessError('');
+    try {
+      const response = await fetch('/api/communications/providers', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Could not check provider configuration.');
+      setProviderReadiness(data as ProviderReadiness);
+    } catch (e) { setProviderReadinessError(e instanceof Error ? e.message : 'Could not check provider configuration.'); }
+    finally { setProviderReadinessLoading(false); }
+  }, []);
+  useEffect(() => { if (profile && managers.includes(profile.role)) void loadProviderReadiness(); }, [profile, loadProviderReadiness]);
 
   async function saveMessage(mode: 'draft' | 'queue' | 'publish') {
     if (!profile || !managers.includes(profile.role)) return;
@@ -159,6 +175,19 @@ export default function CommunicationsPage() {
             </tbody></table></div>}
         </section>
       </div>}
+      {profile && managers.includes(profile.role) && <section className="communications-panel" style={{ marginBottom: 24 }}>
+        <div className="section-head"><div><h2>Provider integrations & API readiness</h2><p className="muted">Prepare credentials once the college purchases or activates a provider. Secrets are read from server-side environment variables and are never displayed here.</p></div><button className="secondary-button" onClick={() => void loadProviderReadiness()} disabled={providerReadinessLoading}>{providerReadinessLoading ? 'Checking…' : 'Check configuration'}</button></div>
+        {providerReadinessError && <p className="error-message" role="alert">{providerReadinessError}</p>}
+        <div className="communications-grid">
+          <div className="communications-panel"><h3>SMS · Africa&apos;s Talking</h3><p><strong>{providerReadiness?.providers.sms.configured ? 'Credentials present' : 'Needs API credentials'}</strong></p><p className="muted">Set <code>AT_USERNAME</code> and <code>AT_API_KEY</code> in Vercel. Configure <code>AT_SENDER_ID</code> after sender ID approval. Use sandbox credentials for testing; switch to production only after a successful controlled test.</p><span className="message-status">{providerReadiness?.providers.sms.senderConfigured ? 'Sender ID configured' : 'Sender ID not configured'}</span></div>
+          <div className="communications-panel"><h3>Email · Resend</h3><p><strong>{providerReadiness?.providers.email.configured ? 'Credentials present' : 'Needs API credentials'}</strong></p><p className="muted">Set <code>RESEND_API_KEY</code> and <code>EMAIL_FROM</code>. Verify the sending domain and its SPF/DKIM DNS records with the provider before live sending.</p><span className="message-status">{providerReadiness?.providers.email.domainConfigured ? 'Sender address configured' : 'Sender address not configured'}</span></div>
+          <div className="communications-panel"><h3>WhatsApp Business Cloud API</h3><p><strong>{providerReadiness?.providers.whatsapp.configured ? 'Core credentials present' : 'Needs Meta setup and credentials'}</strong></p><p className="muted">Set <code>WHATSAPP_ACCESS_TOKEN</code>, <code>WHATSAPP_PHONE_NUMBER_ID</code>, <code>WHATSAPP_VERIFY_TOKEN</code>, and <code>WHATSAPP_APP_SECRET</code>. Configure an HTTPS webhook URL, business verification where required, approved templates, and recipient opt-in.</p><span className="message-status">{providerReadiness?.providers.whatsapp.webhookConfigured ? 'Webhook URL configured' : 'Webhook URL not configured'}</span></div>
+          <div className="communications-panel"><h3>Delivery callbacks & application URL</h3><p><strong>{providerReadiness?.webhooks.smsCallbackConfigured && providerReadiness?.webhooks.publicBaseUrlConfigured ? 'Callback prerequisites present' : 'Callback setup required'}</strong></p><p className="muted">Set <code>SMS_CALLBACK_SECRET</code> and <code>NEXT_PUBLIC_APP_URL</code>. Callback endpoints must verify provider signatures or shared secrets, handle retries idempotently, and update per-recipient delivery records.</p></div>
+        </div>
+        {providerReadiness && <p className="communications-disclaimer">{providerReadiness.note} A green status only means required environment values exist; it does not validate the API key, prove sender approval, or mean messages can already be sent.</p>}
+        <h3>Production readiness checklist</h3>
+        <ul><li>Provider account active and billing/credits available.</li><li>Production API credentials stored in Vercel Project Settings → Environment Variables (not in chat, GitHub, or browser code).</li><li>Sender ID/domain/WhatsApp number approved by the provider.</li><li>Webhook HTTPS URL registered with the provider and authenticity checks tested.</li><li>Test successful delivery, invalid recipient, provider rejection, timeout, retry, duplicate protection, and opt-out before bulk sends.</li><li>Review role permissions, message templates, consent/preferences, audit trail, and per-channel delivery costs.</li></ul>
+      </section>}
       <footer><span>ST. MONICAH · COLLEGE MANAGEMENT</span><span>Messages are recorded with an audit trail.</span></footer>
     </section>
   </main>;
