@@ -1,7 +1,7 @@
 'use client';
 
 import {useCallback,useEffect,useMemo,useState} from 'react';
-import {useRouter,useSearchParams} from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import ErpNavigation from '@/components/ErpNavigation';
 import {createClient} from '@/lib/supabase/client';
 
@@ -12,8 +12,9 @@ type Permission={id:string;student_id:string;permission_type:string;start_date:s
 const crest='https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._Monicah_Teacher_s_College_Crest.png';
 const managers=['super_admin','principal','hr','registrar'];
 export default function LeaveManagementPage(){
- const router=useRouter();const params=useSearchParams();const db=useMemo(()=>createClient(),[]);
- const [profile,setProfile]=useState<any>(null);const [tab,setTab]=useState(params.get('tab')==='students'?'students':'staff');
+ const router=useRouter();const db=useMemo(()=>createClient(),[]);
+ const [profile,setProfile]=useState<any>(null);const [tab,setTab]=useState('staff');
+ useEffect(()=>{setTab(new URLSearchParams(window.location.search).get('tab')==='students'?'students':'staff');},[]);
  const [staff,setStaff]=useState<Staff[]>([]);const [students,setStudents]=useState<Student[]>([]);const [leaves,setLeaves]=useState<Leave[]>([]);const [permissions,setPermissions]=useState<Permission[]>([]);
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [notice,setNotice]=useState('');const [search,setSearch]=useState('');
  const [staffId,setStaffId]=useState('');const [leaveType,setLeaveType]=useState('annual');const [startDate,setStartDate]=useState(new Date().toISOString().slice(0,10));const [endDate,setEndDate]=useState(new Date().toISOString().slice(0,10));const [reason,setReason]=useState('');const [payStatus,setPayStatus]=useState('paid');const [coverStaffId,setCoverStaffId]=useState('');const [coverNotes,setCoverNotes]=useState('');
