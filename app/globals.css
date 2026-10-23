@@ -939,3 +939,28 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .workspace-subnav .subnav-link{color:#651b37!important;background:#fff!important;border-color:#e8dce1!important;text-shadow:none!important;opacity:1!important}
 .workspace-subnav .subnav-link:hover,.workspace-subnav .subnav-link.subnav-primary{color:#4b1228!important;background:#f8edf2!important;border-color:#dfc0cc!important}
 .workspace-topnav .topnav-link,.workspace-subnav .subnav-link{font-weight:700!important}
+
+
+.attendance-weekly-toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #eee3e8;margin-bottom:12px}
+.attendance-weekly-toolbar label{display:flex;flex-direction:column;gap:5px;color:#6b5260;font-size:11px;font-weight:700}
+.attendance-weekly-toolbar input{min-height:38px;border:1px solid #e3d3db;border-radius:9px;padding:8px 10px;background:#fff;color:#321727}
+.attendance-weekly-toolbar>span{font-size:11px;color:#756570;flex:1 1 auto;padding-bottom:10px}
+.weekly-report-instructions{font-size:9pt;line-height:1.5;margin:8px 0}
+.weekly-signoff{margin-top:16px;break-inside:avoid;page-break-inside:avoid}
+.weekly-signoff h3{font-size:11pt;margin:0 0 6px}
+.weekly-signoff>p{font-size:8pt;line-height:1.4;margin:0 0 12px}
+.weekly-signature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:14px}
+.weekly-signature-grid>div{display:flex;flex-direction:column;gap:12px;font-size:8pt}
+.weekly-signature-grid>div>strong{border-bottom:1px solid #aaa;padding-bottom:5px}
+.weekly-bottom-signatures{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:18px}
+.weekly-report-legend{font-size:8pt;margin:8px 0}
+@media(max-width:650px){.attendance-weekly-toolbar{align-items:stretch}.attendance-weekly-toolbar label,.attendance-weekly-toolbar input{width:100%}.attendance-weekly-toolbar>span{padding:0}}
+@media print{
+ .attendance-weekly-print table{font-size:6.4pt!important;table-layout:fixed!important}
+ .attendance-weekly-print th,.attendance-weekly-print td{padding:3px 2px!important;text-align:center!important;overflow-wrap:anywhere!important}
+ .attendance-weekly-print th:nth-child(3),.attendance-weekly-print td:nth-child(3){text-align:left!important;width:18%!important}
+ .attendance-weekly-print th:nth-child(4),.attendance-weekly-print td:nth-child(4){width:12%!important}
+ .attendance-weekly-print .weekly-signature-grid{gap:12px}
+ .attendance-weekly-print .weekly-signature-grid>div{gap:10px}
+ .attendance-weekly-print .weekly-signoff{break-inside:avoid!important;page-break-inside:avoid!important}
+}
