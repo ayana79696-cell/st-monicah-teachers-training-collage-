@@ -928,3 +928,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .academics-hub-panel h2{font:800 18px Manrope,sans-serif;color:#321928;margin:2px 0 8px}
 .academics-hub-panel p{font-size:12px;line-height:1.8;color:#766b73;margin:0;max-width:720px}
 @media(max-width:520px){.academics-hub-content{padding:24px 14px}.academics-hub-panel{padding:17px;gap:12px}.academics-hub-mark{flex-basis:38px;height:38px}}
+
+
+/* Visibility fix: navigation sits on a light header in the live ERP */
+.workspace-topnav .topnav-link{color:#641b37!important;background:#fff!important;border-color:#eadde3!important;text-shadow:none!important;opacity:1!important}
+.workspace-topnav .topnav-link:hover{color:#4b1228!important;background:#f8eef2!important;border-color:#d9b6c4!important}
+.workspace-topnav .topnav-link.active{color:#421225!important;background:#f3dfb0!important;border-color:#e7cc8b!important}
+.workspace-subnav{border-top-color:#e8dce1!important;background:transparent!important}
+.workspace-subnav .subnav-heading{color:#7a2845!important;opacity:1!important}
+.workspace-subnav .subnav-link{color:#651b37!important;background:#fff!important;border-color:#e8dce1!important;text-shadow:none!important;opacity:1!important}
+.workspace-subnav .subnav-link:hover,.workspace-subnav .subnav-link.subnav-primary{color:#4b1228!important;background:#f8edf2!important;border-color:#dfc0cc!important}
+.workspace-topnav .topnav-link,.workspace-subnav .subnav-link{font-weight:700!important}
