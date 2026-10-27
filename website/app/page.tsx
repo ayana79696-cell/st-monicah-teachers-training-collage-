@@ -6,17 +6,6 @@ const crest = "https://res.cloudinary.com/perlgcll/image/upload/v1792268502/St._
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ fullName: "", email: "", phone: "", course: "", mode: "", intake: "", kcseIndex: "" });
-  const update = (key: keyof typeof form, value: string) => setForm(current => ({ ...current, [key]: value }));
-
-  function submitApplication(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    // Public form UI is prepared. Submission is intentionally not simulated:
-    // connect this handler to the verified Supabase/ERP admissions workflow before launch.
-    setSubmitted(true);
-  }
-
   return (
     <main>
       <div className="topline"><div className="container topline-inner"><span>ST MONICAH TEACHERS TRAINING COLLEGE</span><span>Shaping the teachers who shape tomorrow</span></div></div>
