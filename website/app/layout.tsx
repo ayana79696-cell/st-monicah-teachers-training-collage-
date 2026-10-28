@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./campus-imagery.css";
 
 export const metadata: Metadata = {
   title: "St Monicah Teachers Training College | Learn, Lead, Teach",
