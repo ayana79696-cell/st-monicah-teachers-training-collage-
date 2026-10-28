@@ -42,6 +42,8 @@ export default function HomePage() {
               <figure className="gallery-photo"><img src="https://res.cloudinary.com/perlgcll/image/upload/v1793146271/1793145254783.jpg" alt="College life at St Monicah Teachers Training College" loading="lazy" /><figcaption>College life</figcaption></figure>
               <figure className="gallery-photo"><img src="https://res.cloudinary.com/perlgcll/image/upload/v1793146271/1793145277606.jpg" alt="Teaching and student development at St Monicah" loading="lazy" /><figcaption>Teaching and growth</figcaption></figure>
               <figure className="gallery-photo gallery-photo-wide"><img src="https://res.cloudinary.com/perlgcll/image/upload/v1793146270/1793145258997.jpg" alt="St Monicah Teachers Training College community" loading="lazy" /><figcaption>Our college community</figcaption></figure>
+              <figure className="gallery-photo"><img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=900&q=85" alt="Bookshelves in a library, supporting a culture of reading and learning" loading="lazy" /><figcaption>A world of knowledge</figcaption></figure>
+              <figure className="gallery-photo"><img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=85" alt="A bright classroom prepared for collaborative learning" loading="lazy" /><figcaption>Learning in action</figcaption></figure>
             </div>
           </div></div></section>
 
