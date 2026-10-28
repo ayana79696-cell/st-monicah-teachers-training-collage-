@@ -1,0 +1,124 @@
+/* Campus imagery woven into the website, not confined to the gallery. */
+:root {
+  --campus-photo-one: url("https://res.cloudinary.com/perlgcll/image/upload/v1793146272/1793145262838.jpg");
+  --campus-photo-two: url("https://res.cloudinary.com/perlgcll/image/upload/v1793146271/1793145254783.jpg");
+  --campus-photo-three: url("https://res.cloudinary.com/perlgcll/image/upload/v1793146271/1793145277606.jpg");
+}
+
+/* A real campus photograph sits softly behind the hero illustration. */
+.hero-art {
+  isolation: isolate;
+}
+.hero-art::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 5% -4% 3% 0;
+  border-radius: 48% 48% 28px 28px;
+  background:
+    linear-gradient(135deg, rgba(32,33,38,.40), rgba(32,33,38,.12)),
+    var(--campus-photo-one) center / cover;
+  opacity: .48;
+  filter: saturate(.72);
+  mask-image: radial-gradient(ellipse at center, #000 25%, transparent 76%);
+  pointer-events: none;
+}
+
+/* Campus photography becomes a quiet editorial watermark in the about section. */
+.about-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.about-section::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -4%;
+  top: 12%;
+  width: min(34vw, 440px);
+  height: 76%;
+  background:
+    linear-gradient(90deg, #fdfdfb 0%, rgba(253,253,251,.55) 45%, rgba(253,253,251,.12) 100%),
+    var(--campus-photo-two) center / cover;
+  opacity: .20;
+  border-radius: 48% 0 0 48%;
+  pointer-events: none;
+}
+
+/* Programme cards use softly blended campus imagery beneath the text. */
+.programme-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.programme-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--campus-photo-three) center / cover;
+  opacity: .13;
+  mix-blend-mode: luminosity;
+  transition: opacity .35s ease, transform .6s ease;
+}
+.programme-card:hover::before {
+  opacity: .23;
+  transform: scale(1.04);
+}
+.card-light::before {
+  background-image: var(--campus-photo-two);
+  opacity: .10;
+  mix-blend-mode: multiply;
+}
+.card-gold::before {
+  background-image: var(--campus-photo-one);
+  opacity: .09;
+  mix-blend-mode: multiply;
+}
+
+/* The admissions band gains a subtle photographic texture without hurting readability. */
+.admissions-band {
+  isolation: isolate;
+}
+.admissions-band::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(32,33,38,.96) 0%, rgba(32,33,38,.91) 58%, rgba(32,33,38,.72) 100%),
+    var(--campus-photo-two) center 42% / cover;
+  opacity: .42;
+  pointer-events: none;
+}
+
+/* The campus section gets a faint image wash around the copy and gallery. */
+.campus-section {
+  background:
+    linear-gradient(115deg, rgba(253,253,251,.98), rgba(253,253,251,.93)),
+    var(--campus-photo-one) center / cover fixed;
+}
+
+/* Keep all photographic treatments restrained on small screens and respect motion settings. */
+@media (max-width: 760px) {
+  .hero-art::before {
+    inset: 8% 0 0;
+    opacity: .30;
+  }
+  .about-section::after {
+    right: -20%;
+    top: 35%;
+    width: 70%;
+    height: 45%;
+    opacity: .11;
+  }
+  .campus-section {
+    background-attachment: scroll;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .programme-card::before {
+    transition: none;
+  }
+}
